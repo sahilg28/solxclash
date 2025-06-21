@@ -1,28 +1,36 @@
 import React, { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
-import { TrendingUp, Clock, Trophy, Zap, Play, Pause, RotateCcw, Target } from 'lucide-react';
+import { TrendingUp, Clock, Trophy, Zap, Play, RotateCcw, Target, Wifi, WifiOff, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import { useAuthContext } from '../components/AuthProvider';
+import { useGameLogic } from '../hooks/useGameLogic';
 import TradingViewChart from '../components/TradingViewChart';
 
 const CryptoClashPage = () => {
-  const { user, profile, loading } = useAuthContext();
-  const [selectedCoin, setSelectedCoin] = useState('BINANCE:BTCUSDT');
-  const [gameActive, setGameActive] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(60);
-  const [prediction, setPrediction] = useState<'up' | 'down' | null>(null);
-  const [currentPrice, setCurrentPrice] = useState<number | null>(null);
+  const { user, profile, loading: authLoading } = useAuthContext();
+  const {
+    gameState,
+    currentPrice,
+    priceConnected,
+    startGame,
+    makePrediction,
+    resetGame,
+    loading: gameLoading,
+    error: gameError
+  } = useGameLogic();
 
-  // Cryptocurrency options
+  const [selectedCoin, setSelectedCoin] = useState('BTC');
+
+  // Updated cryptocurrency options with correct coins
   const cryptoOptions = [
     { symbol: 'BINANCE:BTCUSDT', name: 'Bitcoin', ticker: 'BTC', color: 'text-orange-400' },
     { symbol: 'BINANCE:ETHUSDT', name: 'Ethereum', ticker: 'ETH', color: 'text-blue-400' },
     { symbol: 'BINANCE:SOLUSDT', name: 'Solana', ticker: 'SOL', color: 'text-purple-400' },
-    { symbol: 'BINANCE:ADAUSDT', name: 'Cardano', ticker: 'ADA', color: 'text-blue-500' },
-    { symbol: 'BINANCE:DOTUSDT', name: 'Polkadot', ticker: 'DOT', color: 'text-pink-400' }
+    { symbol: 'BINANCE:BNBUSDT', name: 'BNB', ticker: 'BNB', color: 'text-yellow-500' },
+    { symbol: 'BINANCE:XRPUSDT', name: 'XRP', ticker: 'XRP', color: 'text-blue-500' }
   ];
 
   // Show loading state while authentication is being determined
-  if (loading) {
+  if (authLoading) {
     return (
       <div className="min-h-screen bg-black pt-16 flex items-center justify-center">
         <div className="text-center">
@@ -38,44 +46,39 @@ const CryptoClashPage = () => {
     return <Navigate to="/" replace />;
   }
 
-  // Game timer effect
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    
-    if (gameActive && timeLeft > 0) {
-      interval = setInterval(() => {
-        setTimeLeft(prev => prev - 1);
-      }, 1000);
-    } else if (timeLeft === 0) {
-      setGameActive(false);
-      // Here you would typically resolve the prediction
-      setTimeout(() => {
-        setTimeLeft(60);
-        setPrediction(null);
-      }, 3000);
-    }
+  const selectedCoinData = cryptoOptions.find(coin => coin.ticker === selectedCoin);
+  const isGameActive = gameState.status === 'active';
+  const isGameCompleted = gameState.status === 'completed';
+  const isGameResolving = gameState.status === 'resolving';
 
-    return () => clearInterval(interval);
-  }, [gameActive, timeLeft]);
-
-  const startGame = () => {
-    setGameActive(true);
-    setTimeLeft(60);
-    setPrediction(null);
+  const handleStartGame = async () => {
+    await startGame(selectedCoin);
   };
 
-  const makePrediction = (direction: 'up' | 'down') => {
-    if (!gameActive) return;
-    setPrediction(direction);
+  const handleMakePrediction = async (prediction: 'up' | 'down') => {
+    await makePrediction(prediction);
   };
 
-  const resetGame = () => {
-    setGameActive(false);
-    setTimeLeft(60);
-    setPrediction(null);
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const selectedCoinData = cryptoOptions.find(coin => coin.symbol === selectedCoin);
+  const formatPrice = (price: number | null) => {
+    if (!price) return 'N/A';
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 8
+    }).format(price);
+  };
+
+  const getPriceChange = () => {
+    if (!gameState.startPrice || !gameState.endPrice) return null;
+    return ((gameState.endPrice - gameState.startPrice) / gameState.startPrice) * 100;
+  };
 
   return (
     <div className="min-h-screen bg-black pt-16">
@@ -89,6 +92,30 @@ const CryptoClashPage = () => {
             Predict crypto price movements in real-time. Choose your coin, make your prediction, and win rewards!
           </p>
         </div>
+
+        {/* Connection Status */}
+        <div className="flex items-center justify-center mb-6">
+          <div className={`flex items-center space-x-2 px-4 py-2 rounded-lg ${
+            priceConnected 
+              ? 'bg-green-500/10 border border-green-500/20 text-green-400' 
+              : 'bg-red-500/10 border border-red-500/20 text-red-400'
+          }`}>
+            {priceConnected ? <Wifi className="w-4 h-4" /> : <WifiOff className="w-4 h-4" />}
+            <span className="text-sm font-medium">
+              {priceConnected ? 'Live Price Feed Connected' : 'Price Feed Disconnected'}
+            </span>
+          </div>
+        </div>
+
+        {/* Error Display */}
+        {gameError && (
+          <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 mb-6">
+            <div className="flex items-center space-x-2">
+              <AlertCircle className="w-5 h-5 text-red-400" />
+              <span className="text-red-400">{gameError}</span>
+            </div>
+          </div>
+        )}
 
         {/* User Stats Bar */}
         <div className="bg-gradient-to-r from-gray-900/80 to-black/80 backdrop-blur-xl border border-yellow-400/20 rounded-xl p-4 mb-8">
@@ -130,6 +157,11 @@ const CryptoClashPage = () => {
                   <span className="text-white font-semibold">{profile.games_played}</span>
                   <span className="text-gray-400">Games</span>
                 </div>
+                <div className="flex items-center space-x-1">
+                  <span className="text-orange-400">🔥</span>
+                  <span className="text-white font-semibold">{profile.streak}</span>
+                  <span className="text-gray-400">Streak</span>
+                </div>
               </div>
             </div>
             
@@ -150,9 +182,19 @@ const CryptoClashPage = () => {
               <div className="p-6 border-b border-gray-700">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-2xl font-bold text-white">Live Chart</h2>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                    <span className="text-sm text-green-400">Live</span>
+                  <div className="flex items-center space-x-4">
+                    {currentPrice && (
+                      <div className="text-right">
+                        <div className="text-sm text-gray-400">Current Price</div>
+                        <div className="text-lg font-bold text-yellow-400">
+                          {formatPrice(currentPrice)}
+                        </div>
+                      </div>
+                    )}
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                      <span className="text-sm text-green-400">Live</span>
+                    </div>
                   </div>
                 </div>
                 
@@ -160,15 +202,18 @@ const CryptoClashPage = () => {
                 <div className="flex flex-wrap gap-2">
                   {cryptoOptions.map((coin) => (
                     <button
-                      key={coin.symbol}
-                      onClick={() => setSelectedCoin(coin.symbol)}
+                      key={coin.ticker}
+                      onClick={() => setSelectedCoin(coin.ticker)}
+                      disabled={isGameActive}
                       className={`px-4 py-2 rounded-lg font-semibold transition-all duration-200 ${
-                        selectedCoin === coin.symbol
+                        selectedCoin === coin.ticker
                           ? 'bg-yellow-400 text-black'
+                          : isGameActive
+                          ? 'bg-gray-800 text-gray-500 cursor-not-allowed'
                           : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
                       }`}
                     >
-                      <span className={selectedCoin === coin.symbol ? 'text-black' : coin.color}>
+                      <span className={selectedCoin === coin.ticker ? 'text-black' : coin.color}>
                         {coin.ticker}
                       </span>
                     </button>
@@ -179,7 +224,7 @@ const CryptoClashPage = () => {
               {/* Chart Container */}
               <div className="h-96 lg:h-[500px]">
                 <TradingViewChart
-                  symbol={selectedCoin}
+                  symbol={selectedCoinData?.symbol || 'BINANCE:BTCUSDT'}
                   theme="dark"
                   interval="1"
                   allowSymbolChange={false}
@@ -199,69 +244,119 @@ const CryptoClashPage = () => {
                   {selectedCoinData?.name} Prediction
                 </h3>
                 <div className="text-3xl font-bold text-yellow-400 mb-2">
-                  {selectedCoinData?.ticker}/USDT
+                  {selectedCoin}/USDT
                 </div>
               </div>
+
+              {/* Game Status Display */}
+              {isGameCompleted && (
+                <div className="mb-6 p-4 rounded-lg border-2 border-dashed">
+                  <div className={`text-center ${
+                    gameState.result === 'win' 
+                      ? 'border-green-400 bg-green-400/10' 
+                      : 'border-red-400 bg-red-400/10'
+                  }`}>
+                    <div className="flex items-center justify-center mb-2">
+                      {gameState.result === 'win' ? (
+                        <CheckCircle className="w-8 h-8 text-green-400" />
+                      ) : (
+                        <XCircle className="w-8 h-8 text-red-400" />
+                      )}
+                    </div>
+                    <div className={`text-2xl font-bold mb-2 ${
+                      gameState.result === 'win' ? 'text-green-400' : 'text-red-400'
+                    }`}>
+                      {gameState.result === 'win' ? 'YOU WON!' : 'YOU LOST!'}
+                    </div>
+                    <div className="text-sm text-gray-300 mb-3">
+                      Start: {formatPrice(gameState.startPrice)} → End: {formatPrice(gameState.endPrice)}
+                    </div>
+                    <div className="text-sm text-gray-300 mb-3">
+                      Price Change: {getPriceChange()?.toFixed(2)}%
+                    </div>
+                    {gameState.result === 'win' && (
+                      <div className="space-y-1">
+                        <div className="text-yellow-400 font-bold">+{gameState.xpEarned} XP</div>
+                        {gameState.usdtEarned > 0 && (
+                          <div className="text-blue-400 font-bold">+{gameState.usdtEarned} USDT</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* Timer */}
               <div className="text-center mb-6">
                 <div className="text-4xl font-bold text-white mb-2">
-                  {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+                  {formatTime(gameState.timeLeft)}
                 </div>
                 <div className="text-sm text-gray-400">
-                  {gameActive ? 'Time remaining' : 'Next round starts in'}
+                  {isGameActive ? 'Time remaining' : isGameResolving ? 'Resolving...' : 'Game duration: 5 minutes'}
                 </div>
                 <div className="w-full bg-gray-700 rounded-full h-2 mt-3">
                   <div 
-                    className="bg-yellow-400 h-2 rounded-full transition-all duration-1000"
-                    style={{ width: `${(timeLeft / 60) * 100}%` }}
+                    className={`h-2 rounded-full transition-all duration-1000 ${
+                      isGameResolving ? 'bg-orange-400' : 'bg-yellow-400'
+                    }`}
+                    style={{ width: `${(gameState.timeLeft / 300) * 100}%` }}
                   ></div>
                 </div>
               </div>
 
               {/* Game Controls */}
-              {!gameActive ? (
+              {gameState.status === 'idle' ? (
                 <button
-                  onClick={startGame}
-                  className="w-full bg-yellow-400 text-black py-4 rounded-lg font-semibold text-lg hover:bg-yellow-300 transition-colors duration-200 flex items-center justify-center space-x-2"
+                  onClick={handleStartGame}
+                  disabled={gameLoading || !priceConnected}
+                  className="w-full bg-yellow-400 text-black py-4 rounded-lg font-semibold text-lg hover:bg-yellow-300 transition-colors duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Play className="w-5 h-5" />
-                  <span>Start New Game</span>
+                  <span>{gameLoading ? 'Starting...' : 'Start New Game'}</span>
                 </button>
-              ) : (
+              ) : isGameActive ? (
                 <div className="space-y-4">
-                  {/* Prediction Buttons */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <button
-                      onClick={() => makePrediction('up')}
-                      disabled={!!prediction}
-                      className={`py-4 rounded-lg font-semibold text-lg transition-all duration-200 flex items-center justify-center space-x-2 ${
-                        prediction === 'up'
-                          ? 'bg-green-600 text-white ring-2 ring-green-400'
-                          : prediction
-                          ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                          : 'bg-green-600 hover:bg-green-500 text-white'
-                      }`}
-                    >
-                      <TrendingUp className="w-5 h-5" />
-                      <span>UP</span>
-                    </button>
-                    
-                    <button
-                      onClick={() => makePrediction('down')}
-                      disabled={!!prediction}
-                      className={`py-4 rounded-lg font-semibold text-lg transition-all duration-200 flex items-center justify-center space-x-2 ${
-                        prediction === 'down'
-                          ? 'bg-red-600 text-white ring-2 ring-red-400'
-                          : prediction
-                          ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                          : 'bg-red-600 hover:bg-red-500 text-white'
-                      }`}
-                    >
-                      <TrendingUp className="w-5 h-5 rotate-180" />
-                      <span>DOWN</span>
-                    </button>
+                  {/* Game Info */}
+                  <div className="bg-gray-800/50 rounded-lg p-3 text-center">
+                    <div className="text-sm text-gray-400 mb-1">Starting Price</div>
+                    <div className="text-lg font-bold text-white">
+                      {formatPrice(gameState.startPrice)}
+                    </div>
                   </div>
+
+                  {/* Prediction Buttons */}
+                  {!gameState.prediction ? (
+                    <div className="grid grid-cols-2 gap-4">
+                      <button
+                        onClick={() => handleMakePrediction('up')}
+                        disabled={gameLoading}
+                        className="bg-green-600 hover:bg-green-500 text-white py-4 rounded-lg font-semibold text-lg transition-all duration-200 flex items-center justify-center space-x-2 disabled:opacity-50"
+                      >
+                        <TrendingUp className="w-5 h-5" />
+                        <span>UP</span>
+                      </button>
+                      
+                      <button
+                        onClick={() => handleMakePrediction('down')}
+                        disabled={gameLoading}
+                        className="bg-red-600 hover:bg-red-500 text-white py-4 rounded-lg font-semibold text-lg transition-all duration-200 flex items-center justify-center space-x-2 disabled:opacity-50"
+                      >
+                        <TrendingUp className="w-5 h-5 rotate-180" />
+                        <span>DOWN</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="p-4 bg-yellow-400/10 border border-yellow-400/20 rounded-lg">
+                      <div className="text-center">
+                        <div className="text-sm text-gray-400 mb-1">Your Prediction</div>
+                        <div className={`text-lg font-bold ${
+                          gameState.prediction === 'up' ? 'text-green-400' : 'text-red-400'
+                        }`}>
+                          Price will go {gameState.prediction.toUpperCase()}
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Reset Button */}
                   <button
@@ -272,20 +367,19 @@ const CryptoClashPage = () => {
                     <span>Reset Game</span>
                   </button>
                 </div>
-              )}
-
-              {/* Prediction Status */}
-              {prediction && (
-                <div className="mt-4 p-4 bg-yellow-400/10 border border-yellow-400/20 rounded-lg">
-                  <div className="text-center">
-                    <div className="text-sm text-gray-400 mb-1">Your Prediction</div>
-                    <div className={`text-lg font-bold ${
-                      prediction === 'up' ? 'text-green-400' : 'text-red-400'
-                    }`}>
-                      Price will go {prediction.toUpperCase()}
-                    </div>
-                  </div>
+              ) : isGameResolving ? (
+                <div className="text-center py-8">
+                  <div className="w-12 h-12 border-4 border-orange-400/20 border-t-orange-400 rounded-full animate-spin mx-auto mb-4"></div>
+                  <p className="text-orange-400 font-semibold">Resolving game...</p>
                 </div>
+              ) : (
+                <button
+                  onClick={resetGame}
+                  className="w-full bg-yellow-400 text-black py-4 rounded-lg font-semibold text-lg hover:bg-yellow-300 transition-colors duration-200 flex items-center justify-center space-x-2"
+                >
+                  <Play className="w-5 h-5" />
+                  <span>Play Again</span>
+                </button>
               )}
             </div>
 
@@ -295,15 +389,15 @@ const CryptoClashPage = () => {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-gray-300">Correct Prediction</span>
-                  <span className="text-green-400 font-bold">+100 XP</span>
+                  <span className="text-green-400 font-bold">+50 XP</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-300">Win Streak Bonus</span>
-                  <span className="text-yellow-400 font-bold">+50 XP</span>
+                  <span className="text-yellow-400 font-bold">+{Math.min(profile.streak * 5, 150)} XP</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-300">USDT Reward</span>
-                  <span className="text-blue-400 font-bold">+25 USDT</span>
+                  <span className="text-blue-400 font-bold">+{Math.min(10 + profile.streak, 30)} USDT</span>
                 </div>
               </div>
             </div>
@@ -322,7 +416,7 @@ const CryptoClashPage = () => {
                 </li>
                 <li className="flex items-start space-x-2">
                   <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
-                  <span>Wait for the 60-second timer to complete</span>
+                  <span>Wait for the 5-minute timer to complete</span>
                 </li>
                 <li className="flex items-start space-x-2">
                   <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
