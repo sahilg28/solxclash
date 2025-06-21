@@ -47,7 +47,7 @@ const AuthButtons = () => {
       <button
         onClick={handleGoogleSignIn}
         disabled={loading}
-        className="bg-white text-gray-900 px-6 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 w-full md:w-auto justify-center border border-gray-300"
+        className="bg-white text-gray-900 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 justify-center border border-gray-300"
       >
         {loading ? (
           <Loader2 className="w-4 h-4 animate-spin" />
@@ -71,8 +71,8 @@ const AuthButtons = () => {
             />
           </svg>
         )}
-        <span>
-          {loading ? 'Signing in...' : 'Sign in with Google'}
+        <span className="text-sm">
+          {loading ? 'Signing in...' : 'Sign in'}
         </span>
       </button>
       
