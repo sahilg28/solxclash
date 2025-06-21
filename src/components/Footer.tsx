@@ -81,7 +81,7 @@ const Footer = () => {
                   className="w-12 h-12 bg-gray-800 hover:bg-yellow-400/20 border border-gray-700 hover:border-yellow-400/30 rounded-lg flex items-center justify-center transition-all duration-200"
                 >
                   <img 
-                    src="/src/assets/icons8-twitter-100.png" 
+                    src="/assets/icons8-twitter-100.png" 
                     alt="X (Twitter)" 
                     className="w-6 h-6 filter brightness-0 invert opacity-70 hover:opacity-100 transition-opacity duration-200"
                   />
@@ -158,7 +158,7 @@ const Footer = () => {
               <div className="inline-flex items-center space-x-3 mb-3">
                 <span className="text-gray-300">Built on</span>
                 <img 
-                  src="/src/assets/solanaLogo.png" 
+                  src="/assets/solanaLogo.png" 
                   alt="Solana" 
                   className="h-5 w-auto"
                 />
