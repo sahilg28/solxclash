@@ -42,7 +42,7 @@ const Footer = () => {
   };
 
   const platformLinks = [
-    { name: 'Games', href: '#games' },
+    { name: 'CryptoClash', href: '#games' },
     { name: 'Leaderboard', href: '#leaderboard' },
     { name: 'About', href: '#about' },
     { name: 'Roadmap', href: '#roadmap' }
