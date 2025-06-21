@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Zap, ArrowRight, Check, AlertCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 
 const Footer = () => {
@@ -42,10 +43,10 @@ const Footer = () => {
   };
 
   const platformLinks = [
-    { name: 'CryptoClash', href: '#games' },
-    { name: 'Leaderboard', href: '#leaderboard' },
-    { name: 'About', href: '#about' },
-    { name: 'Roadmap', href: '#roadmap' }
+    { name: 'CryptoClash', href: '/cryptoclash', isRoute: true },
+    { name: 'Leaderboard', href: '#leaderboard', isRoute: false },
+    { name: 'About', href: '#about', isRoute: false },
+    { name: 'Roadmap', href: '#roadmap', isRoute: false }
   ];
 
   const legalLinks = [
@@ -142,12 +143,21 @@ const Footer = () => {
               <ul className="space-y-3">
                 {platformLinks.map((link) => (
                   <li key={link.name}>
-                    <a
-                      href={link.href}
-                      className="text-gray-400 hover:text-yellow-400 transition-colors duration-200"
-                    >
-                      {link.name}
-                    </a>
+                    {link.isRoute ? (
+                      <Link
+                        to={link.href}
+                        className="text-gray-400 hover:text-yellow-400 transition-colors duration-200"
+                      >
+                        {link.name}
+                      </Link>
+                    ) : (
+                      <a
+                        href={link.href}
+                        className="text-gray-400 hover:text-yellow-400 transition-colors duration-200"
+                      >
+                        {link.name}
+                      </a>
+                    )}
                   </li>
                 ))}
               </ul>

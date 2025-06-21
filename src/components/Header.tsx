@@ -25,10 +25,10 @@ const Header = () => {
   }, [user, profile, loading]);
 
   const navLinks = [
-    { name: 'CryptoClash', href: '#games' },
-    { name: 'Leaderboard', href: '#leaderboard' },
-    { name: 'Roadmap', href: '#roadmap' },
-    { name: 'About Us', href: '#about' },
+    { name: 'CryptoClash', href: '/cryptoclash', isRoute: true },
+    { name: 'Leaderboard', href: '#leaderboard', isRoute: false },
+    { name: 'Roadmap', href: '#roadmap', isRoute: false },
+    { name: 'About Us', href: '#about', isRoute: false },
   ];
 
   const scrollToSection = (href: string) => {
@@ -78,13 +78,23 @@ const Header = () => {
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-8">
               {navLinks.map((link) => (
-                <button
-                  key={link.name}
-                  onClick={() => scrollToSection(link.href)}
-                  className="text-gray-300 hover:text-yellow-400 transition-colors duration-200 font-medium"
-                >
-                  {link.name}
-                </button>
+                link.isRoute ? (
+                  <Link
+                    key={link.name}
+                    to={link.href}
+                    className="text-gray-300 hover:text-yellow-400 transition-colors duration-200 font-medium"
+                  >
+                    {link.name}
+                  </Link>
+                ) : (
+                  <button
+                    key={link.name}
+                    onClick={() => scrollToSection(link.href)}
+                    className="text-gray-300 hover:text-yellow-400 transition-colors duration-200 font-medium"
+                  >
+                    {link.name}
+                  </button>
+                )
               ))}
             </nav>
 
@@ -129,13 +139,23 @@ const Header = () => {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             {navLinks.map((link) => (
-              <button
-                key={link.name}
-                onClick={() => scrollToSection(link.href)}
-                className="text-gray-300 hover:text-yellow-400 transition-colors duration-200 font-medium"
-              >
-                {link.name}
-              </button>
+              link.isRoute ? (
+                <Link
+                  key={link.name}
+                  to={link.href}
+                  className="text-gray-300 hover:text-yellow-400 transition-colors duration-200 font-medium"
+                >
+                  {link.name}
+                </Link>
+              ) : (
+                <button
+                  key={link.name}
+                  onClick={() => scrollToSection(link.href)}
+                  className="text-gray-300 hover:text-yellow-400 transition-colors duration-200 font-medium"
+                >
+                  {link.name}
+                </button>
+              )
             ))}
           </nav>
 
@@ -265,13 +285,24 @@ const Header = () => {
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 bg-black/95 backdrop-blur-md border-t border-yellow-400/20">
               {navLinks.map((link) => (
-                <button
-                  key={link.name}
-                  onClick={() => scrollToSection(link.href)}
-                  className="block w-full text-left px-3 py-2 rounded-md text-gray-300 hover:text-yellow-400 hover:bg-gray-800 transition-colors duration-200 font-medium"
-                >
-                  {link.name}
-                </button>
+                link.isRoute ? (
+                  <Link
+                    key={link.name}
+                    to={link.href}
+                    onClick={() => setIsMenuOpen(false)}
+                    className="block w-full text-left px-3 py-2 rounded-md text-gray-300 hover:text-yellow-400 hover:bg-gray-800 transition-colors duration-200 font-medium"
+                  >
+                    {link.name}
+                  </Link>
+                ) : (
+                  <button
+                    key={link.name}
+                    onClick={() => scrollToSection(link.href)}
+                    className="block w-full text-left px-3 py-2 rounded-md text-gray-300 hover:text-yellow-400 hover:bg-gray-800 transition-colors duration-200 font-medium"
+                  >
+                    {link.name}
+                  </button>
+                )
               ))}
               
               {/* Mobile User Profile */}

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { ArrowRight, TrendingUp, Users, Trophy } from 'lucide-react';
 
 const Hero = () => {
@@ -31,10 +32,13 @@ const Hero = () => {
 
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row gap-4">
-              <button className="group bg-yellow-400 text-black px-8 py-4 rounded-lg font-semibold text-lg hover:bg-yellow-300 transition-colors duration-200 flex items-center justify-center space-x-2">
+              <Link
+                to="/cryptoclash"
+                className="group bg-yellow-400 text-black px-8 py-4 rounded-lg font-semibold text-lg hover:bg-yellow-300 transition-colors duration-200 flex items-center justify-center space-x-2"
+              >
                 <span>Start Playing</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-200" />
-              </button>
+              </Link>
               
               <button className="border border-yellow-400 text-yellow-400 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-yellow-400/10 transition-colors duration-200">
                 Join Waitlist

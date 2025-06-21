@@ -4,6 +4,7 @@ import { AuthProvider } from './components/AuthProvider';
 import Header from './components/Header';
 import HomePage from './pages/HomePage';
 import ProfilePage from './pages/ProfilePage';
+import CryptoClashPage from './pages/CryptoClashPage';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/profile/:username" element={<ProfilePage />} />
+          <Route path="/cryptoclash" element={<CryptoClashPage />} />
         </Routes>
       </div>
     </AuthProvider>
