@@ -28,7 +28,7 @@ const Header = () => {
     { name: 'CryptoClash', href: '#games' },
     { name: 'Leaderboard', href: '#leaderboard' },
     { name: 'Roadmap', href: '#roadmap' },
-    { name: 'About', href: '#about' },
+    { name: 'About Us', href: '#about' },
   ];
 
   const scrollToSection = (href: string) => {
