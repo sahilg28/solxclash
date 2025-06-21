@@ -25,7 +25,7 @@ const Header = () => {
   }, [user, profile, loading]);
 
   const navLinks = [
-    { name: 'Games', href: '#games' },
+    { name: 'CryptoClash', href: '#games' },
     { name: 'Leaderboard', href: '#leaderboard' },
     { name: 'Roadmap', href: '#roadmap' },
     { name: 'About', href: '#about' },
