@@ -42,7 +42,7 @@ class GameLogicService {
     timeLeft: 0,
     phase: 'waiting'
   };
-  private gameTimer: NodeJS.Timeout | null = null;
+  private gameTimer: number | null = null;
   private realtimeSubscription: any = null;
   private isInitialized = false;
 

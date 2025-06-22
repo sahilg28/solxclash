@@ -45,8 +45,8 @@ class BinancePriceService {
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
   private reconnectDelay = 1000;
-  private heartbeatInterval: NodeJS.Timeout | null = null;
-  private connectionTimeout: NodeJS.Timeout | null = null;
+  private heartbeatInterval: number | null = null;
+  private connectionTimeout: number | null = null;
 
   constructor() {
     this.initializeConnection();
