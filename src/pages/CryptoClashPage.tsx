@@ -133,7 +133,7 @@ const CryptoClashPage = () => {
               <span className="text-yellow-400">Crypto</span>Clash
             </h1>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-4">
-              Predict crypto price movements in real-time. Choose your coin, make predictions during the lobby phase, then watch your prediction play out in the 60-second window!
+              Choose your coin and predict crypto price movements in real-time. Make predictions during the lobby phase, then watch your prediction play out in the 60-second window!
             </p>
           </div>
 
@@ -308,6 +308,10 @@ const CryptoClashPage = () => {
                   </li>
                   <li className="flex items-start space-x-2">
                     <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
+                    <span>Spend 10 XP to predict UP or DOWN (price locked at prediction time)</span>
+                  </li>
+                  <li className="flex items-start space-x-2">
+                    <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
                     <span>Watch your prediction play out in the 60-second window</span>
                   </li>
                   <li className="flex items-start space-x-2">
@@ -419,6 +423,27 @@ const CryptoClashPage = () => {
   };
 
   const phaseDisplay = getPhaseDisplay();
+
+  // Helper function to determine what coin to display for the round
+  const getDisplayedRoundCoin = () => {
+    if (!gameState.currentRound) return 'BTC';
+    
+    // If round is in waiting phase and no user prediction yet, show the user's selected coin
+    // This indicates what coin they would be predicting on
+    if (gameState.currentRound.status === 'waiting' && 
+        !gameState.userPrediction && 
+        gameState.currentRound.selected_coin === 'BTC') {
+      return selectedCoin;
+    }
+    
+    // Otherwise, show the actual locked round coin
+    return gameState.currentRound.selected_coin;
+  };
+
+  const displayedRoundCoin = getDisplayedRoundCoin();
+  const isRoundCoinLocked = gameState.currentRound?.status !== 'waiting' || 
+                           gameState.userPrediction || 
+                           (gameState.currentRound?.selected_coin !== 'BTC');
 
   return (
     <div className="min-h-screen bg-black pt-16">
@@ -615,7 +640,12 @@ const CryptoClashPage = () => {
                   Round #{gameState.currentRound.round_number}
                 </h3>
                 <div className="flex items-center space-x-4 text-sm text-gray-300">
-                  <span>Round Coin: <span className="text-yellow-400 font-semibold">{gameState.currentRound.selected_coin}</span></span>
+                  <span>
+                    Round Coin: <span className="text-yellow-400 font-semibold">{displayedRoundCoin}</span>
+                    {!isRoundCoinLocked && (
+                      <span className="text-gray-500 text-xs ml-1">(your choice)</span>
+                    )}
+                  </span>
                   <span>•</span>
                   <span className={phaseDisplay.color}>{phaseDisplay.title}</span>
                   {gameState.currentRound.start_price && gameState.phase === 'predicting' && (
