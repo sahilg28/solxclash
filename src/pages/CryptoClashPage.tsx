@@ -21,7 +21,7 @@ const CryptoClashPage = () => {
     phase: 'waiting'
   });
   const [priceData, setPriceData] = useState<Map<CoinSymbol, PriceUpdate>>(new Map());
-  const [selectedCoin, setSelectedCoin] = useState<CoinSymbol>('BTC'); // Default to BTC, user can change freely
+  const [selectedCoin, setSelectedCoin] = useState<CoinSymbol>('BTC'); // User's choice for chart viewing and prediction
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'connecting' | 'disconnected'>('connecting');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -65,9 +65,6 @@ const CryptoClashPage = () => {
     // Subscribe to game state updates
     const gameUnsubscribe = gameLogicService.subscribe((state: GameState) => {
       setGameState(state);
-      
-      // REMOVED: Auto-selection of coin based on current round
-      // This allows users to freely view any coin's chart while the game operates on the round's selected coin
 
       // Show results when round is completed and user had a prediction
       if (state.currentRound?.status === 'completed' && state.userPrediction) {
@@ -136,7 +133,7 @@ const CryptoClashPage = () => {
               <span className="text-yellow-400">Crypto</span>Clash
             </h1>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-4">
-              Predict crypto price movements in real-time. Make predictions during the lobby phase, then watch your prediction play out in the 60-second window!
+              Predict crypto price movements in real-time. Choose your coin, make predictions during the lobby phase, then watch your prediction play out in the 60-second window!
             </p>
           </div>
 
@@ -223,7 +220,7 @@ const CryptoClashPage = () => {
                   </h3>
                   
                   <p className="text-gray-300 text-sm mb-4">
-                    Predict if <span className="text-yellow-400 font-semibold">{selectedCoin}</span> will go UP or DOWN during the prediction window!
+                    Choose your coin and predict if <span className="text-yellow-400 font-semibold">{selectedCoin}</span> will go UP or DOWN!
                   </p>
                 </div>
 
@@ -271,12 +268,12 @@ const CryptoClashPage = () => {
               <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-sm border border-gray-700 rounded-xl p-6">
                 <h4 className="text-lg font-bold text-white mb-4 flex items-center space-x-2">
                   <Star className="w-5 h-5 text-yellow-400" />
-                  <span>XP Economy</span>
+                  <span>How It Works</span>
                 </h4>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-300">Signup Bonus</span>
-                    <span className="text-yellow-400 font-bold">+100 XP</span>
+                    <span className="text-gray-300">Choose Your Coin</span>
+                    <span className="text-yellow-400 font-bold">BTC, ETH, SOL, BNB, XRP</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-gray-300">Prediction Cost</span>
@@ -303,11 +300,11 @@ const CryptoClashPage = () => {
                   </li>
                   <li className="flex items-start space-x-2">
                     <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
-                    <span>Make predictions during the 4-minute lobby phase</span>
+                    <span>Choose your coin (BTC, ETH, SOL, BNB, XRP)</span>
                   </li>
                   <li className="flex items-start space-x-2">
                     <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
-                    <span>Spend 10 XP to predict UP or DOWN (price locked at prediction time)</span>
+                    <span>Make predictions during the 4-minute lobby phase</span>
                   </li>
                   <li className="flex items-start space-x-2">
                     <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
@@ -315,7 +312,7 @@ const CryptoClashPage = () => {
                   </li>
                   <li className="flex items-start space-x-2">
                     <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
-                    <span>Earn 20 XP + streak bonus for correct predictions</span>
+                    <span>Earn XP + streak bonus for correct predictions</span>
                   </li>
                 </ul>
               </div>
@@ -344,8 +341,8 @@ const CryptoClashPage = () => {
 
     try {
       setError(null);
-      await gameLogicService.makePrediction(direction, user.id);
-      setSuccess(`Prediction "${direction.toUpperCase()}" locked in! 10 XP deducted. Price locked at current market price.`);
+      await gameLogicService.makePrediction(direction, user.id, selectedCoin);
+      setSuccess(`Prediction "${direction.toUpperCase()}" locked in for ${selectedCoin}! 10 XP deducted. Price locked at current market price.`);
       
       // Refresh profile to show updated XP
       await refreshSessionAndProfile();
@@ -381,7 +378,7 @@ const CryptoClashPage = () => {
       case 'waiting':
         return {
           title: 'Lobby Phase',
-          subtitle: 'Make your prediction now!',
+          subtitle: 'Choose your coin and make your prediction!',
           color: 'text-blue-400',
           bgColor: 'bg-blue-400/10',
           borderColor: 'border-blue-400/30'
@@ -432,7 +429,7 @@ const CryptoClashPage = () => {
             <span className="text-yellow-400">Crypto</span>Clash
           </h1>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-4">
-            Predict crypto price movements in real-time. Make predictions during the lobby phase, then watch your prediction play out in the 60-second window!
+            Choose your coin and predict crypto price movements in real-time. Make predictions during the lobby phase, then watch your prediction play out in the 60-second window!
           </p>
           
           {/* Connection Status */}
@@ -618,7 +615,7 @@ const CryptoClashPage = () => {
                   Round #{gameState.currentRound.round_number}
                 </h3>
                 <div className="flex items-center space-x-4 text-sm text-gray-300">
-                  <span>Game Coin: <span className="text-yellow-400 font-semibold">{gameState.currentRound.selected_coin}</span></span>
+                  <span>Round Coin: <span className="text-yellow-400 font-semibold">{gameState.currentRound.selected_coin}</span></span>
                   <span>•</span>
                   <span className={phaseDisplay.color}>{phaseDisplay.title}</span>
                   {gameState.currentRound.start_price && gameState.phase === 'predicting' && (
@@ -677,7 +674,7 @@ const CryptoClashPage = () => {
                   </div>
                 </div>
                 
-                {/* Coin Selector - Free selection for chart viewing */}
+                {/* Coin Selector - Free selection for chart viewing and prediction */}
                 <div className="flex flex-wrap gap-2 mb-4">
                   {cryptoOptions.map((coin) => (
                     <button
@@ -748,18 +745,16 @@ const CryptoClashPage = () => {
                 </div>
                 
                 <h3 className="text-xl font-bold text-white mb-2">
-                  {gameState.currentRound ? `${gameState.currentRound.selected_coin} Prediction` : 'Loading Game...'}
+                  {selectedCoin} Prediction
                 </h3>
                 
-                {/* Show current price for the GAME coin, not the chart coin */}
-                {gameState.currentRound && (
-                  <div className="text-3xl font-bold text-yellow-400 mb-2">
-                    {getCurrentPriceData(gameState.currentRound.selected_coin) ? 
-                      formatPrice(getCurrentPriceData(gameState.currentRound.selected_coin)!.price, gameState.currentRound.selected_coin) :
-                      'Loading...'
-                    }
-                  </div>
-                )}
+                {/* Show current price for the SELECTED coin */}
+                <div className="text-3xl font-bold text-yellow-400 mb-2">
+                  {getCurrentPriceData(selectedCoin) ? 
+                    formatPrice(getCurrentPriceData(selectedCoin)!.price, selectedCoin) :
+                    'Loading...'
+                  }
+                </div>
               </div>
 
               {/* Timer */}
@@ -791,7 +786,7 @@ const CryptoClashPage = () => {
                 <div className="space-y-4">
                   <div className="text-center mb-4">
                     <p className="text-gray-300 text-sm mb-2">
-                      Will {gameState.currentRound?.selected_coin} price go UP or DOWN?
+                      Will <span className="text-yellow-400 font-semibold">{selectedCoin}</span> price go UP or DOWN?
                     </p>
                     <div className="bg-yellow-400/10 border border-yellow-400/20 rounded-lg p-3">
                       <div className="flex items-center justify-center space-x-2 text-yellow-400 text-sm">
@@ -843,7 +838,7 @@ const CryptoClashPage = () => {
                     </div>
                     {gameState.userPrediction.predicted_price && (
                       <div className="text-xs text-gray-500 mt-1">
-                        Locked at {formatPrice(gameState.userPrediction.predicted_price, gameState.currentRound?.selected_coin || 'BTC')}
+                        Locked at {formatPrice(gameState.userPrediction.predicted_price, selectedCoin)}
                       </div>
                     )}
                     <div className="text-xs text-gray-500 mt-1">
@@ -904,6 +899,10 @@ const CryptoClashPage = () => {
             <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-sm border border-gray-700 rounded-xl p-6">
               <h4 className="text-lg font-bold text-white mb-4">How to Play</h4>
               <ul className="space-y-2 text-sm text-gray-300">
+                <li className="flex items-start space-x-2">
+                  <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
+                  <span>Choose your coin (BTC, ETH, SOL, BNB, XRP)</span>
+                </li>
                 <li className="flex items-start space-x-2">
                   <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
                   <span>Make predictions during the 4-minute lobby phase</span>

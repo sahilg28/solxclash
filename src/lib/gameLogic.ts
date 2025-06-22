@@ -179,6 +179,8 @@ class GameLogicService {
     if (!round) return;
 
     try {
+      console.log(`🔄 Phase transition for round ${round.round_number}: ${round.status}`);
+      
       switch (round.status) {
         case 'waiting':
           // Start prediction phase
@@ -192,12 +194,16 @@ class GameLogicService {
         
         case 'resolving':
           // Complete round and create new one
+          console.log('🏁 Completing round and creating new one...');
           await this.completeRound(round.id);
-          await this.createNewRound();
+          // Add a small delay before creating new round to ensure completion
+          setTimeout(async () => {
+            await this.createNewRound();
+          }, 1000);
           break;
       }
     } catch (error) {
-      console.error('Error handling phase transition:', error);
+      console.error('❌ Error handling phase transition:', error);
     }
   }
 
@@ -214,6 +220,8 @@ class GameLogicService {
       });
 
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ Create round response error:', errorText);
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
@@ -225,10 +233,11 @@ class GameLogicService {
 
       // Immediately update local state to prevent race conditions
       this.currentGameState.currentRound = result.round;
+      this.currentGameState.userPrediction = null; // Reset user prediction for new round
       this.updateGamePhase();
       this.notifySubscribers();
       
-      console.log(`✅ New round created: #${result.round.round_number} for ${result.round.selected_coin}`);
+      console.log(`✅ New round created: #${result.round.round_number} with default coin ${result.round.selected_coin}`);
     } catch (error) {
       console.error('❌ Failed to create new round:', error);
     }
@@ -262,6 +271,8 @@ class GameLogicService {
       });
 
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ Start prediction response error:', errorText);
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
@@ -310,6 +321,8 @@ class GameLogicService {
       });
 
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ Start resolving response error:', errorText);
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
@@ -346,6 +359,8 @@ class GameLogicService {
       });
 
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ Complete round response error:', errorText);
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
@@ -366,7 +381,7 @@ class GameLogicService {
     }
   }
 
-  public async makePrediction(prediction: 'up' | 'down', userId: string) {
+  public async makePrediction(prediction: 'up' | 'down', userId: string, chosenCoin: CoinSymbol) {
     const round = this.currentGameState.currentRound;
     // Allow predictions during both waiting and predicting phases
     if (!round || (round.status !== 'waiting' && round.status !== 'predicting')) {
@@ -374,58 +389,52 @@ class GameLogicService {
     }
 
     try {
-      console.log(`🎯 Making prediction: ${prediction} for round ${round.round_number}`);
+      console.log(`🎯 Making prediction: ${prediction} for ${chosenCoin} in round ${round.round_number}`);
       
-      // Check if user has enough XP (10 XP required per prediction)
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('xp')
-        .eq('user_id', userId)
-        .single();
-
-      if (profileError) {
-        throw new Error('Failed to fetch user profile');
-      }
-
-      if (profile.xp < 10) {
-        throw new Error('Insufficient XP! You need at least 10 XP to make a prediction.');
-      }
-
-      // Get current price for the selected coin
-      const currentPrice = binancePriceService.getCurrentPrice(round.selected_coin);
+      // Get current price for the chosen coin
+      const currentPrice = binancePriceService.getCurrentPrice(chosenCoin);
       if (!currentPrice || currentPrice.price <= 0) {
         throw new Error('Unable to get current price. Please try again.');
       }
 
-      // Deduct 10 XP from user's profile
-      const { error: deductError } = await supabase
-        .from('profiles')
-        .update({ xp: profile.xp - 10 })
-        .eq('user_id', userId);
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/game-management/make-prediction`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({
+          roundId: round.id,
+          userId,
+          prediction,
+          chosenCoin,
+          predictedPrice: currentPrice.price
+        })
+      });
 
-      if (deductError) {
-        throw new Error('Failed to deduct XP from your account');
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ Make prediction response error:', errorText);
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      // Create the prediction with the current price locked in
-      const { data, error } = await supabase
-        .from('predictions')
-        .upsert([{
-          round_id: round.id,
-          user_id: userId,
-          prediction: prediction,
-          predicted_price: currentPrice.price
-        }])
-        .select()
-        .single();
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to make prediction');
+      }
 
-      if (error) throw error;
-
-      this.currentGameState.userPrediction = data;
+      this.currentGameState.userPrediction = result.prediction;
+      
+      // If the round coin was locked to the chosen coin, update local state
+      if (result.roundCoinLocked && this.currentGameState.currentRound) {
+        this.currentGameState.currentRound.selected_coin = result.lockedCoin;
+      }
+      
       this.notifySubscribers();
       
       console.log('✅ Prediction saved with locked price:', currentPrice.price);
-      return data;
+      return result.prediction;
     } catch (error) {
       console.error('❌ Failed to make prediction:', error);
       throw error;
