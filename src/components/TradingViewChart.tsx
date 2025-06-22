@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, memo } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 interface TradingViewChartProps {
   symbol: string;
@@ -32,8 +32,11 @@ const TradingViewChart: React.FC<TradingViewChartProps> = ({
   useEffect(() => {
     if (!container.current) return;
 
-    // Clear any existing content
-    container.current.innerHTML = '';
+    // Clear any existing content safely
+    const currentContainer = container.current;
+    while (currentContainer.firstChild) {
+      currentContainer.removeChild(currentContainer.firstChild);
+    }
 
     const script = document.createElement("script");
     script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
@@ -62,13 +65,20 @@ const TradingViewChart: React.FC<TradingViewChartProps> = ({
     copyrightContainer.className = 'tradingview-widget-copyright';
     copyrightContainer.innerHTML = '<a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank"><span class="blue-text">Track all markets on TradingView</span></a>';
 
-    container.current.appendChild(widgetContainer);
-    container.current.appendChild(copyrightContainer);
-    container.current.appendChild(script);
+    currentContainer.appendChild(widgetContainer);
+    currentContainer.appendChild(copyrightContainer);
+    currentContainer.appendChild(script);
 
     return () => {
-      if (container.current) {
-        container.current.innerHTML = '';
+      // Safer cleanup
+      if (currentContainer && currentContainer.parentNode) {
+        try {
+          while (currentContainer.firstChild) {
+            currentContainer.removeChild(currentContainer.firstChild);
+          }
+        } catch (error) {
+          // Ignore cleanup errors
+        }
       }
     };
   }, [symbol, width, height, interval, timezone, theme, style, locale, allowSymbolChange, saveImage]);
@@ -82,4 +92,4 @@ const TradingViewChart: React.FC<TradingViewChartProps> = ({
   );
 };
 
-export default memo(TradingViewChart);
+export default TradingViewChart;
