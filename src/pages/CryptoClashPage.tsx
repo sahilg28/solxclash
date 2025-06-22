@@ -6,7 +6,7 @@ import {
   Wifi, WifiOff, Activity, DollarSign
 } from 'lucide-react';
 import { useAuthContext } from '../components/AuthProvider';
-import { pythPriceService, PriceUpdate, CoinSymbol, formatPrice, formatPriceChange, getPriceChangeColor } from '../lib/pyth';
+import { binancePriceService, PriceUpdate, CoinSymbol, formatPrice, formatPriceChange, getPriceChangeColor } from '../lib/binancePriceService';
 import { gameLogicService, GameState } from '../lib/gameLogic';
 import TradingViewChart from '../components/TradingViewChart';
 import GameLeaderboard from '../components/GameLeaderboard';
@@ -51,14 +51,14 @@ const CryptoClashPage = () => {
 
   // Initialize price service and game logic
   useEffect(() => {
-    console.log('🎮 Initializing CryptoClash page...');
+    console.log('🎮 Initializing CryptoClash page with Binance WebSocket...');
     
     // Subscribe to price updates
-    const priceSubscriptionId = pythPriceService.subscribe((update: PriceUpdate) => {
+    const priceSubscriptionId = binancePriceService.subscribe((update: PriceUpdate) => {
       setPriceData(prev => new Map(prev.set(update.symbol, update)));
       
       // Update connection status based on price service health
-      setConnectionStatus(pythPriceService.isConnectionHealthy() ? 'connected' : 'disconnected');
+      setConnectionStatus(binancePriceService.isConnectionHealthy() ? 'connected' : 'disconnected');
     });
 
     // Subscribe to game state updates
@@ -89,10 +89,10 @@ const CryptoClashPage = () => {
     });
 
     // Set initial connection status
-    setConnectionStatus(pythPriceService.isConnectionHealthy() ? 'connected' : 'connecting');
+    setConnectionStatus(binancePriceService.isConnectionHealthy() ? 'connected' : 'connecting');
 
     return () => {
-      pythPriceService.unsubscribe(priceSubscriptionId);
+      binancePriceService.unsubscribe(priceSubscriptionId);
       gameUnsubscribe();
     };
   }, []);
@@ -211,12 +211,12 @@ const CryptoClashPage = () => {
             {connectionStatus === 'connected' ? (
               <>
                 <Wifi className="w-5 h-5 text-green-400" />
-                <span className="text-green-400 text-sm">Live Data Connected</span>
+                <span className="text-green-400 text-sm">Live Binance Data Connected</span>
               </>
             ) : connectionStatus === 'connecting' ? (
               <>
                 <Activity className="w-5 h-5 text-yellow-400 animate-pulse" />
-                <span className="text-yellow-400 text-sm">Connecting to Live Data...</span>
+                <span className="text-yellow-400 text-sm">Connecting to Binance...</span>
               </>
             ) : (
               <>

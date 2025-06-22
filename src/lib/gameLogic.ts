@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { CoinSymbol, PriceData, pythPriceService } from './pyth';
+import { CoinSymbol, PriceData, binancePriceService } from './binancePriceService';
 
 export interface GameRound {
   id: string;
@@ -255,8 +255,8 @@ class GameLogicService {
 
       if (roundError) throw roundError;
 
-      // Get current price from Pyth service
-      const currentPrice = pythPriceService.getCurrentPrice(round.selected_coin);
+      // Get current price from Binance service
+      const currentPrice = binancePriceService.getCurrentPrice(round.selected_coin);
       let startPrice = null;
 
       if (currentPrice && currentPrice.price > 0) {
@@ -304,8 +304,8 @@ class GameLogicService {
 
       if (roundError) throw roundError;
 
-      // Get current price from Pyth service
-      const currentPrice = pythPriceService.getCurrentPrice(round.selected_coin);
+      // Get current price from Binance service
+      const currentPrice = binancePriceService.getCurrentPrice(round.selected_coin);
       let endPrice = null;
 
       if (currentPrice && currentPrice.price > 0) {
