@@ -10,20 +10,6 @@ const Header = () => {
   const location = useLocation();
   const { user, profile, loading, signOut } = useAuthContext();
 
-  // Debug logging for Header component
-  useEffect(() => {
-    console.log('🔍 Header component state:', {
-      hasUser: !!user,
-      hasProfile: !!profile,
-      loading,
-      username: profile?.username,
-      userId: user?.id,
-      profileId: profile?.id,
-      provider: user?.app_metadata?.provider,
-      timestamp: new Date().toISOString()
-    });
-  }, [user, profile, loading]);
-
   const navLinks = [
     { name: 'CryptoClash', href: '/cryptoclash', isRoute: true },
     { name: 'Leaderboard', href: '#leaderboard', isRoute: false },

@@ -42,7 +42,6 @@ const retryOperation = async <T>(
   
   while (attempts < maxRetries) {
     try {
-      console.log(`🔄 Retry attempt ${attempts + 1}/${maxRetries}`);
       return await operation();
     } catch (error) {
       attempts++;
@@ -53,7 +52,6 @@ const retryOperation = async <T>(
       }
       
       const delay = baseDelay * Math.pow(2, attempts - 1); // Exponential backoff
-      console.log(`⏳ Retrying in ${delay}ms...`);
       await new Promise(resolve => setTimeout(resolve, delay));
     }
   }
@@ -70,8 +68,6 @@ export const useWallet = () => {
     setError(null);
 
     try {
-      console.log('💳 Starting enhanced wallet connection...');
-
       // Check if Solana wallet is available
       if (!window.solana && !window.phantom?.solana) {
         throw new Error('Solana wallet not found. Please install Phantom or another Solana wallet.');
@@ -82,8 +78,6 @@ export const useWallet = () => {
         throw new Error('No Solana wallet available');
       }
 
-      console.log('💳 Connecting to wallet...');
-
       // Connect to wallet first with retry logic
       const response = await retryOperation(
         () => wallet.connect(),
@@ -92,14 +86,11 @@ export const useWallet = () => {
       );
       
       const walletAddress = response.publicKey.toString();
-      console.log('💳 Wallet connected successfully:', walletAddress);
 
       // Create a message to sign for authentication
       const timestamp = Date.now();
       const message = `Sign this message to authenticate with SolxClash.\n\nWallet: ${walletAddress}\nTimestamp: ${timestamp}`;
       const encodedMessage = new TextEncoder().encode(message);
-      
-      console.log('💳 Requesting message signature...');
       
       // Sign the message with retry logic
       const signResult = await retryOperation(
@@ -107,15 +98,11 @@ export const useWallet = () => {
         3,
         1000
       );
-      
-      console.log('💳 Message signed successfully');
 
       // Convert signature to hex string
       const signatureHex = Array.from(signResult.signature)
         .map(b => b.toString(16).padStart(2, '0'))
         .join('');
-
-      console.log('💳 Calling wallet authentication endpoint...');
 
       // Call our Edge Function for wallet authentication with retry logic
       const functionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/wallet-auth`;
@@ -151,18 +138,10 @@ export const useWallet = () => {
         2000
       );
 
-      console.log('💳 Authentication successful:', {
-        userId: authResult.user_id,
-        walletAddress: authResult.wallet_address,
-        hasTokens: !!(authResult.access_token && authResult.refresh_token)
-      });
-
       // Validate auth tokens
       if (!authResult.access_token || !authResult.refresh_token) {
         throw new Error('Authentication failed: Missing access or refresh tokens');
       }
-
-      console.log('💳 Setting session with tokens...');
 
       // Set session with retry logic and enhanced validation
       const sessionResult = await retryOperation(
@@ -190,25 +169,9 @@ export const useWallet = () => {
         1500
       );
 
-      console.log('💳 Session set successfully:', {
-        hasSession: !!sessionResult.session,
-        hasUser: !!sessionResult.session?.user,
-        userId: sessionResult.session?.user?.id,
-        sessionExpiry: sessionResult.session?.expires_at
-      });
-
       // Immediately verify the session was set correctly
       const { data: { session: verificationSession }, error: getSessionError } = await supabase.auth.getSession();
       
-      console.log('💳 SESSION_SET: true - Session verification:', {
-        hasSession: !!verificationSession,
-        hasUser: !!verificationSession?.user,
-        userId: verificationSession?.user?.id,
-        walletMatches: verificationSession?.user?.user_metadata?.wallet_address === walletAddress,
-        error: getSessionError?.message,
-        timestamp: new Date().toISOString()
-      });
-
       if (!verificationSession || !verificationSession.user) {
         throw new Error('Session verification failed: Session not properly established');
       }
@@ -220,16 +183,7 @@ export const useWallet = () => {
         }, 10000); // 10 second timeout
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-          console.log('💳 Auth state change detected:', {
-            event,
-            hasSession: !!session,
-            hasUser: !!session?.user,
-            userId: session?.user?.id,
-            timestamp: new Date().toISOString()
-          });
-
           if (event === 'SIGNED_IN' && session?.user) {
-            console.log('✅ SIGNED_IN event received - Authentication complete');
             clearTimeout(timeout);
             subscription.unsubscribe();
             resolve();
@@ -246,11 +200,8 @@ export const useWallet = () => {
           )
         ]);
       } catch (authStateError) {
-        console.warn('⚠️ Auth state change timeout, but session is verified:', authStateError);
         // Continue anyway since session is verified
       }
-
-      console.log('🎉 Wallet connection completed successfully');
 
       // Return the wallet connection result
       return {
@@ -271,15 +222,11 @@ export const useWallet = () => {
 
   const disconnectWallet = useCallback(async () => {
     try {
-      console.log('💳 Disconnecting wallet...');
-      
       // Disconnect wallet
       const wallet = window.solana || window.phantom?.solana;
       if (wallet && wallet.disconnect) {
         await wallet.disconnect();
       }
-      
-      console.log('💳 Wallet disconnected successfully');
     } catch (err) {
       console.error('💳 Error disconnecting wallet:', err);
     }

@@ -11,8 +11,6 @@ const AuthButtons = () => {
     setError(null);
 
     try {
-      console.log('🔐 Starting Google OAuth sign in...');
-      
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -27,8 +25,6 @@ const AuthButtons = () => {
       if (error) {
         throw error;
       }
-
-      console.log('🔐 Google OAuth initiated successfully');
       
       // The user will be redirected to Google for authentication
       // After successful auth, they'll be redirected back to our app

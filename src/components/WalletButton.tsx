@@ -8,19 +8,6 @@ const WalletButton = () => {
   const { connectWallet, connecting, error, isWalletAvailable } = useWallet();
   const [connectionSuccess, setConnectionSuccess] = useState(false);
 
-  // Debug logging
-  useEffect(() => {
-    console.log('💳 WalletButton state:', { 
-      user: !!user, 
-      profile: !!profile, 
-      authLoading, 
-      connecting,
-      hasWallet: isWalletAvailable,
-      shouldRender: !(user && profile && !authLoading),
-      timestamp: new Date().toISOString()
-    });
-  }, [user, profile, authLoading, connecting, isWalletAvailable]);
-
   const handleConnect = async () => {
     if (!isWalletAvailable) {
       window.open('https://phantom.app/', '_blank');
@@ -28,24 +15,19 @@ const WalletButton = () => {
     }
 
     try {
-      console.log('💳 Starting wallet connection process...');
       setConnectionSuccess(false);
       
       const result = await connectWallet();
-      console.log('✅ Wallet connection result:', result);
       
       // Show success state briefly
       setConnectionSuccess(true);
       
       // If session was successfully set, refresh the auth state immediately
       if (result.sessionSet) {
-        console.log('💳 SESSION_SET: true - Refreshing auth state...');
-        
         // Add a small delay to ensure the auth state change has propagated
         setTimeout(async () => {
           try {
             await refreshSessionAndProfile();
-            console.log('💳 Auth state refresh completed - UI should update now');
           } catch (refreshError) {
             console.error('❌ Error refreshing auth state:', refreshError);
           }
@@ -59,7 +41,6 @@ const WalletButton = () => {
 
   // Show loading state while auth is loading
   if (authLoading) {
-    console.log('💳 WalletButton: Showing auth loading state');
     return (
       <div className="bg-gray-800 border border-yellow-400/20 text-white px-6 py-2 rounded-lg font-medium flex items-center space-x-2 w-full md:w-auto justify-center">
         <Loader2 className="w-4 h-4 animate-spin" />
@@ -70,13 +51,11 @@ const WalletButton = () => {
 
   // Don't render if user is authenticated and profile is loaded
   if (user && profile) {
-    console.log('💳 WalletButton: Not rendering - user authenticated');
     return null;
   }
 
   // Show connecting state while wallet connection is in progress
   if (connecting) {
-    console.log('💳 WalletButton: Showing connecting state');
     return (
       <div className="bg-yellow-400/20 border border-yellow-400/40 text-yellow-400 px-6 py-2 rounded-lg font-medium flex items-center space-x-2 w-full md:w-auto justify-center">
         <Loader2 className="w-4 h-4 animate-spin" />
@@ -97,7 +76,6 @@ const WalletButton = () => {
 
   // Show loading state if we have a user but no profile yet
   if (user && !profile) {
-    console.log('💳 WalletButton: Showing profile loading state');
     return (
       <div className="bg-blue-600/20 border border-blue-600/40 text-blue-400 px-6 py-2 rounded-lg font-medium flex items-center space-x-2 w-full md:w-auto justify-center">
         <Loader2 className="w-4 h-4 animate-spin" />
@@ -107,7 +85,6 @@ const WalletButton = () => {
   }
 
   // Default - show connect button
-  console.log('💳 WalletButton: Rendering connect button');
   return (
     <div className="relative">
       <button

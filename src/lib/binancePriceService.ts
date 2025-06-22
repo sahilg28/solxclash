@@ -54,8 +54,6 @@ class BinancePriceService {
 
   private async initializeConnection() {
     try {
-      console.log('🔗 Initializing Binance WebSocket connection...');
-      
       // Clear any existing connection
       if (this.ws) {
         this.ws.close();
@@ -66,20 +64,16 @@ class BinancePriceService {
       const streams = symbols.map(symbol => `${symbol}@miniTicker`).join('/');
       const wsUrl = `wss://stream.binance.com:9443/ws/${streams}`;
       
-      console.log('🔗 Connecting to:', wsUrl);
-      
       this.ws = new WebSocket(wsUrl);
       
       // Set connection timeout
       this.connectionTimeout = setTimeout(() => {
         if (this.ws && this.ws.readyState !== WebSocket.OPEN) {
-          console.error('❌ WebSocket connection timeout');
           this.handleConnectionError();
         }
       }, 10000);
 
       this.ws.onopen = () => {
-        console.log('✅ Binance WebSocket connected');
         this.isConnected = true;
         this.reconnectAttempts = 0;
         
@@ -110,7 +104,6 @@ class BinancePriceService {
       };
 
       this.ws.onclose = (event) => {
-        console.log('🔌 WebSocket closed:', event.code, event.reason);
         this.isConnected = false;
         
         if (this.heartbeatInterval) {
@@ -173,9 +166,7 @@ class BinancePriceService {
     this.heartbeatInterval = setInterval(() => {
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {
         // Binance WebSocket doesn't require explicit ping, but we can check connection
-        console.log('💓 WebSocket heartbeat - connection healthy');
       } else {
-        console.warn('⚠️ WebSocket connection lost during heartbeat');
         this.handleConnectionError();
       }
     }, 30000);
@@ -189,7 +180,6 @@ class BinancePriceService {
       )?.[0] as CoinSymbol;
 
       if (!symbol) {
-        console.warn('⚠️ Unknown symbol received:', data.s);
         return;
       }
 
@@ -197,7 +187,6 @@ class BinancePriceService {
       const openPrice = parseFloat(data.o);
       
       if (isNaN(currentPrice) || isNaN(openPrice) || currentPrice <= 0) {
-        console.warn('⚠️ Invalid price data for', symbol, data);
         return;
       }
 
@@ -227,8 +216,6 @@ class BinancePriceService {
 
       // Notify subscribers
       this.notifySubscribers(symbol, update);
-
-      console.log(`📈 ${symbol}: $${currentPrice.toFixed(4)} (${changePercent24h >= 0 ? '+' : ''}${changePercent24h.toFixed(2)}%)`);
 
     } catch (error) {
       console.error('❌ Error processing price update:', error, data);
@@ -262,20 +249,15 @@ class BinancePriceService {
       this.reconnectAttempts++;
       const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
       
-      console.log(`🔄 Attempting to reconnect to Binance (${this.reconnectAttempts}/${this.maxReconnectAttempts}) in ${delay}ms...`);
-      
       setTimeout(() => {
         this.initializeConnection();
       }, delay);
     } else {
-      console.error('❌ Max reconnection attempts reached. Using fallback price service.');
       this.startFallbackPriceService();
     }
   }
 
   private startFallbackPriceService() {
-    console.log('🔄 Starting fallback price service...');
-    
     const symbols: CoinSymbol[] = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP'];
     const basePrices = {
       BTC: 67234.50,
@@ -385,8 +367,6 @@ class BinancePriceService {
 
   public async disconnect() {
     try {
-      console.log('🔌 Disconnecting Binance WebSocket...');
-      
       this.isConnected = false;
       
       if (this.heartbeatInterval) {
@@ -406,8 +386,6 @@ class BinancePriceService {
       
       this.subscribers.clear();
       this.priceCache.clear();
-      
-      console.log('✅ Binance WebSocket disconnected');
     } catch (error) {
       console.error('❌ Error disconnecting from Binance:', error);
     }

@@ -51,8 +51,6 @@ const CryptoClashPage = () => {
 
   // Initialize price service and game logic
   useEffect(() => {
-    console.log('🎮 Initializing CryptoClash page with Binance WebSocket...');
-    
     // Subscribe to price updates
     const priceSubscriptionId = binancePriceService.subscribe((update: PriceUpdate) => {
       setPriceData(prev => new Map(prev.set(update.symbol, update)));
@@ -100,7 +98,6 @@ const CryptoClashPage = () => {
   // Initialize game logic when authentication is ready
   useEffect(() => {
     if (!loading && user && profile) {
-      console.log('🎮 Authentication ready, initializing game logic...');
       gameLogicService.initializeGameState();
     }
   }, [loading, user, profile]);

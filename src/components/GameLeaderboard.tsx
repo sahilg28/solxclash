@@ -20,8 +20,6 @@ const GameLeaderboard = () => {
   const fetchLeaderboard = async () => {
     setLoading(true);
     try {
-      console.log('📊 Fetching leaderboard data...');
-      
       let query = supabase
         .from('profiles')
         .select('*')
@@ -55,7 +53,6 @@ const GameLeaderboard = () => {
       }));
 
       setLeaderboard(processedData);
-      console.log(`✅ Loaded ${processedData.length} leaderboard entries`);
     } catch (error) {
       console.error('❌ Failed to fetch leaderboard:', error);
     } finally {

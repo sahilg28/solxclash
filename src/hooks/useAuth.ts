@@ -8,21 +8,10 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log('🔄 useAuth: Initializing Google OAuth authentication system...');
-    
     // Get initial session on mount
     const initializeAuth = async () => {
       try {
         const { data, error } = await supabase.auth.getSession();
-        
-        console.log('🔄 INITIAL_SESSION:', {
-          hasSession: !!data.session,
-          hasUser: !!data.session?.user,
-          userId: data.session?.user?.id,
-          provider: data.session?.user?.app_metadata?.provider,
-          error: error?.message,
-          timestamp: new Date().toISOString()
-        });
         
         if (error) {
           console.error('❌ Error getting initial session:', error);
@@ -47,25 +36,14 @@ export const useAuth = () => {
 
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('🔄 AUTH_EVENT:', {
-        event,
-        hasSession: !!session,
-        hasUser: !!session?.user,
-        userId: session?.user?.id,
-        provider: session?.user?.app_metadata?.provider,
-        timestamp: new Date().toISOString()
-      });
-      
       setUser(session?.user ?? null);
       
       // Use setTimeout to avoid potential deadlocks in auth state changes
       setTimeout(async () => {
         try {
           if (session?.user) {
-            console.log('🔄 Processing user after auth event:', session.user.id);
             await fetchOrCreateProfile(session.user);
           } else {
-            console.log('🔄 No user in session, clearing profile');
             setProfile(null);
             setLoading(false);
           }
@@ -77,21 +55,12 @@ export const useAuth = () => {
     });
 
     return () => {
-      console.log('🔄 useAuth: Cleaning up auth subscription');
       subscription.unsubscribe();
     };
   }, []);
 
   const fetchOrCreateProfile = async (user: User) => {
     try {
-      console.log('👤 fetchOrCreateProfile: Starting for Google user:', {
-        userId: user.id,
-        userEmail: user.email,
-        provider: user.app_metadata?.provider,
-        userMetadata: user.user_metadata,
-        timestamp: new Date().toISOString()
-      });
-      
       // First, try to fetch existing profile
       const { data: existingProfile, error: fetchError } = await supabase
         .from('profiles')
@@ -100,13 +69,6 @@ export const useAuth = () => {
         .single();
 
       if (existingProfile) {
-        console.log('✅ Found existing profile:', {
-          profileId: existingProfile.id,
-          username: existingProfile.username,
-          fullName: existingProfile.full_name,
-          avatarUrl: existingProfile.avatar_url,
-          timestamp: new Date().toISOString()
-        });
         setProfile(existingProfile);
         setLoading(false);
         return;
@@ -114,8 +76,6 @@ export const useAuth = () => {
 
       // If no profile exists, create one
       if (fetchError && fetchError.code === 'PGRST116') {
-        console.log('🆕 No profile found, creating new one for Google user:', user.id);
-        
         // Extract user data from Google OAuth response
         const fullName = user.user_metadata?.full_name || user.user_metadata?.name || null;
         const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture || null;
@@ -184,15 +144,6 @@ export const useAuth = () => {
           streak: 0,
         };
 
-        console.log('📝 Creating Google profile with data:', {
-          userId: newProfile.user_id,
-          username: newProfile.username,
-          fullName: newProfile.full_name,
-          avatarUrl: newProfile.avatar_url,
-          email: newProfile.email,
-          timestamp: new Date().toISOString()
-        });
-
         const { data: createdProfile, error: createError } = await supabase
           .from('profiles')
           .insert([newProfile])
@@ -216,19 +167,11 @@ export const useAuth = () => {
             wins: 0,
             streak: 0,
           };
-          console.log('🔄 Using fallback profile:', fallbackProfile);
           setProfile(fallbackProfile);
           setLoading(false);
           return;
         }
 
-        console.log('✅ Google profile created successfully:', {
-          profileId: createdProfile.id,
-          username: createdProfile.username,
-          fullName: createdProfile.full_name,
-          avatarUrl: createdProfile.avatar_url,
-          timestamp: new Date().toISOString()
-        });
         setProfile(createdProfile);
         setLoading(false);
       } else {
@@ -248,7 +191,6 @@ export const useAuth = () => {
           wins: 0,
           streak: 0,
         };
-        console.log('🔄 Using fallback profile due to error:', fallbackProfile);
         setProfile(fallbackProfile);
         setLoading(false);
       }
@@ -269,7 +211,6 @@ export const useAuth = () => {
         wins: 0,
         streak: 0,
       };
-      console.log('🔄 Using fallback profile due to exception:', fallbackProfile);
       setProfile(fallbackProfile);
       setLoading(false);
     }
@@ -279,21 +220,12 @@ export const useAuth = () => {
   const refreshSessionAndProfile = async () => {
     setLoading(true);
     try {
-      console.log('🔄 Refreshing session and profile...');
       const { data: { session }, error } = await supabase.auth.getSession();
       
       if (error) {
         console.error('❌ Error getting session:', error);
         return;
       }
-
-      console.log('🔄 Refresh session result:', {
-        hasSession: !!session,
-        hasUser: !!session?.user,
-        userId: session?.user?.id,
-        provider: session?.user?.app_metadata?.provider,
-        timestamp: new Date().toISOString()
-      });
 
       setUser(session?.user ?? null);
       
@@ -330,7 +262,6 @@ export const useAuth = () => {
 
   const signOut = async () => {
     try {
-      console.log('🚪 Signing out from Google OAuth...');
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       
@@ -338,29 +269,11 @@ export const useAuth = () => {
       setUser(null);
       setProfile(null);
       setLoading(false);
-      
-      console.log('✅ Google OAuth sign out completed');
     } catch (error) {
       console.error('❌ Error signing out:', error);
       throw error;
     }
   };
-
-  // Debug logging for useAuth state changes
-  useEffect(() => {
-    console.log('🏗️ useAuth state update:', {
-      hasUser: !!user,
-      hasProfile: !!profile,
-      loading,
-      userId: user?.id,
-      provider: user?.app_metadata?.provider,
-      username: profile?.username,
-      profileId: profile?.id,
-      fullName: profile?.full_name,
-      avatarUrl: profile?.avatar_url,
-      timestamp: new Date().toISOString()
-    });
-  }, [user, profile, loading]);
 
   return {
     user,

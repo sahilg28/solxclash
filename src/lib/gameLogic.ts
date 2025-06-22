@@ -53,13 +53,10 @@ class GameLogicService {
 
   public async initializeGameState() {
     if (this.isInitialized) {
-      console.log('🎮 Game state already initialized');
       return;
     }
 
     try {
-      console.log('🎮 Initializing game state with 5-minute cycle...');
-      
       // Get the current active round - Fixed to handle empty results
       const { data: rounds, error } = await supabase
         .from('game_rounds')
@@ -84,7 +81,6 @@ class GameLogicService {
 
       this.startGameTimer();
       this.isInitialized = true;
-      console.log('✅ Game state initialized with 5-minute cycle');
     } catch (error) {
       console.error('❌ Failed to initialize game state:', error);
     }
@@ -102,7 +98,6 @@ class GameLogicService {
           table: 'game_rounds'
         },
         (payload) => {
-          console.log('🔄 Game round update received:', payload);
           this.handleRoundUpdate(payload);
         }
       )
@@ -178,9 +173,6 @@ class GameLogicService {
     const round = this.currentGameState.currentRound;
     if (!round) return;
 
-    // Add debugging log to track phase transitions
-    console.log(`🔄 Phase transition: ${round.status}, timeLeft: ${this.currentGameState.timeLeft}`);
-
     try {
       switch (round.status) {
         case 'waiting':
@@ -206,8 +198,6 @@ class GameLogicService {
 
   private async createNewRound() {
     try {
-      console.log('🆕 Creating new 5-minute game round...');
-      
       // Get the next round number - Fixed to handle empty table
       const { data: rounds, error: roundsError } = await supabase
         .from('game_rounds')
@@ -255,9 +245,6 @@ class GameLogicService {
       this.currentGameState.currentRound = newRound;
       this.updateGamePhase();
       this.notifySubscribers();
-      
-      console.log(`✅ New 5-minute round created: #${nextRoundNumber} for ${selectedCoin}`);
-      console.log(`⏰ Prediction opens in 4 minutes, lasts 1 minute`);
     } catch (error) {
       console.error('❌ Failed to create new round:', error);
     }
@@ -265,8 +252,6 @@ class GameLogicService {
 
   private async startPredictionPhase(roundId: string) {
     try {
-      console.log('🎯 Starting 60-second prediction phase...');
-      
       // Get current round details
       const { data: round, error: roundError } = await supabase
         .from('game_rounds')
@@ -282,9 +267,7 @@ class GameLogicService {
 
       if (currentPrice && currentPrice.price > 0) {
         startPrice = currentPrice.price;
-        console.log(`💰 Setting start price for ${round.selected_coin}: $${startPrice}`);
       } else {
-        console.warn(`⚠️ No valid price data for ${round.selected_coin}, using fallback`);
         // Fallback prices for demo
         const fallbackPrices = {
           BTC: 67234.50,
@@ -312,8 +295,6 @@ class GameLogicService {
       this.currentGameState.currentRound = updatedRound;
       this.updateGamePhase();
       this.notifySubscribers();
-      
-      console.log('✅ 60-second prediction phase started with start price:', startPrice);
     } catch (error) {
       console.error('❌ Failed to start prediction phase:', error);
     }
@@ -321,8 +302,6 @@ class GameLogicService {
 
   private async startResolvingPhase(roundId: string) {
     try {
-      console.log('⚖️ Starting 10-second resolving phase...');
-      
       // Get current round details
       const { data: round, error: roundError } = await supabase
         .from('game_rounds')
@@ -338,9 +317,7 @@ class GameLogicService {
 
       if (currentPrice && currentPrice.price > 0) {
         endPrice = currentPrice.price;
-        console.log(`💰 Setting end price for ${round.selected_coin}: $${endPrice}`);
       } else {
-        console.warn(`⚠️ No valid price data for ${round.selected_coin}, using simulated price`);
         // Simulate price movement based on start price
         const startPrice = round.start_price || 100;
         const changePercent = (Math.random() - 0.5) * 4; // -2% to +2%
@@ -363,8 +340,6 @@ class GameLogicService {
       this.currentGameState.currentRound = updatedRound;
       this.updateGamePhase();
       this.notifySubscribers();
-      
-      console.log('✅ 10-second resolving phase started with end price:', endPrice);
     } catch (error) {
       console.error('❌ Failed to start resolving phase:', error);
     }
@@ -372,8 +347,6 @@ class GameLogicService {
 
   private async completeRound(roundId: string) {
     try {
-      console.log('🏁 Completing round and calculating results...');
-      
       // Get round details with start and end prices
       const { data: round, error: roundError } = await supabase
         .from('game_rounds')
@@ -400,8 +373,6 @@ class GameLogicService {
         priceDirection = 'down';
       }
 
-      console.log(`📊 Price moved ${priceDirection}: $${round.start_price} → $${round.end_price}`);
-
       // Get all predictions for this round
       const { data: predictions, error: predictionsError } = await supabase
         .from('predictions')
@@ -409,8 +380,6 @@ class GameLogicService {
         .eq('round_id', roundId);
 
       if (predictionsError) throw predictionsError;
-
-      console.log(`🎯 Processing ${predictions.length} predictions...`);
 
       // Process each prediction
       for (const prediction of predictions) {
@@ -472,8 +441,6 @@ class GameLogicService {
           console.error('Error updating user profile:', updateProfileError);
           continue;
         }
-
-        console.log(`✅ Updated user ${prediction.user_id}: ${isCorrect ? 'WIN' : 'LOSS'} (+${totalXpEarned} XP, streak: ${newStreak})`);
       }
 
       // Update round status to completed
@@ -493,8 +460,6 @@ class GameLogicService {
       this.currentGameState.currentRound = completedRound;
       this.updateGamePhase();
       this.notifySubscribers();
-      
-      console.log(`🎉 Round completed! Price went ${priceDirection.toUpperCase()}`);
     } catch (error) {
       console.error('❌ Failed to complete round:', error);
     }
@@ -507,8 +472,6 @@ class GameLogicService {
     }
 
     try {
-      console.log(`🎯 Making prediction: ${prediction} for round ${round.round_number}`);
-      
       const { data, error } = await supabase
         .from('predictions')
         .upsert([{
@@ -524,7 +487,6 @@ class GameLogicService {
       this.currentGameState.userPrediction = data;
       this.notifySubscribers();
       
-      console.log('✅ Prediction saved');
       return data;
     } catch (error) {
       console.error('❌ Failed to make prediction:', error);
@@ -608,7 +570,6 @@ class GameLogicService {
     
     this.gameStateSubscribers.clear();
     this.isInitialized = false;
-    console.log('🎮 Game logic service disconnected');
   }
 }
 
