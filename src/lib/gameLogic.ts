@@ -178,6 +178,9 @@ class GameLogicService {
     const round = this.currentGameState.currentRound;
     if (!round) return;
 
+    // Add debugging log to track phase transitions
+    console.log(`🔄 Phase transition: ${round.status}, timeLeft: ${this.currentGameState.timeLeft}`);
+
     try {
       switch (round.status) {
         case 'waiting':
@@ -248,8 +251,10 @@ class GameLogicService {
 
       if (error) throw error;
 
+      // Immediately update local state to prevent race conditions
       this.currentGameState.currentRound = newRound;
       this.updateGamePhase();
+      this.notifySubscribers();
       
       console.log(`✅ New 5-minute round created: #${nextRoundNumber} for ${selectedCoin}`);
       console.log(`⏰ Prediction opens in 4 minutes, lasts 1 minute`);
@@ -291,15 +296,22 @@ class GameLogicService {
         startPrice = fallbackPrices[round.selected_coin];
       }
 
-      const { error } = await supabase
+      const { data: updatedRound, error } = await supabase
         .from('game_rounds')
         .update({ 
           status: 'predicting',
           start_price: startPrice
         })
-        .eq('id', roundId);
+        .eq('id', roundId)
+        .select()
+        .single();
 
       if (error) throw error;
+
+      // Immediately update local state to prevent race conditions
+      this.currentGameState.currentRound = updatedRound;
+      this.updateGamePhase();
+      this.notifySubscribers();
       
       console.log('✅ 60-second prediction phase started with start price:', startPrice);
     } catch (error) {
@@ -335,15 +347,22 @@ class GameLogicService {
         endPrice = startPrice * (1 + changePercent / 100);
       }
 
-      const { error } = await supabase
+      const { data: updatedRound, error } = await supabase
         .from('game_rounds')
         .update({ 
           status: 'resolving',
           end_price: endPrice
         })
-        .eq('id', roundId);
+        .eq('id', roundId)
+        .select()
+        .single();
 
       if (error) throw error;
+
+      // Immediately update local state to prevent race conditions
+      this.currentGameState.currentRound = updatedRound;
+      this.updateGamePhase();
+      this.notifySubscribers();
       
       console.log('✅ 10-second resolving phase started with end price:', endPrice);
     } catch (error) {
@@ -458,15 +477,22 @@ class GameLogicService {
       }
 
       // Update round status to completed
-      const { error: completeError } = await supabase
+      const { data: completedRound, error: completeError } = await supabase
         .from('game_rounds')
         .update({ 
           status: 'completed',
           price_direction: priceDirection
         })
-        .eq('id', roundId);
+        .eq('id', roundId)
+        .select()
+        .single();
 
       if (completeError) throw completeError;
+
+      // Immediately update local state to prevent race conditions
+      this.currentGameState.currentRound = completedRound;
+      this.updateGamePhase();
+      this.notifySubscribers();
       
       console.log(`🎉 Round completed! Price went ${priceDirection.toUpperCase()}`);
     } catch (error) {
