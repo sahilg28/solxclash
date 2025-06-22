@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, memo } from 'react';
 
 interface TradingViewChartProps {
   symbol: string;
@@ -92,4 +92,5 @@ const TradingViewChart: React.FC<TradingViewChartProps> = ({
   );
 };
 
-export default TradingViewChart;
+// Wrap with React.memo to optimize rendering and prevent unnecessary re-renders
+export default memo(TradingViewChart);

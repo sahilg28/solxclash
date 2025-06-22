@@ -22,6 +22,7 @@ export interface Prediction {
   user_id: string;
   prediction: 'up' | 'down';
   predicted_at: string;
+  predicted_price?: number | null;
   is_correct: boolean | null;
   xp_earned: number;
   created_at: string;
@@ -57,6 +58,8 @@ class GameLogicService {
     }
 
     try {
+      console.log('🎮 Initializing game state...');
+      
       // Get the current active round - Fixed to handle empty results
       const { data: rounds, error } = await supabase
         .from('game_rounds')
@@ -81,6 +84,7 @@ class GameLogicService {
 
       this.startGameTimer();
       this.isInitialized = true;
+      console.log('✅ Game state initialized');
     } catch (error) {
       console.error('❌ Failed to initialize game state:', error);
     }
@@ -98,6 +102,7 @@ class GameLogicService {
           table: 'game_rounds'
         },
         (payload) => {
+          console.log('🔄 Game round update received:', payload);
           this.handleRoundUpdate(payload);
         }
       )
@@ -198,6 +203,8 @@ class GameLogicService {
 
   private async createNewRound() {
     try {
+      console.log('🆕 Creating new game round...');
+      
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/game-management/create-round`, {
         method: 'POST',
         headers: {
@@ -220,6 +227,8 @@ class GameLogicService {
       this.currentGameState.currentRound = result.round;
       this.updateGamePhase();
       this.notifySubscribers();
+      
+      console.log(`✅ New round created: #${result.round.round_number} for ${result.round.selected_coin}`);
     } catch (error) {
       console.error('❌ Failed to create new round:', error);
     }
@@ -227,6 +236,8 @@ class GameLogicService {
 
   private async startPredictionPhase(roundId: string) {
     try {
+      console.log('🎯 Starting prediction phase...');
+      
       // Get current price from Binance service
       const round = this.currentGameState.currentRound;
       if (!round) return;
@@ -264,6 +275,8 @@ class GameLogicService {
       this.currentGameState.currentRound = result.round;
       this.updateGamePhase();
       this.notifySubscribers();
+      
+      console.log('✅ Prediction phase started');
     } catch (error) {
       console.error('❌ Failed to start prediction phase:', error);
     }
@@ -271,6 +284,8 @@ class GameLogicService {
 
   private async startResolvingPhase(roundId: string) {
     try {
+      console.log('⚖️ Starting resolving phase...');
+      
       // Get current price from Binance service
       const round = this.currentGameState.currentRound;
       if (!round) return;
@@ -308,6 +323,8 @@ class GameLogicService {
       this.currentGameState.currentRound = result.round;
       this.updateGamePhase();
       this.notifySubscribers();
+      
+      console.log('✅ Resolving phase started');
     } catch (error) {
       console.error('❌ Failed to start resolving phase:', error);
     }
@@ -315,6 +332,8 @@ class GameLogicService {
 
   private async completeRound(roundId: string) {
     try {
+      console.log('🏁 Completing round...');
+      
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/game-management/complete-round`, {
         method: 'POST',
         headers: {
@@ -340,6 +359,8 @@ class GameLogicService {
       this.currentGameState.currentRound = result.round;
       this.updateGamePhase();
       this.notifySubscribers();
+      
+      console.log('✅ Round completed');
     } catch (error) {
       console.error('❌ Failed to complete round:', error);
     }
@@ -347,11 +368,14 @@ class GameLogicService {
 
   public async makePrediction(prediction: 'up' | 'down', userId: string) {
     const round = this.currentGameState.currentRound;
-    if (!round || round.status !== 'predicting') {
+    // Allow predictions during both waiting and predicting phases
+    if (!round || (round.status !== 'waiting' && round.status !== 'predicting')) {
       throw new Error('No active prediction round');
     }
 
     try {
+      console.log(`🎯 Making prediction: ${prediction} for round ${round.round_number}`);
+      
       // Check if user has enough XP (10 XP required per prediction)
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
@@ -367,6 +391,12 @@ class GameLogicService {
         throw new Error('Insufficient XP! You need at least 10 XP to make a prediction.');
       }
 
+      // Get current price for the selected coin
+      const currentPrice = binancePriceService.getCurrentPrice(round.selected_coin);
+      if (!currentPrice || currentPrice.price <= 0) {
+        throw new Error('Unable to get current price. Please try again.');
+      }
+
       // Deduct 10 XP from user's profile
       const { error: deductError } = await supabase
         .from('profiles')
@@ -377,13 +407,14 @@ class GameLogicService {
         throw new Error('Failed to deduct XP from your account');
       }
 
-      // Create the prediction
+      // Create the prediction with the current price locked in
       const { data, error } = await supabase
         .from('predictions')
         .upsert([{
           round_id: round.id,
           user_id: userId,
-          prediction: prediction
+          prediction: prediction,
+          predicted_price: currentPrice.price
         }])
         .select()
         .single();
@@ -393,6 +424,7 @@ class GameLogicService {
       this.currentGameState.userPrediction = data;
       this.notifySubscribers();
       
+      console.log('✅ Prediction saved with locked price:', currentPrice.price);
       return data;
     } catch (error) {
       console.error('❌ Failed to make prediction:', error);
@@ -476,6 +508,7 @@ class GameLogicService {
     
     this.gameStateSubscribers.clear();
     this.isInitialized = false;
+    console.log('🎮 Game logic service disconnected');
   }
 }
 

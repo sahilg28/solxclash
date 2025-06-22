@@ -50,6 +50,7 @@ interface Database {
           user_id: string
           prediction: 'up' | 'down'
           predicted_at: string
+          predicted_price: number | null
           is_correct: boolean | null
           xp_earned: number
           created_at: string
@@ -59,6 +60,7 @@ interface Database {
           user_id: string
           prediction: 'up' | 'down'
           predicted_at?: string
+          predicted_price?: number | null
           is_correct?: boolean | null
           xp_earned?: number
         }
@@ -157,6 +159,8 @@ serve(async (req) => {
 
 async function createNewRound(supabase: any) {
   try {
+    console.log('🆕 Creating new game round...')
+    
     // Get the next round number
     const { data: rounds, error: roundsError } = await supabase
       .from('game_rounds')
@@ -198,18 +202,22 @@ async function createNewRound(supabase: any) {
 
     if (error) throw error
 
+    console.log(`✅ New round created: #${nextRoundNumber} for ${selectedCoin}`)
+
     return new Response(
       JSON.stringify({ success: true, round: newRound }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
-    console.error('Error creating new round:', error)
+    console.error('❌ Error creating new round:', error)
     throw error
   }
 }
 
 async function startPredictionPhase(supabase: any, roundId: string, startPrice?: number) {
   try {
+    console.log('🎯 Starting prediction phase...')
+    
     // Get current round details
     const { data: round, error: roundError } = await supabase
       .from('game_rounds')
@@ -245,18 +253,22 @@ async function startPredictionPhase(supabase: any, roundId: string, startPrice?:
 
     if (error) throw error
 
+    console.log('✅ Prediction phase started')
+
     return new Response(
       JSON.stringify({ success: true, round: updatedRound }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
-    console.error('Error starting prediction phase:', error)
+    console.error('❌ Error starting prediction phase:', error)
     throw error
   }
 }
 
 async function startResolvingPhase(supabase: any, roundId: string, endPrice?: number) {
   try {
+    console.log('⚖️ Starting resolving phase...')
+    
     // Get current round details
     const { data: round, error: roundError } = await supabase
       .from('game_rounds')
@@ -287,18 +299,22 @@ async function startResolvingPhase(supabase: any, roundId: string, endPrice?: nu
 
     if (error) throw error
 
+    console.log('✅ Resolving phase started')
+
     return new Response(
       JSON.stringify({ success: true, round: updatedRound }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
-    console.error('Error starting resolving phase:', error)
+    console.error('❌ Error starting resolving phase:', error)
     throw error
   }
 }
 
 async function completeRound(supabase: any, roundId: string) {
   try {
+    console.log('🏁 Completing round...')
+    
     // Get round details with start and end prices
     const { data: round, error: roundError } = await supabase
       .from('game_rounds')
@@ -312,7 +328,7 @@ async function completeRound(supabase: any, roundId: string) {
       throw new Error('Cannot complete round: missing price data')
     }
 
-    // Calculate price direction
+    // Calculate price direction based on round start/end prices
     const priceDifference = round.end_price - round.start_price
     let priceDirection: 'up' | 'down' | 'unchanged'
     
@@ -324,7 +340,7 @@ async function completeRound(supabase: any, roundId: string) {
       priceDirection = 'down'
     }
 
-    // Get all predictions for this round
+    // Get all predictions for this round (including predicted_price)
     const { data: predictions, error: predictionsError } = await supabase
       .from('predictions')
       .select('*')
@@ -332,9 +348,29 @@ async function completeRound(supabase: any, roundId: string) {
 
     if (predictionsError) throw predictionsError
 
+    console.log(`📊 Processing ${predictions.length} predictions for round ${round.round_number}`)
+
     // Process each prediction
     for (const prediction of predictions) {
-      const isCorrect = prediction.prediction === priceDirection
+      // Compare individual predicted_price with round end_price
+      let isCorrect = false
+      
+      if (prediction.predicted_price && round.end_price) {
+        const individualPriceDifference = round.end_price - prediction.predicted_price
+        
+        if (Math.abs(individualPriceDifference) < 0.01) {
+          // Price unchanged - both predictions are wrong for simplicity
+          isCorrect = false
+        } else if (individualPriceDifference > 0 && prediction.prediction === 'up') {
+          isCorrect = true
+        } else if (individualPriceDifference < 0 && prediction.prediction === 'down') {
+          isCorrect = true
+        }
+      } else {
+        // Fallback to round-level comparison if no predicted_price
+        isCorrect = prediction.prediction === priceDirection
+      }
+      
       const baseXp = isCorrect ? 20 : 0 // 20 XP for correct prediction (double the 10 XP cost)
       
       // Get user's current streak for bonus calculation
@@ -357,7 +393,7 @@ async function completeRound(supabase: any, roundId: string) {
         .eq('id', prediction.id)
 
       if (updatePredictionError) {
-        console.error('Error updating prediction:', updatePredictionError)
+        console.error('❌ Error updating prediction:', updatePredictionError)
         continue
       }
 
@@ -369,7 +405,7 @@ async function completeRound(supabase: any, roundId: string) {
         .single()
 
       if (profileError) {
-        console.error('Error fetching user profile:', profileError)
+        console.error('❌ Error fetching user profile:', profileError)
         continue
       }
 
@@ -389,9 +425,11 @@ async function completeRound(supabase: any, roundId: string) {
         .eq('user_id', prediction.user_id)
 
       if (updateProfileError) {
-        console.error('Error updating user profile:', updateProfileError)
+        console.error('❌ Error updating user profile:', updateProfileError)
         continue
       }
+
+      console.log(`✅ Updated user ${prediction.user_id}: ${isCorrect ? 'WIN' : 'LOSS'}, +${totalXpEarned} XP`)
     }
 
     // Update round status to completed
@@ -407,12 +445,14 @@ async function completeRound(supabase: any, roundId: string) {
 
     if (completeError) throw completeError
 
+    console.log('✅ Round completed successfully')
+
     return new Response(
       JSON.stringify({ success: true, round: completedRound }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
-    console.error('Error completing round:', error)
+    console.error('❌ Error completing round:', error)
     throw error
   }
 }
