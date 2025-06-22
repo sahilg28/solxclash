@@ -198,51 +198,26 @@ class GameLogicService {
 
   private async createNewRound() {
     try {
-      // Get the next round number - Fixed to handle empty table
-      const { data: rounds, error: roundsError } = await supabase
-        .from('game_rounds')
-        .select('round_number')
-        .order('round_number', { ascending: false })
-        .limit(1);
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/game-management/create-round`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        }
+      });
 
-      if (roundsError) {
-        console.error('Error fetching rounds:', roundsError);
-        throw roundsError;
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      // Handle empty table case
-      const nextRoundNumber = (rounds && rounds.length > 0) ? rounds[0].round_number + 1 : 1;
+      const result = await response.json();
       
-      // Select a random coin for this round
-      const coins: CoinSymbol[] = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP'];
-      const selectedCoin = coins[Math.floor(Math.random() * coins.length)];
-      
-      // Calculate times for 5-minute cycle:
-      // - 4 minutes (240 seconds) waiting/lobby phase
-      // - 1 minute (60 seconds) prediction phase  
-      // - 10 seconds resolving phase
-      const now = new Date();
-      const startTime = new Date(now.getTime() + 240 * 1000); // Start prediction in 4 minutes
-      const predictionEndTime = new Date(startTime.getTime() + 60 * 1000); // 60 seconds for predictions
-      const endTime = new Date(predictionEndTime.getTime() + 10 * 1000); // 10 seconds for resolution
-
-      const { data: newRound, error } = await supabase
-        .from('game_rounds')
-        .insert([{
-          round_number: nextRoundNumber,
-          status: 'waiting',
-          selected_coin: selectedCoin,
-          start_time: startTime.toISOString(),
-          prediction_end_time: predictionEndTime.toISOString(),
-          end_time: endTime.toISOString()
-        }])
-        .select()
-        .single();
-
-      if (error) throw error;
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to create new round');
+      }
 
       // Immediately update local state to prevent race conditions
-      this.currentGameState.currentRound = newRound;
+      this.currentGameState.currentRound = result.round;
       this.updateGamePhase();
       this.notifySubscribers();
     } catch (error) {
@@ -252,47 +227,41 @@ class GameLogicService {
 
   private async startPredictionPhase(roundId: string) {
     try {
-      // Get current round details
-      const { data: round, error: roundError } = await supabase
-        .from('game_rounds')
-        .select('*')
-        .eq('id', roundId)
-        .single();
-
-      if (roundError) throw roundError;
-
       // Get current price from Binance service
+      const round = this.currentGameState.currentRound;
+      if (!round) return;
+
       const currentPrice = binancePriceService.getCurrentPrice(round.selected_coin);
       let startPrice = null;
 
       if (currentPrice && currentPrice.price > 0) {
         startPrice = currentPrice.price;
-      } else {
-        // Fallback prices for demo
-        const fallbackPrices = {
-          BTC: 67234.50,
-          ETH: 3456.78,
-          SOL: 145.23,
-          BNB: 312.45,
-          XRP: 0.6234
-        };
-        startPrice = fallbackPrices[round.selected_coin];
       }
 
-      const { data: updatedRound, error } = await supabase
-        .from('game_rounds')
-        .update({ 
-          status: 'predicting',
-          start_price: startPrice
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/game-management/start-prediction`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({
+          roundId,
+          startPrice
         })
-        .eq('id', roundId)
-        .select()
-        .single();
+      });
 
-      if (error) throw error;
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to start prediction phase');
+      }
 
       // Immediately update local state to prevent race conditions
-      this.currentGameState.currentRound = updatedRound;
+      this.currentGameState.currentRound = result.round;
       this.updateGamePhase();
       this.notifySubscribers();
     } catch (error) {
@@ -302,42 +271,41 @@ class GameLogicService {
 
   private async startResolvingPhase(roundId: string) {
     try {
-      // Get current round details
-      const { data: round, error: roundError } = await supabase
-        .from('game_rounds')
-        .select('*')
-        .eq('id', roundId)
-        .single();
-
-      if (roundError) throw roundError;
-
       // Get current price from Binance service
+      const round = this.currentGameState.currentRound;
+      if (!round) return;
+
       const currentPrice = binancePriceService.getCurrentPrice(round.selected_coin);
       let endPrice = null;
 
       if (currentPrice && currentPrice.price > 0) {
         endPrice = currentPrice.price;
-      } else {
-        // Simulate price movement based on start price
-        const startPrice = round.start_price || 100;
-        const changePercent = (Math.random() - 0.5) * 4; // -2% to +2%
-        endPrice = startPrice * (1 + changePercent / 100);
       }
 
-      const { data: updatedRound, error } = await supabase
-        .from('game_rounds')
-        .update({ 
-          status: 'resolving',
-          end_price: endPrice
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/game-management/start-resolving`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({
+          roundId,
+          endPrice
         })
-        .eq('id', roundId)
-        .select()
-        .single();
+      });
 
-      if (error) throw error;
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to start resolving phase');
+      }
 
       // Immediately update local state to prevent race conditions
-      this.currentGameState.currentRound = updatedRound;
+      this.currentGameState.currentRound = result.round;
       this.updateGamePhase();
       this.notifySubscribers();
     } catch (error) {
@@ -347,117 +315,29 @@ class GameLogicService {
 
   private async completeRound(roundId: string) {
     try {
-      // Get round details with start and end prices
-      const { data: round, error: roundError } = await supabase
-        .from('game_rounds')
-        .select('*')
-        .eq('id', roundId)
-        .single();
-
-      if (roundError) throw roundError;
-
-      if (!round.start_price || !round.end_price) {
-        console.error('❌ Cannot complete round: missing price data');
-        return;
-      }
-
-      // Calculate price direction
-      const priceDifference = round.end_price - round.start_price;
-      let priceDirection: 'up' | 'down' | 'unchanged';
-      
-      if (Math.abs(priceDifference) < 0.01) {
-        priceDirection = 'unchanged';
-      } else if (priceDifference > 0) {
-        priceDirection = 'up';
-      } else {
-        priceDirection = 'down';
-      }
-
-      // Get all predictions for this round
-      const { data: predictions, error: predictionsError } = await supabase
-        .from('predictions')
-        .select('*')
-        .eq('round_id', roundId);
-
-      if (predictionsError) throw predictionsError;
-
-      // Process each prediction
-      for (const prediction of predictions) {
-        const isCorrect = prediction.prediction === priceDirection;
-        const baseXp = isCorrect ? 20 : 0; // 20 XP for correct prediction (double the 10 XP cost)
-        
-        // Get user's current streak for bonus calculation
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('streak')
-          .eq('user_id', prediction.user_id)
-          .single();
-        
-        const streakBonus = isCorrect && profile ? profile.streak * 10 : 0;
-        const totalXpEarned = baseXp + streakBonus;
-
-        // Update prediction with result
-        const { error: updatePredictionError } = await supabase
-          .from('predictions')
-          .update({
-            is_correct: isCorrect,
-            xp_earned: totalXpEarned
-          })
-          .eq('id', prediction.id);
-
-        if (updatePredictionError) {
-          console.error('Error updating prediction:', updatePredictionError);
-          continue;
-        }
-
-        // Update user profile
-        const { data: userProfile, error: profileError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('user_id', prediction.user_id)
-          .single();
-
-        if (profileError) {
-          console.error('Error fetching user profile:', profileError);
-          continue;
-        }
-
-        const newGamesPlayed = userProfile.games_played + 1;
-        const newWins = isCorrect ? userProfile.wins + 1 : userProfile.wins;
-        const newXp = userProfile.xp + totalXpEarned;
-        const newStreak = isCorrect ? userProfile.streak + 1 : 0;
-
-        const { error: updateProfileError } = await supabase
-          .from('profiles')
-          .update({
-            games_played: newGamesPlayed,
-            wins: newWins,
-            xp: newXp,
-            streak: newStreak
-          })
-          .eq('user_id', prediction.user_id);
-
-        if (updateProfileError) {
-          console.error('Error updating user profile:', updateProfileError);
-          continue;
-        }
-      }
-
-      // Update round status to completed
-      const { data: completedRound, error: completeError } = await supabase
-        .from('game_rounds')
-        .update({ 
-          status: 'completed',
-          price_direction: priceDirection
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/game-management/complete-round`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({
+          roundId
         })
-        .eq('id', roundId)
-        .select()
-        .single();
+      });
 
-      if (completeError) throw completeError;
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to complete round');
+      }
 
       // Immediately update local state to prevent race conditions
-      this.currentGameState.currentRound = completedRound;
+      this.currentGameState.currentRound = result.round;
       this.updateGamePhase();
       this.notifySubscribers();
     } catch (error) {
