@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { CoinSymbol, PriceData } from './pyth';
+import { CoinSymbol, PriceData, pythPriceService } from './pyth';
 
 export interface GameRound {
   id: string;
@@ -246,17 +246,46 @@ class GameLogicService {
     try {
       console.log('🎯 Starting prediction phase...');
       
+      // Get current round details
+      const { data: round, error: roundError } = await supabase
+        .from('game_rounds')
+        .select('*')
+        .eq('id', roundId)
+        .single();
+
+      if (roundError) throw roundError;
+
+      // Get current price from Pyth service
+      const currentPrice = pythPriceService.getCurrentPrice(round.selected_coin);
+      let startPrice = null;
+
+      if (currentPrice && currentPrice.price > 0) {
+        startPrice = currentPrice.price;
+        console.log(`💰 Setting start price for ${round.selected_coin}: $${startPrice}`);
+      } else {
+        console.warn(`⚠️ No valid price data for ${round.selected_coin}, using fallback`);
+        // Fallback prices for demo
+        const fallbackPrices = {
+          BTC: 67234.50,
+          ETH: 3456.78,
+          SOL: 145.23,
+          BNB: 312.45,
+          XRP: 0.6234
+        };
+        startPrice = fallbackPrices[round.selected_coin];
+      }
+
       const { error } = await supabase
         .from('game_rounds')
         .update({ 
           status: 'predicting',
-          start_price: null // Will be set when we get the first price
+          start_price: startPrice
         })
         .eq('id', roundId);
 
       if (error) throw error;
       
-      console.log('✅ Prediction phase started');
+      console.log('✅ Prediction phase started with start price:', startPrice);
     } catch (error) {
       console.error('❌ Failed to start prediction phase:', error);
     }
@@ -266,14 +295,41 @@ class GameLogicService {
     try {
       console.log('⚖️ Starting resolving phase...');
       
+      // Get current round details
+      const { data: round, error: roundError } = await supabase
+        .from('game_rounds')
+        .select('*')
+        .eq('id', roundId)
+        .single();
+
+      if (roundError) throw roundError;
+
+      // Get current price from Pyth service
+      const currentPrice = pythPriceService.getCurrentPrice(round.selected_coin);
+      let endPrice = null;
+
+      if (currentPrice && currentPrice.price > 0) {
+        endPrice = currentPrice.price;
+        console.log(`💰 Setting end price for ${round.selected_coin}: $${endPrice}`);
+      } else {
+        console.warn(`⚠️ No valid price data for ${round.selected_coin}, using simulated price`);
+        // Simulate price movement based on start price
+        const startPrice = round.start_price || 100;
+        const changePercent = (Math.random() - 0.5) * 4; // -2% to +2%
+        endPrice = startPrice * (1 + changePercent / 100);
+      }
+
       const { error } = await supabase
         .from('game_rounds')
-        .update({ status: 'resolving' })
+        .update({ 
+          status: 'resolving',
+          end_price: endPrice
+        })
         .eq('id', roundId);
 
       if (error) throw error;
       
-      console.log('✅ Resolving phase started');
+      console.log('✅ Resolving phase started with end price:', endPrice);
     } catch (error) {
       console.error('❌ Failed to start resolving phase:', error);
     }
@@ -283,21 +339,110 @@ class GameLogicService {
     try {
       console.log('🏁 Completing round...');
       
-      // This would typically involve:
-      // 1. Getting final price
-      // 2. Determining price direction
-      // 3. Updating all predictions with results
-      // 4. Awarding XP to winners
-      // 5. Updating user profiles
-      
-      const { error } = await supabase
+      // Get round details with start and end prices
+      const { data: round, error: roundError } = await supabase
         .from('game_rounds')
-        .update({ status: 'completed' })
+        .select('*')
+        .eq('id', roundId)
+        .single();
+
+      if (roundError) throw roundError;
+
+      if (!round.start_price || !round.end_price) {
+        console.error('❌ Cannot complete round: missing price data');
+        return;
+      }
+
+      // Calculate price direction
+      const priceDifference = round.end_price - round.start_price;
+      let priceDirection: 'up' | 'down' | 'unchanged';
+      
+      if (Math.abs(priceDifference) < 0.01) {
+        priceDirection = 'unchanged';
+      } else if (priceDifference > 0) {
+        priceDirection = 'up';
+      } else {
+        priceDirection = 'down';
+      }
+
+      console.log(`📊 Price moved ${priceDirection}: $${round.start_price} → $${round.end_price}`);
+
+      // Get all predictions for this round
+      const { data: predictions, error: predictionsError } = await supabase
+        .from('predictions')
+        .select('*')
+        .eq('round_id', roundId);
+
+      if (predictionsError) throw predictionsError;
+
+      console.log(`🎯 Processing ${predictions.length} predictions...`);
+
+      // Process each prediction
+      for (const prediction of predictions) {
+        const isCorrect = prediction.prediction === priceDirection;
+        const xpEarned = isCorrect ? 100 : 0;
+
+        // Update prediction with result
+        const { error: updatePredictionError } = await supabase
+          .from('predictions')
+          .update({
+            is_correct: isCorrect,
+            xp_earned: xpEarned
+          })
+          .eq('id', prediction.id);
+
+        if (updatePredictionError) {
+          console.error('Error updating prediction:', updatePredictionError);
+          continue;
+        }
+
+        // Update user profile
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('user_id', prediction.user_id)
+          .single();
+
+        if (profileError) {
+          console.error('Error fetching user profile:', profileError);
+          continue;
+        }
+
+        const newGamesPlayed = profile.games_played + 1;
+        const newWins = isCorrect ? profile.wins + 1 : profile.wins;
+        const newXp = profile.xp + xpEarned;
+        const newStreak = isCorrect ? profile.streak + 1 : 0;
+
+        const { error: updateProfileError } = await supabase
+          .from('profiles')
+          .update({
+            games_played: newGamesPlayed,
+            wins: newWins,
+            xp: newXp,
+            streak: newStreak
+          })
+          .eq('user_id', prediction.user_id);
+
+        if (updateProfileError) {
+          console.error('Error updating user profile:', updateProfileError);
+          continue;
+        }
+
+        console.log(`✅ Updated user ${prediction.user_id}: ${isCorrect ? 'WIN' : 'LOSS'} (+${xpEarned} XP)`);
+      }
+
+      // Update round status to completed
+      const { error: completeError } = await supabase
+        .from('game_rounds')
+        .update({ 
+          status: 'completed',
+          price_direction: priceDirection
+        })
         .eq('id', roundId);
 
-      if (error) throw error;
+      if (completeError) throw completeError;
       
-      console.log('✅ Round completed');
+      console.log(`🎉 Round completed! Price went ${priceDirection.toUpperCase()}`);
     } catch (error) {
       console.error('❌ Failed to complete round:', error);
     }

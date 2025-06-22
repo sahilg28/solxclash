@@ -3,7 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { 
   TrendingUp, Clock, Trophy, Zap, Target, Users, 
   Play, Pause, RotateCcw, AlertCircle, CheckCircle,
-  Wifi, WifiOff, Activity
+  Wifi, WifiOff, Activity, DollarSign
 } from 'lucide-react';
 import { useAuthContext } from '../components/AuthProvider';
 import { pythPriceService, PriceUpdate, CoinSymbol, formatPrice, formatPriceChange, getPriceChangeColor } from '../lib/pyth';
@@ -24,6 +24,21 @@ const CryptoClashPage = () => {
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'connecting' | 'disconnected'>('connecting');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [roundResults, setRoundResults] = useState<{
+    show: boolean;
+    isCorrect: boolean | null;
+    priceDirection: string | null;
+    startPrice: number | null;
+    endPrice: number | null;
+    xpEarned: number;
+  }>({
+    show: false,
+    isCorrect: null,
+    priceDirection: null,
+    startPrice: null,
+    endPrice: null,
+    xpEarned: 0
+  });
 
   // Cryptocurrency options with TradingView symbols
   const cryptoOptions = [
@@ -53,6 +68,23 @@ const CryptoClashPage = () => {
       // Auto-select the coin for the current round
       if (state.currentRound && state.currentRound.selected_coin !== selectedCoin) {
         setSelectedCoin(state.currentRound.selected_coin);
+      }
+
+      // Show results when round is completed and user had a prediction
+      if (state.currentRound?.status === 'completed' && state.userPrediction) {
+        setRoundResults({
+          show: true,
+          isCorrect: state.userPrediction.is_correct,
+          priceDirection: state.currentRound.price_direction,
+          startPrice: state.currentRound.start_price,
+          endPrice: state.currentRound.end_price,
+          xpEarned: state.userPrediction.xp_earned || 0
+        });
+
+        // Hide results after 10 seconds
+        setTimeout(() => {
+          setRoundResults(prev => ({ ...prev, show: false }));
+        }, 10000);
       }
     });
 
@@ -195,6 +227,67 @@ const CryptoClashPage = () => {
           </div>
         </div>
 
+        {/* Round Results Modal */}
+        {roundResults.show && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className={`bg-gradient-to-br from-gray-900 to-black border-2 rounded-2xl p-8 max-w-md w-full text-center ${
+              roundResults.isCorrect ? 'border-green-400/50' : 'border-red-400/50'
+            }`}>
+              <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${
+                roundResults.isCorrect ? 'bg-green-400/20' : 'bg-red-400/20'
+              }`}>
+                {roundResults.isCorrect ? (
+                  <CheckCircle className="w-8 h-8 text-green-400" />
+                ) : (
+                  <AlertCircle className="w-8 h-8 text-red-400" />
+                )}
+              </div>
+              
+              <h3 className={`text-2xl font-bold mb-2 ${
+                roundResults.isCorrect ? 'text-green-400' : 'text-red-400'
+              }`}>
+                {roundResults.isCorrect ? 'Correct Prediction!' : 'Wrong Prediction'}
+              </h3>
+              
+              <p className="text-gray-300 mb-4">
+                Price went <span className="font-bold text-yellow-400">
+                  {roundResults.priceDirection?.toUpperCase()}
+                </span>
+              </p>
+              
+              {roundResults.startPrice && roundResults.endPrice && (
+                <div className="bg-black/50 rounded-lg p-4 mb-4">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-gray-400">Start Price:</span>
+                    <span className="text-white font-semibold">
+                      {formatPrice(roundResults.startPrice, selectedCoin)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm mt-2">
+                    <span className="text-gray-400">End Price:</span>
+                    <span className="text-white font-semibold">
+                      {formatPrice(roundResults.endPrice, selectedCoin)}
+                    </span>
+                  </div>
+                </div>
+              )}
+              
+              <div className={`text-lg font-bold ${
+                roundResults.isCorrect ? 'text-green-400' : 'text-gray-400'
+              }`}>
+                +{roundResults.xpEarned} XP Earned
+              </div>
+              
+              <button
+                onClick={() => setRoundResults(prev => ({ ...prev, show: false }))}
+                className="mt-6 bg-yellow-400 text-black px-6 py-2 rounded-lg font-semibold hover:bg-yellow-300 transition-colors duration-200"
+              >
+                Continue Playing
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Success/Error Messages */}
         {success && (
           <div className="max-w-2xl mx-auto mb-6">
@@ -282,6 +375,14 @@ const CryptoClashPage = () => {
                   <span>Coin: {gameState.currentRound.selected_coin}</span>
                   <span>•</span>
                   <span className={phaseDisplay.color}>{phaseDisplay.title}</span>
+                  {gameState.currentRound.start_price && gameState.phase === 'predicting' && (
+                    <>
+                      <span>•</span>
+                      <span className="text-yellow-400">
+                        Start: {formatPrice(gameState.currentRound.start_price, gameState.currentRound.selected_coin)}
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
               <div className="text-right">
@@ -402,7 +503,7 @@ const CryptoClashPage = () => {
                     }`}
                     style={{ 
                       width: `${gameState.phase === 'predicting' ? (gameState.timeLeft / 60) * 100 : 
-                               gameState.phase === 'waiting' ? (gameState.timeLeft / 300) * 100 : 100}%` 
+                               gameState.phase === 'waiting' ? (gameState.timeLeft / 30) * 100 : 100}%` 
                     }}
                   ></div>
                 </div>
@@ -472,7 +573,7 @@ const CryptoClashPage = () => {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-300">Win Streak Bonus</span>
-                  <span className="text-yellow-400 font-bold">+50 XP</span>
+                  <span className="text-yellow-400 font-bold">+{profile.streak * 10} XP</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-300">Level Up Bonus</span>

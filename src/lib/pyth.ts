@@ -29,13 +29,14 @@ export interface PriceUpdate {
 }
 
 class PythPriceService {
-  private connection: PythConnection | null = null;
+  private httpClient: PythHttpClient | null = null;
   private subscribers: Map<string, (update: PriceUpdate) => void> = new Map();
   private priceCache: Map<CoinSymbol, PriceData> = new Map();
   private isConnected = false;
   private reconnectAttempts = 0;
-  private maxReconnectAttempts = 5;
-  private reconnectDelay = 1000;
+  private maxReconnectAttempts = 3;
+  private reconnectDelay = 2000;
+  private updateInterval: NodeJS.Timeout | null = null;
 
   constructor() {
     this.initializeConnection();
@@ -43,81 +44,108 @@ class PythPriceService {
 
   private async initializeConnection() {
     try {
-      console.log('🔗 Initializing Pyth Network connection...');
+      console.log('🔗 Initializing Pyth Network HTTP client...');
       
-      // Use Solana mainnet for Pyth connection
-      const solanaConnection = new Connection('https://api.mainnet-beta.solana.com');
-      const pythPublicKey = getPythProgramKeyForCluster('mainnet-beta');
+      // Use HTTP client instead of WebSocket connection for better reliability
+      this.httpClient = new PythHttpClient(
+        new Connection('https://api.mainnet-beta.solana.com'),
+        getPythProgramKeyForCluster('mainnet-beta')
+      );
       
-      this.connection = new PythConnection(solanaConnection, pythPublicKey);
-      
-      // Start listening for price updates
-      await this.startPriceUpdates();
+      // Start price updates using HTTP polling
+      await this.startHttpPriceUpdates();
       
       this.isConnected = true;
       this.reconnectAttempts = 0;
       
-      console.log('✅ Pyth Network connection established');
+      console.log('✅ Pyth Network HTTP client established');
     } catch (error) {
-      console.error('❌ Failed to initialize Pyth connection:', error);
+      console.error('❌ Failed to initialize Pyth HTTP client:', error);
       this.handleConnectionError();
     }
   }
 
-  private async startPriceUpdates() {
-    if (!this.connection) return;
+  private async startHttpPriceUpdates() {
+    if (!this.httpClient) return;
 
     try {
-      // Subscribe to all price feeds
-      const priceFeeds = Object.values(PRICE_FEED_IDS);
+      console.log('🔄 Starting HTTP price updates...');
       
-      this.connection.onPriceChange((product, price) => {
+      // Initial price fetch
+      await this.fetchPrices();
+      
+      // Set up polling interval (every 5 seconds)
+      this.updateInterval = setInterval(async () => {
         try {
-          // Find the symbol for this price feed
-          const symbol = Object.entries(PRICE_FEED_IDS).find(
-            ([_, feedId]) => feedId === product.price_account
-          )?.[0] as CoinSymbol;
-
-          if (!symbol) return;
-
-          const priceData: PriceData = {
-            symbol,
-            price: price.price || 0,
-            confidence: price.confidence || 0,
-            timestamp: Date.now(),
-            status: price.status === 1 ? 'trading' : 'unknown'
-          };
-
-          // Update cache
-          const previousPrice = this.priceCache.get(symbol);
-          this.priceCache.set(symbol, priceData);
-
-          // Calculate 24h change (simplified - in production you'd track historical data)
-          const change24h = previousPrice ? priceData.price - previousPrice.price : 0;
-          const changePercent24h = previousPrice && previousPrice.price > 0 
-            ? ((change24h / previousPrice.price) * 100) 
-            : 0;
-
-          // Notify subscribers
-          const update: PriceUpdate = {
-            symbol,
-            price: priceData.price,
-            change24h,
-            changePercent24h,
-            timestamp: priceData.timestamp
-          };
-
-          this.notifySubscribers(symbol, update);
+          await this.fetchPrices();
         } catch (error) {
-          console.error('Error processing price update:', error);
+          console.error('Error fetching prices:', error);
+          // Don't throw here, just log and continue
         }
-      });
-
-      // Start the connection
-      await this.connection.start();
+      }, 5000);
       
     } catch (error) {
-      console.error('❌ Failed to start price updates:', error);
+      console.error('❌ Failed to start HTTP price updates:', error);
+      throw error;
+    }
+  }
+
+  private async fetchPrices() {
+    if (!this.httpClient) return;
+
+    try {
+      // Get all price feed IDs
+      const priceFeeds = Object.entries(PRICE_FEED_IDS);
+      
+      for (const [symbol, feedId] of priceFeeds) {
+        try {
+          // Fetch price data for this feed
+          const priceData = await this.httpClient.getLatestPriceFeeds([feedId]);
+          
+          if (priceData && priceData.length > 0) {
+            const feed = priceData[0];
+            const price = feed.getPriceUnchecked();
+            
+            if (price && price.price && price.price > 0) {
+              const priceValue = price.price * Math.pow(10, price.expo);
+              
+              const newPriceData: PriceData = {
+                symbol: symbol as CoinSymbol,
+                price: priceValue,
+                confidence: price.conf ? price.conf * Math.pow(10, price.expo) : 0,
+                timestamp: Date.now(),
+                status: 'trading'
+              };
+
+              // Update cache
+              const previousPrice = this.priceCache.get(symbol as CoinSymbol);
+              this.priceCache.set(symbol as CoinSymbol, newPriceData);
+
+              // Calculate 24h change (simplified - using previous price as baseline)
+              const change24h = previousPrice ? newPriceData.price - previousPrice.price : 0;
+              const changePercent24h = previousPrice && previousPrice.price > 0 
+                ? ((change24h / previousPrice.price) * 100) 
+                : 0;
+
+              // Notify subscribers
+              const update: PriceUpdate = {
+                symbol: symbol as CoinSymbol,
+                price: newPriceData.price,
+                change24h,
+                changePercent24h,
+                timestamp: newPriceData.timestamp
+              };
+
+              this.notifySubscribers(symbol as CoinSymbol, update);
+            }
+          }
+        } catch (feedError) {
+          console.warn(`⚠️ Failed to fetch price for ${symbol}:`, feedError);
+          // Continue with other feeds
+        }
+      }
+    } catch (error) {
+      console.error('❌ Error in fetchPrices:', error);
       throw error;
     }
   }
@@ -174,11 +202,11 @@ class PythPriceService {
         status: 'trading'
       });
 
-      // Simulate price updates every 2 seconds
+      // Simulate price updates every 3 seconds
       setInterval(() => {
         const currentPrice = this.priceCache.get(symbol)?.price || basePrice;
-        // Random price movement between -2% and +2%
-        const changePercent = (Math.random() - 0.5) * 4;
+        // Random price movement between -1% and +1%
+        const changePercent = (Math.random() - 0.5) * 2;
         const newPrice = currentPrice * (1 + changePercent / 100);
         
         const update: PriceUpdate = {
@@ -198,7 +226,7 @@ class PythPriceService {
         });
 
         this.notifySubscribers(symbol, update);
-      }, 2000 + Math.random() * 1000); // Stagger updates
+      }, 3000 + Math.random() * 2000); // Stagger updates between 3-5 seconds
     });
 
     this.isConnected = true;
@@ -241,8 +269,9 @@ class PythPriceService {
 
   public async disconnect() {
     try {
-      if (this.connection) {
-        await this.connection.stop();
+      if (this.updateInterval) {
+        clearInterval(this.updateInterval);
+        this.updateInterval = null;
       }
       this.subscribers.clear();
       this.priceCache.clear();
