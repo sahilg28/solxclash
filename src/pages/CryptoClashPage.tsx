@@ -97,6 +97,14 @@ const CryptoClashPage = () => {
     };
   }, []);
 
+  // Initialize game logic when authentication is ready
+  useEffect(() => {
+    if (!loading && user && profile) {
+      console.log('🎮 Authentication ready, initializing game logic...');
+      gameLogicService.initializeGameState();
+    }
+  }, [loading, user, profile]);
+
   // Load user prediction for current round
   useEffect(() => {
     if (gameState.currentRound && user && !gameState.userPrediction) {

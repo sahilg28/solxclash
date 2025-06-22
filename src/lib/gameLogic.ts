@@ -44,32 +44,38 @@ class GameLogicService {
   };
   private gameTimer: NodeJS.Timeout | null = null;
   private realtimeSubscription: any = null;
+  private isInitialized = false;
 
   constructor() {
-    this.initializeGameState();
+    // Don't auto-initialize - wait for explicit call when auth is ready
     this.setupRealtimeSubscription();
   }
 
-  private async initializeGameState() {
+  public async initializeGameState() {
+    if (this.isInitialized) {
+      console.log('🎮 Game state already initialized');
+      return;
+    }
+
     try {
       console.log('🎮 Initializing game state...');
       
-      // Get the current active round
-      const { data: currentRound, error } = await supabase
+      // Get the current active round - Fixed to handle empty results
+      const { data: rounds, error } = await supabase
         .from('game_rounds')
         .select('*')
         .in('status', ['waiting', 'predicting', 'resolving'])
         .order('round_number', { ascending: false })
-        .limit(1)
-        .single();
+        .limit(1);
 
-      if (error && error.code !== 'PGRST116') {
+      if (error) {
         console.error('Error fetching current round:', error);
         return;
       }
 
-      if (currentRound) {
-        this.currentGameState.currentRound = currentRound;
+      // Handle case where no active rounds exist
+      if (rounds && rounds.length > 0) {
+        this.currentGameState.currentRound = rounds[0];
         this.updateGamePhase();
       } else {
         // No active round, create a new one
@@ -77,6 +83,7 @@ class GameLogicService {
       }
 
       this.startGameTimer();
+      this.isInitialized = true;
       console.log('✅ Game state initialized');
     } catch (error) {
       console.error('❌ Failed to initialize game state:', error);
@@ -560,6 +567,7 @@ class GameLogicService {
     }
     
     this.gameStateSubscribers.clear();
+    this.isInitialized = false;
     console.log('🎮 Game logic service disconnected');
   }
 }
