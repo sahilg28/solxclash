@@ -42,9 +42,11 @@ const TradingViewChart: React.FC<TradingViewChartProps> = ({
     script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
     script.type = "text/javascript";
     script.async = true;
-    script.innerHTML = JSON.stringify({
-      width,
-      height,
+    
+    // Ensure width and height are properly typed for TradingView
+    const widgetConfig = {
+      width: typeof width === 'string' ? width : Number(width),
+      height: typeof height === 'string' ? height : Number(height),
       symbol,
       interval,
       timezone,
@@ -54,7 +56,9 @@ const TradingViewChart: React.FC<TradingViewChartProps> = ({
       allow_symbol_change: allowSymbolChange,
       save_image: saveImage,
       support_host: "https://www.tradingview.com"
-    });
+    };
+    
+    script.innerHTML = JSON.stringify(widgetConfig);
 
     // Create widget container
     const widgetContainer = document.createElement('div');
