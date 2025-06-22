@@ -384,7 +384,7 @@ class GameLogicService {
       // Process each prediction
       for (const prediction of predictions) {
         const isCorrect = prediction.prediction === priceDirection;
-        const baseXp = isCorrect ? 100 : 0;
+        const baseXp = isCorrect ? 20 : 0; // 20 XP for correct prediction (double the 10 XP cost)
         
         // Get user's current streak for bonus calculation
         const { data: profile } = await supabase
@@ -472,6 +472,32 @@ class GameLogicService {
     }
 
     try {
+      // Check if user has enough XP (10 XP required per prediction)
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('xp')
+        .eq('user_id', userId)
+        .single();
+
+      if (profileError) {
+        throw new Error('Failed to fetch user profile');
+      }
+
+      if (profile.xp < 10) {
+        throw new Error('Insufficient XP! You need at least 10 XP to make a prediction.');
+      }
+
+      // Deduct 10 XP from user's profile
+      const { error: deductError } = await supabase
+        .from('profiles')
+        .update({ xp: profile.xp - 10 })
+        .eq('user_id', userId);
+
+      if (deductError) {
+        throw new Error('Failed to deduct XP from your account');
+      }
+
+      // Create the prediction
       const { data, error } = await supabase
         .from('predictions')
         .upsert([{

@@ -74,7 +74,7 @@ export const useAuth = () => {
         return;
       }
 
-      // If no profile exists, create one
+      // If no profile exists, create one with 100 XP signup bonus
       if (fetchError && fetchError.code === 'PGRST116') {
         // Extract user data from Google OAuth response
         const fullName = user.user_metadata?.full_name || user.user_metadata?.name || null;
@@ -131,14 +131,14 @@ export const useAuth = () => {
           counter++;
         }
 
-        // Create new profile
+        // Create new profile with 100 XP signup bonus
         const newProfile = {
           user_id: user.id,
           full_name: fullName,
           username: username,
           avatar_url: avatarUrl,
           email: email,
-          xp: 0,
+          xp: 100, // 🎁 100 XP signup bonus!
           games_played: 0,
           wins: 0,
           streak: 0,
@@ -162,7 +162,7 @@ export const useAuth = () => {
             email: email,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
-            xp: 0,
+            xp: 100, // 🎁 100 XP signup bonus!
             games_played: 0,
             wins: 0,
             streak: 0,
@@ -186,7 +186,7 @@ export const useAuth = () => {
           email: user.email || null,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
-          xp: 0,
+          xp: 100, // 🎁 100 XP signup bonus!
           games_played: 0,
           wins: 0,
           streak: 0,
@@ -206,7 +206,7 @@ export const useAuth = () => {
         email: user.email || null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-        xp: 0,
+        xp: 100, // 🎁 100 XP signup bonus!
         games_played: 0,
         wins: 0,
         streak: 0,

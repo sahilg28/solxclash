@@ -12,7 +12,7 @@ import TradingViewChart from '../components/TradingViewChart';
 import GameLeaderboard from '../components/GameLeaderboard';
 
 const CryptoClashPage = () => {
-  const { user, profile, loading } = useAuthContext();
+  const { user, profile, loading, refreshSessionAndProfile } = useAuthContext();
   const [gameState, setGameState] = useState<GameState>({
     currentRound: null,
     userPrediction: null,
@@ -79,6 +79,9 @@ const CryptoClashPage = () => {
           xpEarned: state.userPrediction.xp_earned || 0
         });
 
+        // Refresh profile to get updated XP
+        refreshSessionAndProfile();
+
         // Hide results after 10 seconds
         setTimeout(() => {
           setRoundResults(prev => ({ ...prev, show: false }));
@@ -134,7 +137,10 @@ const CryptoClashPage = () => {
     try {
       setError(null);
       await gameLogicService.makePrediction(direction, user.id);
-      setSuccess(`Prediction "${direction.toUpperCase()}" submitted successfully!`);
+      setSuccess(`Prediction "${direction.toUpperCase()}" submitted! 10 XP deducted.`);
+      
+      // Refresh profile to show updated XP
+      await refreshSessionAndProfile();
       
       // Clear success message after 3 seconds
       setTimeout(() => setSuccess(null), 3000);
@@ -591,29 +597,44 @@ const CryptoClashPage = () => {
               {gameState.phase === 'predicting' && !gameState.userPrediction && (
                 <div className="space-y-4">
                   <div className="text-center mb-4">
-                    <p className="text-gray-300 text-sm">
+                    <p className="text-gray-300 text-sm mb-2">
                       Will {gameState.currentRound?.selected_coin} price go UP or DOWN in the next 60 seconds?
                     </p>
+                    <div className="bg-yellow-400/10 border border-yellow-400/20 rounded-lg p-3">
+                      <div className="flex items-center justify-center space-x-2 text-yellow-400 text-sm">
+                        <DollarSign className="w-4 h-4" />
+                        <span>Cost: 10 XP per prediction</span>
+                      </div>
+                    </div>
                   </div>
                   
-                  {/* Prediction Buttons */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <button
-                      onClick={() => makePrediction('up')}
-                      className="py-4 rounded-lg font-semibold text-lg transition-all duration-200 flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-500 text-white hover:scale-105 transform"
-                    >
-                      <TrendingUp className="w-5 h-5" />
-                      <span>UP</span>
-                    </button>
-                    
-                    <button
-                      onClick={() => makePrediction('down')}
-                      className="py-4 rounded-lg font-semibold text-lg transition-all duration-200 flex items-center justify-center space-x-2 bg-red-600 hover:bg-red-500 text-white hover:scale-105 transform"
-                    >
-                      <TrendingUp className="w-5 h-5 rotate-180" />
-                      <span>DOWN</span>
-                    </button>
-                  </div>
+                  {/* XP Check */}
+                  {profile.xp < 10 ? (
+                    <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 text-center">
+                      <AlertCircle className="w-8 h-8 text-red-400 mx-auto mb-2" />
+                      <p className="text-red-400 font-semibold">Insufficient XP!</p>
+                      <p className="text-gray-400 text-sm">You need at least 10 XP to make a prediction.</p>
+                    </div>
+                  ) : (
+                    /* Prediction Buttons */
+                    <div className="grid grid-cols-2 gap-4">
+                      <button
+                        onClick={() => makePrediction('up')}
+                        className="py-4 rounded-lg font-semibold text-lg transition-all duration-200 flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-500 text-white hover:scale-105 transform"
+                      >
+                        <TrendingUp className="w-5 h-5" />
+                        <span>UP</span>
+                      </button>
+                      
+                      <button
+                        onClick={() => makePrediction('down')}
+                        className="py-4 rounded-lg font-semibold text-lg transition-all duration-200 flex items-center justify-center space-x-2 bg-red-600 hover:bg-red-500 text-white hover:scale-105 transform"
+                      >
+                        <TrendingUp className="w-5 h-5 rotate-180" />
+                        <span>DOWN</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -649,20 +670,24 @@ const CryptoClashPage = () => {
             <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-sm border border-gray-700 rounded-xl p-6">
               <h4 className="text-lg font-bold text-white mb-4 flex items-center space-x-2">
                 <Star className="w-5 h-5 text-yellow-400" />
-                <span>Potential Rewards</span>
+                <span>XP Economy</span>
               </h4>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
+                  <span className="text-gray-300">Prediction Cost</span>
+                  <span className="text-red-400 font-bold">-10 XP</span>
+                </div>
+                <div className="flex items-center justify-between">
                   <span className="text-gray-300">Correct Prediction</span>
-                  <span className="text-green-400 font-bold">+100 XP</span>
+                  <span className="text-green-400 font-bold">+20 XP</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-300">Win Streak Bonus</span>
                   <span className="text-yellow-400 font-bold">+{profile.streak * 10} XP</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-300">Level Up Bonus</span>
-                  <span className="text-purple-400 font-bold">+200 XP</span>
+                  <span className="text-gray-300">New User Bonus</span>
+                  <span className="text-purple-400 font-bold">+100 XP</span>
                 </div>
               </div>
             </div>
@@ -677,7 +702,7 @@ const CryptoClashPage = () => {
                 </li>
                 <li className="flex items-start space-x-2">
                   <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
-                  <span>Predict if the selected coin's price will go UP or DOWN</span>
+                  <span>Spend 10 XP to predict UP or DOWN for the selected coin</span>
                 </li>
                 <li className="flex items-start space-x-2">
                   <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
@@ -685,7 +710,7 @@ const CryptoClashPage = () => {
                 </li>
                 <li className="flex items-start space-x-2">
                   <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
-                  <span>Earn XP and climb the leaderboard for correct predictions</span>
+                  <span>Earn 20 XP + streak bonus for correct predictions</span>
                 </li>
               </ul>
             </div>
