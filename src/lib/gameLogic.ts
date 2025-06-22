@@ -198,15 +198,20 @@ class GameLogicService {
     try {
       console.log('🆕 Creating new game round...');
       
-      // Get the next round number
-      const { data: lastRound } = await supabase
+      // Get the next round number - Fixed to handle empty table
+      const { data: rounds, error: roundsError } = await supabase
         .from('game_rounds')
         .select('round_number')
         .order('round_number', { ascending: false })
-        .limit(1)
-        .single();
+        .limit(1);
 
-      const nextRoundNumber = (lastRound?.round_number || 0) + 1;
+      if (roundsError) {
+        console.error('Error fetching rounds:', roundsError);
+        throw roundsError;
+      }
+
+      // Handle empty table case
+      const nextRoundNumber = (rounds && rounds.length > 0) ? rounds[0].round_number + 1 : 1;
       
       // Select a random coin for this round
       const coins: CoinSymbol[] = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP'];
