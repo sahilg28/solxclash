@@ -21,7 +21,7 @@ const CryptoClashPage = () => {
     phase: 'waiting'
   });
   const [priceData, setPriceData] = useState<Map<CoinSymbol, PriceUpdate>>(new Map());
-  const [selectedCoin, setSelectedCoin] = useState<CoinSymbol>('BTC');
+  const [selectedCoin, setSelectedCoin] = useState<CoinSymbol>('BTC'); // Default to BTC, user can change freely
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'connecting' | 'disconnected'>('connecting');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -66,10 +66,8 @@ const CryptoClashPage = () => {
     const gameUnsubscribe = gameLogicService.subscribe((state: GameState) => {
       setGameState(state);
       
-      // Auto-select the coin for the current round
-      if (state.currentRound && state.currentRound.selected_coin !== selectedCoin) {
-        setSelectedCoin(state.currentRound.selected_coin);
-      }
+      // REMOVED: Auto-selection of coin based on current round
+      // This allows users to freely view any coin's chart while the game operates on the round's selected coin
 
       // Show results when round is completed and user had a prediction
       if (state.currentRound?.status === 'completed' && state.userPrediction) {
@@ -157,7 +155,7 @@ const CryptoClashPage = () => {
                     </div>
                   </div>
                   
-                  {/* Coin Selector */}
+                  {/* Coin Selector - Free selection for chart viewing */}
                   <div className="flex flex-wrap gap-2 mb-4">
                     {cryptoOptions.map((coin) => (
                       <button
@@ -620,7 +618,7 @@ const CryptoClashPage = () => {
                   Round #{gameState.currentRound.round_number}
                 </h3>
                 <div className="flex items-center space-x-4 text-sm text-gray-300">
-                  <span>Coin: {gameState.currentRound.selected_coin}</span>
+                  <span>Game Coin: <span className="text-yellow-400 font-semibold">{gameState.currentRound.selected_coin}</span></span>
                   <span>•</span>
                   <span className={phaseDisplay.color}>{phaseDisplay.title}</span>
                   {gameState.currentRound.start_price && gameState.phase === 'predicting' && (
@@ -679,7 +677,7 @@ const CryptoClashPage = () => {
                   </div>
                 </div>
                 
-                {/* Coin Selector - Show for chart viewing only */}
+                {/* Coin Selector - Free selection for chart viewing */}
                 <div className="flex flex-wrap gap-2 mb-4">
                   {cryptoOptions.map((coin) => (
                     <button
@@ -753,9 +751,13 @@ const CryptoClashPage = () => {
                   {gameState.currentRound ? `${gameState.currentRound.selected_coin} Prediction` : 'Loading Game...'}
                 </h3>
                 
-                {currentPrice && gameState.currentRound?.selected_coin === selectedCoin && (
+                {/* Show current price for the GAME coin, not the chart coin */}
+                {gameState.currentRound && (
                   <div className="text-3xl font-bold text-yellow-400 mb-2">
-                    {formatPrice(currentPrice.price, selectedCoin)}
+                    {getCurrentPriceData(gameState.currentRound.selected_coin) ? 
+                      formatPrice(getCurrentPriceData(gameState.currentRound.selected_coin)!.price, gameState.currentRound.selected_coin) :
+                      'Loading...'
+                    }
                   </div>
                 )}
               </div>
