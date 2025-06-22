@@ -3,7 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { 
   TrendingUp, Clock, Trophy, Zap, Target, Users, 
   Play, Pause, RotateCcw, AlertCircle, CheckCircle,
-  Wifi, WifiOff, Activity, DollarSign
+  Wifi, WifiOff, Activity, DollarSign, Flame, Star
 } from 'lucide-react';
 import { useAuthContext } from '../components/AuthProvider';
 import { binancePriceService, PriceUpdate, CoinSymbol, formatPrice, formatPriceChange, getPriceChangeColor } from '../lib/binancePriceService';
@@ -169,33 +169,43 @@ const CryptoClashPage = () => {
     switch (gameState.phase) {
       case 'waiting':
         return {
-          title: 'Next Round Starting Soon',
-          subtitle: 'Get ready to predict!',
-          color: 'text-blue-400'
+          title: 'Lobby Phase',
+          subtitle: 'Prediction window opens soon!',
+          color: 'text-blue-400',
+          bgColor: 'bg-blue-400/10',
+          borderColor: 'border-blue-400/30'
         };
       case 'predicting':
         return {
-          title: 'Prediction Window Open',
+          title: 'Prediction Active',
           subtitle: 'Make your prediction now!',
-          color: 'text-green-400'
+          color: 'text-green-400',
+          bgColor: 'bg-green-400/10',
+          borderColor: 'border-green-400/30'
         };
       case 'resolving':
         return {
-          title: 'Resolving Results',
-          subtitle: 'Calculating outcomes...',
-          color: 'text-yellow-400'
+          title: 'Calculating Results',
+          subtitle: 'Determining winners...',
+          color: 'text-yellow-400',
+          bgColor: 'bg-yellow-400/10',
+          borderColor: 'border-yellow-400/30'
         };
       case 'completed':
         return {
           title: 'Round Complete',
           subtitle: 'Check your results!',
-          color: 'text-purple-400'
+          color: 'text-purple-400',
+          bgColor: 'bg-purple-400/10',
+          borderColor: 'border-purple-400/30'
         };
       default:
         return {
           title: 'Loading...',
           subtitle: 'Connecting to game...',
-          color: 'text-gray-400'
+          color: 'text-gray-400',
+          bgColor: 'bg-gray-400/10',
+          borderColor: 'border-gray-400/30'
         };
     }
   };
@@ -211,7 +221,7 @@ const CryptoClashPage = () => {
             <span className="text-yellow-400">Crypto</span>Clash
           </h1>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-4">
-            Predict crypto price movements in real-time. Choose your strategy, make your prediction, and climb the leaderboards!
+            Predict crypto price movements in real-time. 5-minute game cycles with 60-second prediction windows!
           </p>
           
           {/* Connection Status */}
@@ -238,7 +248,7 @@ const CryptoClashPage = () => {
         {/* Round Results Modal */}
         {roundResults.show && (
           <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className={`bg-gradient-to-br from-gray-900 to-black border-2 rounded-2xl p-8 max-w-md w-full text-center ${
+            <div className={`bg-gradient-to-br from-gray-900 to-black border-2 rounded-2xl p-8 max-w-md w-full text-center transform animate-in zoom-in-95 duration-300 ${
               roundResults.isCorrect ? 'border-green-400/50' : 'border-red-400/50'
             }`}>
               <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${
@@ -254,7 +264,7 @@ const CryptoClashPage = () => {
               <h3 className={`text-2xl font-bold mb-2 ${
                 roundResults.isCorrect ? 'text-green-400' : 'text-red-400'
               }`}>
-                {roundResults.isCorrect ? 'Correct Prediction!' : 'Wrong Prediction'}
+                {roundResults.isCorrect ? '🎉 Correct Prediction!' : '😔 Wrong Prediction'}
               </h3>
               
               <p className="text-gray-300 mb-4">
@@ -280,10 +290,11 @@ const CryptoClashPage = () => {
                 </div>
               )}
               
-              <div className={`text-lg font-bold ${
+              <div className={`text-lg font-bold flex items-center justify-center space-x-2 ${
                 roundResults.isCorrect ? 'text-green-400' : 'text-gray-400'
               }`}>
-                +{roundResults.xpEarned} XP Earned
+                <Zap className="w-5 h-5" />
+                <span>+{roundResults.xpEarned} XP Earned</span>
               </div>
               
               <button
@@ -359,6 +370,13 @@ const CryptoClashPage = () => {
                   <span className="text-white font-semibold">{profile.games_played}</span>
                   <span className="text-gray-400">Games</span>
                 </div>
+                {profile.streak > 0 && (
+                  <div className="flex items-center space-x-1">
+                    <Flame className="w-4 h-4 text-orange-400" />
+                    <span className="text-white font-semibold">{profile.streak}</span>
+                    <span className="text-gray-400">Streak</span>
+                  </div>
+                )}
               </div>
             </div>
             
@@ -373,15 +391,13 @@ const CryptoClashPage = () => {
 
         {/* Game Round Info */}
         {gameState.currentRound && (
-          <div className="bg-gradient-to-r from-purple-900/20 to-blue-900/20 border border-purple-400/20 rounded-xl p-6 mb-8">
+          <div className={`bg-gradient-to-r ${phaseDisplay.bgColor} border ${phaseDisplay.borderColor} rounded-xl p-6 mb-8`}>
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-xl font-bold text-white mb-2">
-                  Round #{gameState.currentRound.round_number}
+                  Round #{gameState.currentRound.round_number} - {gameState.currentRound.selected_coin}
                 </h3>
                 <div className="flex items-center space-x-4 text-sm text-gray-300">
-                  <span>Coin: {gameState.currentRound.selected_coin}</span>
-                  <span>•</span>
                   <span className={phaseDisplay.color}>{phaseDisplay.title}</span>
                   {gameState.currentRound.start_price && gameState.phase === 'predicting' && (
                     <>
@@ -399,6 +415,22 @@ const CryptoClashPage = () => {
                 </div>
                 <div className="text-sm text-gray-400">{phaseDisplay.subtitle}</div>
               </div>
+            </div>
+            
+            {/* Progress Bar */}
+            <div className="w-full bg-gray-700 rounded-full h-2 mt-4">
+              <div 
+                className={`h-2 rounded-full transition-all duration-1000 ${
+                  gameState.phase === 'predicting' ? 'bg-green-400' : 
+                  gameState.phase === 'waiting' ? 'bg-blue-400' : 
+                  gameState.phase === 'resolving' ? 'bg-yellow-400' : 'bg-purple-400'
+                }`}
+                style={{ 
+                  width: `${gameState.phase === 'predicting' ? (gameState.timeLeft / 60) * 100 : 
+                           gameState.phase === 'waiting' ? (gameState.timeLeft / 240) * 100 : 
+                           gameState.phase === 'resolving' ? (gameState.timeLeft / 10) * 100 : 100}%` 
+                }}
+              ></div>
             </div>
           </div>
         )}
@@ -480,15 +512,27 @@ const CryptoClashPage = () => {
             </div>
           </div>
 
-          {/* Game Panel */}
+          {/* Game Hub Panel */}
           <div className="space-y-6">
-            {/* Current Game Status */}
-            <div className="bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-xl border border-yellow-400/20 rounded-2xl p-6">
+            {/* Dynamic Game Hub */}
+            <div className={`bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-xl border-2 rounded-2xl p-6 transition-all duration-500 ${phaseDisplay.borderColor}`}>
               <div className="text-center mb-6">
+                <div className={`inline-flex items-center px-4 py-2 rounded-full mb-4 ${phaseDisplay.bgColor} ${phaseDisplay.borderColor} border`}>
+                  <div className={`w-2 h-2 rounded-full mr-2 animate-pulse ${
+                    gameState.phase === 'predicting' ? 'bg-green-400' : 
+                    gameState.phase === 'waiting' ? 'bg-blue-400' : 
+                    gameState.phase === 'resolving' ? 'bg-yellow-400' : 'bg-purple-400'
+                  }`}></div>
+                  <span className={`text-sm font-medium ${phaseDisplay.color}`}>
+                    {phaseDisplay.title}
+                  </span>
+                </div>
+                
                 <h3 className="text-xl font-bold text-white mb-2">
                   {gameState.currentRound ? `${gameState.currentRound.selected_coin} Prediction` : 'Loading Game...'}
                 </h3>
-                {currentPrice && (
+                
+                {currentPrice && gameState.currentRound?.selected_coin === selectedCoin && (
                   <div className="text-3xl font-bold text-yellow-400 mb-2">
                     {formatPrice(currentPrice.price, selectedCoin)}
                   </div>
@@ -507,22 +551,51 @@ const CryptoClashPage = () => {
                   <div 
                     className={`h-2 rounded-full transition-all duration-1000 ${
                       gameState.phase === 'predicting' ? 'bg-green-400' : 
-                      gameState.phase === 'waiting' ? 'bg-blue-400' : 'bg-yellow-400'
+                      gameState.phase === 'waiting' ? 'bg-blue-400' : 
+                      gameState.phase === 'resolving' ? 'bg-yellow-400' : 'bg-purple-400'
                     }`}
                     style={{ 
                       width: `${gameState.phase === 'predicting' ? (gameState.timeLeft / 60) * 100 : 
-                               gameState.phase === 'waiting' ? (gameState.timeLeft / 30) * 100 : 100}%` 
+                               gameState.phase === 'waiting' ? (gameState.timeLeft / 240) * 100 : 
+                               gameState.phase === 'resolving' ? (gameState.timeLeft / 10) * 100 : 100}%` 
                     }}
                   ></div>
                 </div>
               </div>
 
               {/* Game Controls */}
-              {gameState.phase === 'predicting' && !gameState.userPrediction ? (
+              {gameState.phase === 'waiting' && (
+                <div className="text-center p-8">
+                  <Clock className="w-12 h-12 text-blue-400 mx-auto mb-4" />
+                  <p className="text-gray-300 mb-2">Get Ready!</p>
+                  <p className="text-sm text-gray-400">
+                    Prediction window opens in {formatTimeLeft(gameState.timeLeft)}
+                  </p>
+                  <div className="grid grid-cols-2 gap-4 mt-6">
+                    <button
+                      disabled
+                      className="py-4 rounded-lg font-semibold text-lg transition-all duration-200 flex items-center justify-center space-x-2 bg-gray-700 text-gray-500 cursor-not-allowed opacity-50"
+                    >
+                      <TrendingUp className="w-5 h-5" />
+                      <span>UP</span>
+                    </button>
+                    
+                    <button
+                      disabled
+                      className="py-4 rounded-lg font-semibold text-lg transition-all duration-200 flex items-center justify-center space-x-2 bg-gray-700 text-gray-500 cursor-not-allowed opacity-50"
+                    >
+                      <TrendingUp className="w-5 h-5 rotate-180" />
+                      <span>DOWN</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {gameState.phase === 'predicting' && !gameState.userPrediction && (
                 <div className="space-y-4">
                   <div className="text-center mb-4">
                     <p className="text-gray-300 text-sm">
-                      Will {gameState.currentRound?.selected_coin} price go UP or DOWN?
+                      Will {gameState.currentRound?.selected_coin} price go UP or DOWN in the next 60 seconds?
                     </p>
                   </div>
                   
@@ -530,7 +603,7 @@ const CryptoClashPage = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <button
                       onClick={() => makePrediction('up')}
-                      className="py-4 rounded-lg font-semibold text-lg transition-all duration-200 flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-500 text-white hover:scale-105"
+                      className="py-4 rounded-lg font-semibold text-lg transition-all duration-200 flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-500 text-white hover:scale-105 transform"
                     >
                       <TrendingUp className="w-5 h-5" />
                       <span>UP</span>
@@ -538,34 +611,38 @@ const CryptoClashPage = () => {
                     
                     <button
                       onClick={() => makePrediction('down')}
-                      className="py-4 rounded-lg font-semibold text-lg transition-all duration-200 flex items-center justify-center space-x-2 bg-red-600 hover:bg-red-500 text-white hover:scale-105"
+                      className="py-4 rounded-lg font-semibold text-lg transition-all duration-200 flex items-center justify-center space-x-2 bg-red-600 hover:bg-red-500 text-white hover:scale-105 transform"
                     >
                       <TrendingUp className="w-5 h-5 rotate-180" />
                       <span>DOWN</span>
                     </button>
                   </div>
                 </div>
-              ) : gameState.userPrediction ? (
+              )}
+
+              {gameState.userPrediction && (
                 <div className="p-4 bg-yellow-400/10 border border-yellow-400/20 rounded-lg">
                   <div className="text-center">
                     <div className="text-sm text-gray-400 mb-1">Your Prediction</div>
-                    <div className={`text-lg font-bold ${
+                    <div className={`text-lg font-bold flex items-center justify-center space-x-2 ${
                       gameState.userPrediction.prediction === 'up' ? 'text-green-400' : 'text-red-400'
                     }`}>
-                      Price will go {gameState.userPrediction.prediction.toUpperCase()}
+                      <TrendingUp className={`w-5 h-5 ${gameState.userPrediction.prediction === 'down' ? 'rotate-180' : ''}`} />
+                      <span>Price will go {gameState.userPrediction.prediction.toUpperCase()}</span>
                     </div>
                     <div className="text-xs text-gray-500 mt-2">
                       Submitted at {new Date(gameState.userPrediction.predicted_at).toLocaleTimeString()}
                     </div>
                   </div>
                 </div>
-              ) : (
+              )}
+
+              {gameState.phase === 'resolving' && (
                 <div className="text-center p-8">
-                  <Clock className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-                  <p className="text-gray-400">
-                    {gameState.phase === 'waiting' ? 'Waiting for next round...' : 
-                     gameState.phase === 'resolving' ? 'Calculating results...' : 
-                     'Round completed!'}
+                  <div className="w-12 h-12 border-4 border-yellow-400/20 border-t-yellow-400 rounded-full animate-spin mx-auto mb-4"></div>
+                  <p className="text-yellow-400 mb-2">Calculating Results...</p>
+                  <p className="text-sm text-gray-400">
+                    Results in {gameState.timeLeft} seconds
                   </p>
                 </div>
               )}
@@ -573,7 +650,10 @@ const CryptoClashPage = () => {
 
             {/* Potential Rewards */}
             <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-sm border border-gray-700 rounded-xl p-6">
-              <h4 className="text-lg font-bold text-white mb-4">Potential Rewards</h4>
+              <h4 className="text-lg font-bold text-white mb-4 flex items-center space-x-2">
+                <Star className="w-5 h-5 text-yellow-400" />
+                <span>Potential Rewards</span>
+              </h4>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-gray-300">Correct Prediction</span>
@@ -596,7 +676,7 @@ const CryptoClashPage = () => {
               <ul className="space-y-2 text-sm text-gray-300">
                 <li className="flex items-start space-x-2">
                   <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
-                  <span>Wait for the prediction window to open</span>
+                  <span>Wait 4 minutes for the prediction window to open</span>
                 </li>
                 <li className="flex items-start space-x-2">
                   <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>

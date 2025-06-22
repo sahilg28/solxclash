@@ -58,7 +58,7 @@ class GameLogicService {
     }
 
     try {
-      console.log('🎮 Initializing game state...');
+      console.log('🎮 Initializing game state with 5-minute cycle...');
       
       // Get the current active round - Fixed to handle empty results
       const { data: rounds, error } = await supabase
@@ -84,7 +84,7 @@ class GameLogicService {
 
       this.startGameTimer();
       this.isInitialized = true;
-      console.log('✅ Game state initialized');
+      console.log('✅ Game state initialized with 5-minute cycle');
     } catch (error) {
       console.error('❌ Failed to initialize game state:', error);
     }
@@ -203,7 +203,7 @@ class GameLogicService {
 
   private async createNewRound() {
     try {
-      console.log('🆕 Creating new game round...');
+      console.log('🆕 Creating new 5-minute game round...');
       
       // Get the next round number - Fixed to handle empty table
       const { data: rounds, error: roundsError } = await supabase
@@ -224,9 +224,12 @@ class GameLogicService {
       const coins: CoinSymbol[] = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP'];
       const selectedCoin = coins[Math.floor(Math.random() * coins.length)];
       
-      // Calculate times
+      // Calculate times for 5-minute cycle:
+      // - 4 minutes (240 seconds) waiting/lobby phase
+      // - 1 minute (60 seconds) prediction phase  
+      // - 10 seconds resolving phase
       const now = new Date();
-      const startTime = new Date(now.getTime() + 30 * 1000); // Start in 30 seconds
+      const startTime = new Date(now.getTime() + 240 * 1000); // Start prediction in 4 minutes
       const predictionEndTime = new Date(startTime.getTime() + 60 * 1000); // 60 seconds for predictions
       const endTime = new Date(predictionEndTime.getTime() + 10 * 1000); // 10 seconds for resolution
 
@@ -248,7 +251,8 @@ class GameLogicService {
       this.currentGameState.currentRound = newRound;
       this.updateGamePhase();
       
-      console.log(`✅ New round created: #${nextRoundNumber} for ${selectedCoin}`);
+      console.log(`✅ New 5-minute round created: #${nextRoundNumber} for ${selectedCoin}`);
+      console.log(`⏰ Prediction opens in 4 minutes, lasts 1 minute`);
     } catch (error) {
       console.error('❌ Failed to create new round:', error);
     }
@@ -256,7 +260,7 @@ class GameLogicService {
 
   private async startPredictionPhase(roundId: string) {
     try {
-      console.log('🎯 Starting prediction phase...');
+      console.log('🎯 Starting 60-second prediction phase...');
       
       // Get current round details
       const { data: round, error: roundError } = await supabase
@@ -297,7 +301,7 @@ class GameLogicService {
 
       if (error) throw error;
       
-      console.log('✅ Prediction phase started with start price:', startPrice);
+      console.log('✅ 60-second prediction phase started with start price:', startPrice);
     } catch (error) {
       console.error('❌ Failed to start prediction phase:', error);
     }
@@ -305,7 +309,7 @@ class GameLogicService {
 
   private async startResolvingPhase(roundId: string) {
     try {
-      console.log('⚖️ Starting resolving phase...');
+      console.log('⚖️ Starting 10-second resolving phase...');
       
       // Get current round details
       const { data: round, error: roundError } = await supabase
@@ -341,7 +345,7 @@ class GameLogicService {
 
       if (error) throw error;
       
-      console.log('✅ Resolving phase started with end price:', endPrice);
+      console.log('✅ 10-second resolving phase started with end price:', endPrice);
     } catch (error) {
       console.error('❌ Failed to start resolving phase:', error);
     }
@@ -349,7 +353,7 @@ class GameLogicService {
 
   private async completeRound(roundId: string) {
     try {
-      console.log('🏁 Completing round...');
+      console.log('🏁 Completing round and calculating results...');
       
       // Get round details with start and end prices
       const { data: round, error: roundError } = await supabase
@@ -392,14 +396,24 @@ class GameLogicService {
       // Process each prediction
       for (const prediction of predictions) {
         const isCorrect = prediction.prediction === priceDirection;
-        const xpEarned = isCorrect ? 100 : 0;
+        const baseXp = isCorrect ? 100 : 0;
+        
+        // Get user's current streak for bonus calculation
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('streak')
+          .eq('user_id', prediction.user_id)
+          .single();
+        
+        const streakBonus = isCorrect && profile ? profile.streak * 10 : 0;
+        const totalXpEarned = baseXp + streakBonus;
 
         // Update prediction with result
         const { error: updatePredictionError } = await supabase
           .from('predictions')
           .update({
             is_correct: isCorrect,
-            xp_earned: xpEarned
+            xp_earned: totalXpEarned
           })
           .eq('id', prediction.id);
 
@@ -409,7 +423,7 @@ class GameLogicService {
         }
 
         // Update user profile
-        const { data: profile, error: profileError } = await supabase
+        const { data: userProfile, error: profileError } = await supabase
           .from('profiles')
           .select('*')
           .eq('user_id', prediction.user_id)
@@ -420,10 +434,10 @@ class GameLogicService {
           continue;
         }
 
-        const newGamesPlayed = profile.games_played + 1;
-        const newWins = isCorrect ? profile.wins + 1 : profile.wins;
-        const newXp = profile.xp + xpEarned;
-        const newStreak = isCorrect ? profile.streak + 1 : 0;
+        const newGamesPlayed = userProfile.games_played + 1;
+        const newWins = isCorrect ? userProfile.wins + 1 : userProfile.wins;
+        const newXp = userProfile.xp + totalXpEarned;
+        const newStreak = isCorrect ? userProfile.streak + 1 : 0;
 
         const { error: updateProfileError } = await supabase
           .from('profiles')
@@ -440,7 +454,7 @@ class GameLogicService {
           continue;
         }
 
-        console.log(`✅ Updated user ${prediction.user_id}: ${isCorrect ? 'WIN' : 'LOSS'} (+${xpEarned} XP)`);
+        console.log(`✅ Updated user ${prediction.user_id}: ${isCorrect ? 'WIN' : 'LOSS'} (+${totalXpEarned} XP, streak: ${newStreak})`);
       }
 
       // Update round status to completed
