@@ -26,6 +26,7 @@ const CryptoClashPage = () => {
   const [selectedXpBet, setSelectedXpBet] = useState<number>(10); // XP bet amount
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'connecting' | 'disconnected'>('connecting');
   const [error, setError] = useState<string | null>(null);
+  const [cancelledRoundDisplayMessage, setCancelledRoundDisplayMessage] = useState<string | null>(null);
   const [roundResults, setRoundResults] = useState<{
     show: boolean;
     isCorrect: boolean | null;
@@ -89,6 +90,14 @@ const CryptoClashPage = () => {
       });
 
       setGameState(state);
+
+      // Handle cancelled round display message
+      if (state.currentRound?.status === 'cancelled') {
+        setCancelledRoundDisplayMessage("No players participated and the round was cancelled. A new round is starting!");
+      } else if (state.currentRound?.status === 'waiting') {
+        // Clear cancelled message when new round starts
+        setCancelledRoundDisplayMessage(null);
+      }
 
       // Show results when round is completed and user had a prediction
       if (state.currentRound?.status === 'completed' && state.userPrediction) {
@@ -468,12 +477,12 @@ const CryptoClashPage = () => {
   const getDisplayedRoundCoin = () => {
     if (!gameState.currentRound) return 'BTC';
     
-    // If round is in waiting phase and no user prediction yet, show the user's selected coin
-    // This indicates what coin they would be predicting on
+    // If round is in waiting phase, no user prediction yet, and round coin is still default BTC
+    // Show "Select Coin" to indicate user can choose
     if (gameState.currentRound.status === 'waiting' && 
         !gameState.userPrediction && 
         gameState.currentRound.selected_coin === 'BTC') {
-      return selectedCoin;
+      return 'Select Coin';
     }
     
     // Otherwise, show the actual locked round coin
@@ -651,53 +660,65 @@ const CryptoClashPage = () => {
         {/* Game Round Info */}
         {gameState.currentRound && (
           <div className={`bg-gradient-to-r ${phaseDisplay.bgColor} border ${phaseDisplay.borderColor} rounded-xl p-6 mb-8`}>
-            <div className="flex items-center justify-between">
-              <div>
+            {/* Show cancelled round message if applicable */}
+            {gameState.currentRound.status === 'cancelled' && cancelledRoundDisplayMessage ? (
+              <div className="text-center">
                 <h3 className="text-xl font-bold text-white mb-2">
-                  Round #{gameState.currentRound.round_number}
+                  Round #{gameState.currentRound.round_number} - Cancelled
                 </h3>
-                <div className="flex items-center space-x-4 text-sm text-gray-300">
-                  <span>
-                    Round Coin: <span className="text-yellow-400 font-semibold">{displayedRoundCoin}</span>
-                    {!isRoundCoinLocked && (
-                      <span className="text-gray-500 text-xs ml-1">(your choice)</span>
+                <p className="text-gray-300">{cancelledRoundDisplayMessage}</p>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-bold text-white mb-2">
+                    Round #{gameState.currentRound.round_number}
+                  </h3>
+                  <div className="flex items-center space-x-4 text-sm text-gray-300">
+                    <span>
+                      Round Coin: <span className="text-yellow-400 font-semibold">{displayedRoundCoin}</span>
+                      {!isRoundCoinLocked && displayedRoundCoin === 'Select Coin' && (
+                        <span className="text-gray-500 text-xs ml-1">(choose below)</span>
+                      )}
+                    </span>
+                    <span>•</span>
+                    <span className={phaseDisplay.color}>{phaseDisplay.title}</span>
+                    {gameState.currentRound.start_price && gameState.phase === 'predicting' && (
+                      <>
+                        <span>•</span>
+                        <span className="text-yellow-400">
+                          Start: {formatPrice(gameState.currentRound.start_price, gameState.currentRound.selected_coin)}
+                        </span>
+                      </>
                     )}
-                  </span>
-                  <span>•</span>
-                  <span className={phaseDisplay.color}>{phaseDisplay.title}</span>
-                  {gameState.currentRound.start_price && gameState.phase === 'predicting' && (
-                    <>
-                      <span>•</span>
-                      <span className="text-yellow-400">
-                        Start: {formatPrice(gameState.currentRound.start_price, gameState.currentRound.selected_coin)}
-                      </span>
-                    </>
-                  )}
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-3xl font-bold text-white mb-1">
+                    {formatTimeLeft(gameState.timeLeft)}
+                  </div>
+                  <div className="text-sm text-gray-400">{phaseDisplay.subtitle}</div>
                 </div>
               </div>
-              <div className="text-right">
-                <div className="text-3xl font-bold text-white mb-1">
-                  {formatTimeLeft(gameState.timeLeft)}
-                </div>
-                <div className="text-sm text-gray-400">{phaseDisplay.subtitle}</div>
-              </div>
-            </div>
+            )}
             
-            {/* Progress Bar */}
-            <div className="w-full bg-gray-700 rounded-full h-2 mt-4">
-              <div 
-                className={`h-2 rounded-full transition-all duration-1000 ${
-                  gameState.phase === 'predicting' ? 'bg-green-400' : 
-                  gameState.phase === 'waiting' ? 'bg-blue-400' : 
-                  gameState.phase === 'resolving' ? 'bg-yellow-400' : 'bg-purple-400'
-                }`}
-                style={{ 
-                  width: `${gameState.phase === 'predicting' ? (gameState.timeLeft / 60) * 100 : 
-                           gameState.phase === 'waiting' ? (gameState.timeLeft / 240) * 100 : 
-                           gameState.phase === 'resolving' ? (gameState.timeLeft / 10) * 100 : 100}%` 
-                }}
-              ></div>
-            </div>
+            {/* Progress Bar - only show for non-cancelled rounds */}
+            {gameState.currentRound.status !== 'cancelled' && (
+              <div className="w-full bg-gray-700 rounded-full h-2 mt-4">
+                <div 
+                  className={`h-2 rounded-full transition-all duration-1000 ${
+                    gameState.phase === 'predicting' ? 'bg-green-400' : 
+                    gameState.phase === 'waiting' ? 'bg-blue-400' : 
+                    gameState.phase === 'resolving' ? 'bg-yellow-400' : 'bg-purple-400'
+                  }`}
+                  style={{ 
+                    width: `${gameState.phase === 'predicting' ? (gameState.timeLeft / 60) * 100 : 
+                             gameState.phase === 'waiting' ? (gameState.timeLeft / 240) * 100 : 
+                             gameState.phase === 'resolving' ? (gameState.timeLeft / 10) * 100 : 100}%` 
+                  }}
+                ></div>
+              </div>
+            )}
           </div>
         )}
 
