@@ -159,7 +159,14 @@ class GameLogicService {
       
       case 'resolving':
         this.currentGameState.phase = 'resolving';
-        this.currentGameState.timeLeft = 10; // 10 seconds to show results
+        // FIX: Calculate time left based on end_time instead of hardcoding to 10
+        if (round.end_time) {
+          const endTime = new Date(round.end_time);
+          this.currentGameState.timeLeft = Math.max(0, Math.floor((endTime.getTime() - now.getTime()) / 1000));
+        } else {
+          // Fallback if no end_time is set
+          this.currentGameState.timeLeft = 10;
+        }
         break;
       
       case 'completed':
