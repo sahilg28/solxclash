@@ -5,7 +5,7 @@ export interface GameRound {
   id: string;
   round_number: number;
   status: 'waiting' | 'predicting' | 'resolving' | 'completed' | 'cancelled';
-  selected_coin: CoinSymbol;
+  selected_coin: CoinSymbol | null; // Allow null for unselected coin
   start_time: string | null;
   prediction_end_time: string | null;
   end_time: string | null;
@@ -119,6 +119,7 @@ class GameLogicService {
         id: updatedRound.id,
         round_number: updatedRound.round_number,
         status: updatedRound.status,
+        selected_coin: updatedRound.selected_coin,
         price_direction: updatedRound.price_direction,
         start_price: updatedRound.start_price,
         end_price: updatedRound.end_price
@@ -341,7 +342,7 @@ class GameLogicService {
       this.updateGamePhase();
       this.notifySubscribers();
       
-      console.log(`✅ New round created: #${result.round.round_number} with default coin ${result.round.selected_coin}`);
+      console.log(`✅ New round created: #${result.round.round_number} with no coin selected (will be set by first prediction)`);
     } catch (error) {
       console.error('❌ Failed to create new round:', error);
     }
@@ -355,7 +356,9 @@ class GameLogicService {
       const round = this.currentGameState.currentRound;
       if (!round) return;
 
-      const currentPrice = binancePriceService.getCurrentPrice(round.selected_coin);
+      // Use the round's selected coin, or fallback to BTC if somehow still null
+      const coinToUse = round.selected_coin || 'BTC';
+      const currentPrice = binancePriceService.getCurrentPrice(coinToUse);
       let startPrice = null;
 
       if (currentPrice && currentPrice.price > 0) {
@@ -405,7 +408,9 @@ class GameLogicService {
       const round = this.currentGameState.currentRound;
       if (!round) return;
 
-      const currentPrice = binancePriceService.getCurrentPrice(round.selected_coin);
+      // Use the round's selected coin, fallback to BTC if somehow still null
+      const coinToUse = round.selected_coin || 'BTC';
+      const currentPrice = binancePriceService.getCurrentPrice(coinToUse);
       let endPrice = null;
 
       if (currentPrice && currentPrice.price > 0) {
@@ -600,6 +605,7 @@ class GameLogicService {
         id: this.currentGameState.currentRound.id,
         round_number: this.currentGameState.currentRound.round_number,
         status: this.currentGameState.currentRound.status,
+        selected_coin: this.currentGameState.currentRound.selected_coin,
         price_direction: this.currentGameState.currentRound.price_direction
       } : null,
       userPrediction: this.currentGameState.userPrediction ? {

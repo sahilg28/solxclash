@@ -15,7 +15,7 @@ interface Database {
           id: string
           round_number: number
           status: 'waiting' | 'predicting' | 'resolving' | 'completed' | 'cancelled'
-          selected_coin: 'BTC' | 'ETH' | 'SOL' | 'BNB' | 'XRP'
+          selected_coin: 'BTC' | 'ETH' | 'SOL' | 'BNB' | 'XRP' | null
           start_time: string | null
           prediction_end_time: string | null
           end_time: string | null
@@ -28,7 +28,7 @@ interface Database {
         Insert: {
           round_number: number
           status?: 'waiting' | 'predicting' | 'resolving' | 'completed' | 'cancelled'
-          selected_coin: 'BTC' | 'ETH' | 'SOL' | 'BNB' | 'XRP'
+          selected_coin?: 'BTC' | 'ETH' | 'SOL' | 'BNB' | 'XRP' | null
           start_time?: string | null
           prediction_end_time?: string | null
           end_time?: string | null
@@ -38,7 +38,7 @@ interface Database {
         }
         Update: {
           status?: 'waiting' | 'predicting' | 'resolving' | 'completed' | 'cancelled'
-          selected_coin?: 'BTC' | 'ETH' | 'SOL' | 'BNB' | 'XRP'
+          selected_coin?: 'BTC' | 'ETH' | 'SOL' | 'BNB' | 'XRP' | null
           start_price?: number | null
           end_price?: number | null
           price_direction?: 'up' | 'down' | 'unchanged' | null
@@ -195,8 +195,7 @@ async function createNewRound(supabase: any) {
 
     const nextRoundNumber = (rounds && rounds.length > 0) ? rounds[0].round_number + 1 : 1
     
-    const defaultCoin = 'BTC'
-    
+    // Start with NULL selected_coin - will be set when first prediction is made
     const now = new Date()
     const startTime = new Date(now.getTime() + 240 * 1000)
     const predictionEndTime = new Date(startTime.getTime() + 60 * 1000)
@@ -212,7 +211,7 @@ async function createNewRound(supabase: any) {
       .insert([{
         round_number: nextRoundNumber,
         status: 'waiting',
-        selected_coin: defaultCoin,
+        selected_coin: null, // Start with null - first prediction will set the coin
         start_time: startTime.toISOString(),
         prediction_end_time: predictionEndTime.toISOString(),
         end_time: endTime.toISOString()
@@ -225,7 +224,7 @@ async function createNewRound(supabase: any) {
       throw error
     }
 
-    console.log(`✅ New round created: #${nextRoundNumber} with default coin ${defaultCoin}`)
+    console.log(`✅ New round created: #${nextRoundNumber} with no coin selected (will be set by first prediction)`)
 
     return new Response(
       JSON.stringify({ success: true, round: newRound }),
@@ -395,8 +394,9 @@ async function makePrediction(supabase: any, roundId: string, userId: string, pr
     const { streakReward, newDailyPlayStreak, newLastSevenDayRewardDate } = await updateDailyPlayStreak(supabase, userId, profile)
     
     let roundCoinLocked = false
-    if (round.selected_coin === 'BTC' && chosenCoin !== 'BTC') {
-      console.log(`🔒 Locking round coin to ${chosenCoin}`)
+    // Check if round coin is null (not yet set) and lock it to the chosen coin
+    if (round.selected_coin === null) {
+      console.log(`🔒 Locking round coin to ${chosenCoin} (first prediction)`)
       
       const { error: updateRoundError } = await supabase
         .from('game_rounds')
@@ -502,6 +502,9 @@ async function startPredictionPhase(supabase: any, roundId: string, startPrice?:
       throw roundError
     }
 
+    // If selected_coin is still null, use BTC as fallback
+    const coinToUse = round.selected_coin || 'BTC'
+
     let finalStartPrice = startPrice
     if (!finalStartPrice) {
       const fallbackPrices = {
@@ -511,17 +514,25 @@ async function startPredictionPhase(supabase: any, roundId: string, startPrice?:
         BNB: 312.45,
         XRP: 0.6234
       }
-      finalStartPrice = fallbackPrices[round.selected_coin]
+      finalStartPrice = fallbackPrices[coinToUse]
     }
 
-    console.log(`📊 Setting start price for ${round.selected_coin}: ${finalStartPrice}`)
+    console.log(`📊 Setting start price for ${coinToUse}: ${finalStartPrice}`)
+
+    const updateData: any = { 
+      status: 'predicting',
+      start_price: finalStartPrice
+    }
+
+    // If coin is still null, set it to BTC as fallback
+    if (round.selected_coin === null) {
+      updateData.selected_coin = 'BTC'
+      console.log('🔒 Setting fallback coin to BTC for prediction phase')
+    }
 
     const { data: updatedRound, error } = await supabase
       .from('game_rounds')
-      .update({ 
-        status: 'predicting',
-        start_price: finalStartPrice
-      })
+      .update(updateData)
       .eq('id', roundId)
       .select()
       .single()
@@ -558,6 +569,9 @@ async function startResolvingPhase(supabase: any, roundId: string, endPrice?: nu
       throw roundError
     }
 
+    // Use the round's selected coin, fallback to BTC if somehow still null
+    const coinToUse = round.selected_coin || 'BTC'
+
     let finalEndPrice = endPrice
     if (!finalEndPrice) {
       const startPrice = round.start_price || 100
@@ -565,7 +579,7 @@ async function startResolvingPhase(supabase: any, roundId: string, endPrice?: nu
       finalEndPrice = startPrice * (1 + changePercent / 100)
     }
 
-    console.log(`📊 Setting end price for ${round.selected_coin}: ${finalEndPrice}`)
+    console.log(`📊 Setting end price for ${coinToUse}: ${finalEndPrice}`)
 
     const { data: updatedRound, error } = await supabase
       .from('game_rounds')

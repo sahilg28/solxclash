@@ -74,6 +74,7 @@ const CryptoClashPage = () => {
           id: state.currentRound.id,
           round_number: state.currentRound.round_number,
           status: state.currentRound.status,
+          selected_coin: state.currentRound.selected_coin,
           price_direction: state.currentRound.price_direction,
           start_price: state.currentRound.start_price,
           end_price: state.currentRound.end_price
@@ -475,13 +476,10 @@ const CryptoClashPage = () => {
 
   // Helper function to determine what coin to display for the round
   const getDisplayedRoundCoin = () => {
-    if (!gameState.currentRound) return 'BTC';
+    if (!gameState.currentRound) return 'Select Coin';
     
-    // If round is in waiting phase, no user prediction yet, and round coin is still default BTC
-    // Show "Select Coin" to indicate user can choose
-    if (gameState.currentRound.status === 'waiting' && 
-        !gameState.userPrediction && 
-        gameState.currentRound.selected_coin === 'BTC') {
+    // If round coin is null (not yet selected), show "Select Coin"
+    if (gameState.currentRound.selected_coin === null) {
       return 'Select Coin';
     }
     
@@ -490,9 +488,7 @@ const CryptoClashPage = () => {
   };
 
   const displayedRoundCoin = getDisplayedRoundCoin();
-  const isRoundCoinLocked = gameState.currentRound?.status !== 'waiting' || 
-                           gameState.userPrediction || 
-                           (gameState.currentRound?.selected_coin !== 'BTC');
+  const isRoundCoinLocked = gameState.currentRound?.selected_coin !== null;
 
   return (
     <div className="min-h-screen bg-black pt-16">
@@ -683,7 +679,7 @@ const CryptoClashPage = () => {
                     </span>
                     <span>•</span>
                     <span className={phaseDisplay.color}>{phaseDisplay.title}</span>
-                    {gameState.currentRound.start_price && gameState.phase === 'predicting' && (
+                    {gameState.currentRound.start_price && gameState.phase === 'predicting' && gameState.currentRound.selected_coin && (
                       <>
                         <span>•</span>
                         <span className="text-yellow-400">
