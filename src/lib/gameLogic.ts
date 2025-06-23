@@ -25,6 +25,7 @@ export interface Prediction {
   predicted_price?: number | null;
   is_correct: boolean | null;
   xp_earned: number;
+  xp_bet: number; // Added XP bet amount
   created_at: string;
 }
 
@@ -413,7 +414,7 @@ class GameLogicService {
     }
   }
 
-  public async makePrediction(prediction: 'up' | 'down', userId: string, chosenCoin: CoinSymbol) {
+  public async makePrediction(prediction: 'up' | 'down', userId: string, chosenCoin: CoinSymbol, xpBet: number) {
     const round = this.currentGameState.currentRound;
     // Allow predictions during both waiting and predicting phases
     if (!round || (round.status !== 'waiting' && round.status !== 'predicting')) {
@@ -421,7 +422,7 @@ class GameLogicService {
     }
 
     try {
-      console.log(`🎯 Making prediction: ${prediction} for ${chosenCoin} in round ${round.round_number}`);
+      console.log(`🎯 Making prediction: ${prediction} for ${chosenCoin} in round ${round.round_number} with ${xpBet} XP bet`);
       
       // Get current price for the chosen coin
       const currentPrice = binancePriceService.getCurrentPrice(chosenCoin);
@@ -440,7 +441,8 @@ class GameLogicService {
           userId,
           prediction,
           chosenCoin,
-          predictedPrice: currentPrice.price
+          predictedPrice: currentPrice.price,
+          xpBet
         })
       });
 
@@ -465,7 +467,7 @@ class GameLogicService {
       
       this.notifySubscribers();
       
-      console.log('✅ Prediction saved with locked price:', currentPrice.price);
+      console.log('✅ Prediction saved with locked price:', currentPrice.price, 'and XP bet:', xpBet);
       return result.prediction;
     } catch (error) {
       console.error('❌ Failed to make prediction:', error);
@@ -517,7 +519,8 @@ class GameLogicService {
         id: this.currentGameState.userPrediction.id,
         prediction: this.currentGameState.userPrediction.prediction,
         is_correct: this.currentGameState.userPrediction.is_correct,
-        xp_earned: this.currentGameState.userPrediction.xp_earned
+        xp_earned: this.currentGameState.userPrediction.xp_earned,
+        xp_bet: this.currentGameState.userPrediction.xp_bet
       } : null,
       phase: this.currentGameState.phase,
       timeLeft: this.currentGameState.timeLeft

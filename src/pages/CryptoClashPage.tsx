@@ -3,8 +3,9 @@ import { Navigate } from 'react-router-dom';
 import { 
   TrendingUp, Clock, Trophy, Zap, Target, Users, 
   Play, Pause, RotateCcw, AlertCircle, CheckCircle,
-  Wifi, WifiOff, Activity, DollarSign, Flame, Star, LogIn
+  Wifi, WifiOff, Activity, DollarSign, Flame, Star, LogIn, Coins
 } from 'lucide-react';
+import { toast } from 'react-toastify';
 import { useAuthContext } from '../components/AuthProvider';
 import { binancePriceService, PriceUpdate, CoinSymbol, formatPrice, formatPriceChange, getPriceChangeColor } from '../lib/binancePriceService';
 import { gameLogicService, GameState } from '../lib/gameLogic';
@@ -22,9 +23,8 @@ const CryptoClashPage = () => {
   });
   const [priceData, setPriceData] = useState<Map<CoinSymbol, PriceUpdate>>(new Map());
   const [selectedCoin, setSelectedCoin] = useState<CoinSymbol>('BTC'); // User's choice for chart viewing and prediction
+  const [selectedXpBet, setSelectedXpBet] = useState<number>(10); // XP betting amount
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'connecting' | 'disconnected'>('connecting');
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
   const [roundResults, setRoundResults] = useState<{
     show: boolean;
     isCorrect: boolean | null;
@@ -32,14 +32,19 @@ const CryptoClashPage = () => {
     predictedPrice: number | null;
     endPrice: number | null;
     xpEarned: number;
+    xpBet: number;
   }>({
     show: false,
     isCorrect: null,
     priceDirection: null,
     predictedPrice: null,
     endPrice: null,
-    xpEarned: 0
+    xpEarned: 0,
+    xpBet: 0
   });
+
+  // XP betting options (10-100 in increments of 10)
+  const xpBetOptions = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 
   // Cryptocurrency options with TradingView symbols
   const cryptoOptions = [
@@ -77,7 +82,8 @@ const CryptoClashPage = () => {
           id: state.userPrediction.id,
           prediction: state.userPrediction.prediction,
           is_correct: state.userPrediction.is_correct,
-          xp_earned: state.userPrediction.xp_earned
+          xp_earned: state.userPrediction.xp_earned,
+          xp_bet: state.userPrediction.xp_bet
         } : null,
         phase: state.phase,
         timeLeft: state.timeLeft
@@ -92,7 +98,8 @@ const CryptoClashPage = () => {
           priceDirection: state.currentRound.price_direction,
           predictedPrice: state.userPrediction.predicted_price,
           endPrice: state.currentRound.end_price,
-          xpEarned: state.userPrediction.xp_earned
+          xpEarned: state.userPrediction.xp_earned,
+          xpBet: state.userPrediction.xp_bet
         });
 
         setRoundResults({
@@ -101,8 +108,22 @@ const CryptoClashPage = () => {
           priceDirection: state.currentRound.price_direction,
           predictedPrice: state.userPrediction.predicted_price || null,
           endPrice: state.currentRound.end_price,
-          xpEarned: state.userPrediction.xp_earned || 0
+          xpEarned: state.userPrediction.xp_earned || 0,
+          xpBet: state.userPrediction.xp_bet || 10
         });
+
+        // Show toast notification for round results
+        if (state.userPrediction.is_correct) {
+          toast.success(`🎉 Correct prediction! You earned ${state.userPrediction.xp_earned} XP!`, {
+            position: "top-right",
+            autoClose: 5000,
+          });
+        } else {
+          toast.error(`😔 Wrong prediction. Better luck next round!`, {
+            position: "top-right",
+            autoClose: 5000,
+          });
+        }
 
         // Refresh profile to get updated XP
         console.log('🎮 [DEBUG] CryptoClashPage: Refreshing user profile after round completion...');
@@ -309,12 +330,12 @@ const CryptoClashPage = () => {
                     <span className="text-yellow-400 font-bold">BTC, ETH, SOL, BNB, XRP</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-300">Prediction Cost</span>
-                    <span className="text-red-400 font-bold">-10 XP</span>
+                    <span className="text-gray-300">Bet Amount</span>
+                    <span className="text-blue-400 font-bold">10-100 XP</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-gray-300">Correct Prediction</span>
-                    <span className="text-green-400 font-bold">+20 XP</span>
+                    <span className="text-green-400 font-bold">Double your bet!</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-gray-300">Win Streak Bonus</span>
@@ -333,7 +354,7 @@ const CryptoClashPage = () => {
                   </li>
                   <li className="flex items-start space-x-2">
                     <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
-                    <span>Choose your coin (BTC, ETH, SOL, BNB, XRP)</span>
+                    <span>Choose your coin and bet amount (10-100 XP)</span>
                   </li>
                   <li className="flex items-start space-x-2">
                     <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
@@ -341,7 +362,7 @@ const CryptoClashPage = () => {
                   </li>
                   <li className="flex items-start space-x-2">
                     <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
-                    <span>Spend 10 XP to predict UP or DOWN (price locked at prediction time)</span>
+                    <span>Predict UP or DOWN (price locked at prediction time)</span>
                   </li>
                   <li className="flex items-start space-x-2">
                     <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
@@ -349,7 +370,7 @@ const CryptoClashPage = () => {
                   </li>
                   <li className="flex items-start space-x-2">
                     <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
-                    <span>Earn XP + streak bonus for correct predictions</span>
+                    <span>Earn double your bet + streak bonus for correct predictions</span>
                   </li>
                 </ul>
               </div>
@@ -372,23 +393,19 @@ const CryptoClashPage = () => {
 
     // Allow predictions during both waiting and predicting phases
     if (gameState.currentRound.status !== 'waiting' && gameState.currentRound.status !== 'predicting') {
-      setError('Predictions can only be made during the lobby or prediction phase');
+      toast.error('Predictions can only be made during the lobby or prediction phase');
       return;
     }
 
     try {
-      setError(null);
-      await gameLogicService.makePrediction(direction, user.id, selectedCoin);
-      setSuccess(`Prediction "${direction.toUpperCase()}" locked in for ${selectedCoin}! 10 XP deducted. Price locked at current market price.`);
+      await gameLogicService.makePrediction(direction, user.id, selectedCoin, selectedXpBet);
+      toast.success(`🎯 Prediction "${direction.toUpperCase()}" locked in for ${selectedCoin}! ${selectedXpBet} XP deducted. Price locked at current market price.`);
       
       // Refresh profile to show updated XP
       await refreshSessionAndProfile();
-      
-      // Clear success message after 5 seconds
-      setTimeout(() => setSuccess(null), 5000);
     } catch (err) {
       console.error('Failed to make prediction:', err);
-      setError(err instanceof Error ? err.message : 'Failed to submit prediction');
+      toast.error(err instanceof Error ? err.message : 'Failed to submit prediction');
     }
   };
 
@@ -539,6 +556,30 @@ const CryptoClashPage = () => {
                 </span>
               </p>
               
+              {/* XP Bet and Earned Display */}
+              <div className="bg-black/50 rounded-lg p-4 mb-4">
+                <div className="flex justify-between items-center text-sm mb-2">
+                  <span className="text-gray-400">XP Bet:</span>
+                  <span className="text-red-400 font-semibold">-{roundResults.xpBet} XP</span>
+                </div>
+                <div className="flex justify-between items-center text-sm mb-2">
+                  <span className="text-gray-400">XP Earned:</span>
+                  <span className={`font-semibold ${roundResults.isCorrect ? 'text-green-400' : 'text-gray-500'}`}>
+                    +{roundResults.xpEarned} XP
+                  </span>
+                </div>
+                <div className="border-t border-gray-600 pt-2 mt-2">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-gray-400">Net Result:</span>
+                    <span className={`font-bold ${
+                      roundResults.xpEarned > 0 ? 'text-green-400' : 'text-red-400'
+                    }`}>
+                      {roundResults.xpEarned > 0 ? '+' : ''}{roundResults.xpEarned - roundResults.xpBet} XP
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
               {roundResults.predictedPrice && roundResults.endPrice && (
                 <div className="bg-black/50 rounded-lg p-4 mb-4">
                   <div className="flex justify-between items-center text-sm">
@@ -565,42 +606,12 @@ const CryptoClashPage = () => {
                 </div>
               )}
               
-              <div className={`text-lg font-bold flex items-center justify-center space-x-2 ${
-                roundResults.isCorrect ? 'text-green-400' : 'text-gray-400'
-              }`}>
-                <Zap className="w-5 h-5" />
-                <span>+{roundResults.xpEarned} XP Earned</span>
-              </div>
-              
               <button
                 onClick={() => setRoundResults(prev => ({ ...prev, show: false }))}
                 className="mt-6 bg-yellow-400 text-black px-6 py-2 rounded-lg font-semibold hover:bg-yellow-300 transition-colors duration-200"
               >
                 Continue Playing
               </button>
-            </div>
-          </div>
-        )}
-
-        {/* Success/Error Messages */}
-        {success && (
-          <div className="max-w-2xl mx-auto mb-6">
-            <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-4">
-              <div className="flex items-center space-x-2">
-                <CheckCircle className="w-5 h-5 text-green-400" />
-                <span className="text-green-400">{success}</span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {error && (
-          <div className="max-w-2xl mx-auto mb-6">
-            <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4">
-              <div className="flex items-center space-x-2">
-                <AlertCircle className="w-5 h-5 text-red-400" />
-                <span className="text-red-400">{error}</span>
-              </div>
             </div>
           </div>
         )}
@@ -847,6 +858,37 @@ const CryptoClashPage = () => {
               {/* Game Controls */}
               {(gameState.phase === 'waiting' || gameState.phase === 'predicting') && !gameState.userPrediction && (
                 <div className="space-y-4">
+                  {/* XP Betting Selector */}
+                  <div className="mb-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-sm font-medium text-gray-300">Bet Amount</span>
+                      <div className="flex items-center space-x-1">
+                        <Coins className="w-4 h-4 text-yellow-400" />
+                        <span className="text-yellow-400 font-bold">{selectedXpBet} XP</span>
+                      </div>
+                    </div>
+                    
+                    {/* XP Bet Button Grid */}
+                    <div className="grid grid-cols-5 gap-2">
+                      {xpBetOptions.map((amount) => (
+                        <button
+                          key={amount}
+                          onClick={() => setSelectedXpBet(amount)}
+                          disabled={profile.xp < amount}
+                          className={`py-2 px-3 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                            selectedXpBet === amount
+                              ? 'bg-yellow-400 text-black'
+                              : profile.xp >= amount
+                              ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                              : 'bg-gray-800 text-gray-500 cursor-not-allowed opacity-50'
+                          }`}
+                        >
+                          {amount}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
                   <div className="text-center mb-4">
                     <p className="text-gray-300 text-sm mb-2">
                       Will <span className="text-yellow-400 font-semibold">{selectedCoin}</span> price go UP or DOWN?
@@ -854,17 +896,17 @@ const CryptoClashPage = () => {
                     <div className="bg-yellow-400/10 border border-yellow-400/20 rounded-lg p-3">
                       <div className="flex items-center justify-center space-x-2 text-yellow-400 text-sm">
                         <DollarSign className="w-4 h-4" />
-                        <span>Cost: 10 XP • Price locked at prediction time</span>
+                        <span>Bet: {selectedXpBet} XP • Win: {selectedXpBet * 2} XP • Price locked at prediction time</span>
                       </div>
                     </div>
                   </div>
                   
                   {/* XP Check */}
-                  {profile.xp < 10 ? (
+                  {profile.xp < selectedXpBet ? (
                     <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 text-center">
                       <AlertCircle className="w-8 h-8 text-red-400 mx-auto mb-2" />
                       <p className="text-red-400 font-semibold">Insufficient XP!</p>
-                      <p className="text-gray-400 text-sm">You need at least 10 XP to make a prediction.</p>
+                      <p className="text-gray-400 text-sm">You need at least {selectedXpBet} XP to make this prediction.</p>
                     </div>
                   ) : (
                     /* Prediction Buttons */
@@ -899,6 +941,9 @@ const CryptoClashPage = () => {
                       <TrendingUp className={`w-5 h-5 ${gameState.userPrediction.prediction === 'down' ? 'rotate-180' : ''}`} />
                       <span>Price will go {gameState.userPrediction.prediction.toUpperCase()}</span>
                     </div>
+                    <div className="text-sm text-gray-400 mt-1">
+                      Bet: {gameState.userPrediction.xp_bet} XP • Potential Win: {gameState.userPrediction.xp_bet * 2} XP
+                    </div>
                     {gameState.userPrediction.predicted_price && (
                       <div className="text-xs text-gray-500 mt-1">
                         Locked at {formatPrice(gameState.userPrediction.predicted_price, selectedCoin)}
@@ -932,7 +977,7 @@ const CryptoClashPage = () => {
               )}
             </div>
 
-            {/* Potential Rewards */}
+            {/* XP Economy Info */}
             <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-sm border border-gray-700 rounded-xl p-6">
               <h4 className="text-lg font-bold text-white mb-4 flex items-center space-x-2">
                 <Star className="w-5 h-5 text-yellow-400" />
@@ -940,20 +985,24 @@ const CryptoClashPage = () => {
               </h4>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-300">Prediction Cost</span>
-                  <span className="text-red-400 font-bold">-10 XP</span>
+                  <span className="text-gray-300">Bet Range</span>
+                  <span className="text-blue-400 font-bold">10-100 XP</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-300">Correct Prediction</span>
-                  <span className="text-green-400 font-bold">+20 XP</span>
+                  <span className="text-green-400 font-bold">Double your bet!</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-300">Win Streak Bonus</span>
                   <span className="text-yellow-400 font-bold">+{profile.streak * 10} XP</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-300">New User Bonus</span>
-                  <span className="text-purple-400 font-bold">+100 XP</span>
+                  <span className="text-gray-300">Current Bet</span>
+                  <span className="text-purple-400 font-bold">{selectedXpBet} XP</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-300">Potential Win</span>
+                  <span className="text-green-400 font-bold">{selectedXpBet * 2 + (profile.streak * 10)} XP</span>
                 </div>
               </div>
             </div>
@@ -968,11 +1017,15 @@ const CryptoClashPage = () => {
                 </li>
                 <li className="flex items-start space-x-2">
                   <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
+                  <span>Select your bet amount (10-100 XP in increments of 10)</span>
+                </li>
+                <li className="flex items-start space-x-2">
+                  <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
                   <span>Make predictions during the 4-minute lobby phase</span>
                 </li>
                 <li className="flex items-start space-x-2">
                   <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
-                  <span>Spend 10 XP to predict UP or DOWN (price locked at prediction time)</span>
+                  <span>Predict UP or DOWN (price locked at prediction time)</span>
                 </li>
                 <li className="flex items-start space-x-2">
                   <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
@@ -980,7 +1033,7 @@ const CryptoClashPage = () => {
                 </li>
                 <li className="flex items-start space-x-2">
                   <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
-                  <span>Earn 20 XP + streak bonus for correct predictions</span>
+                  <span>Earn double your bet + streak bonus for correct predictions</span>
                 </li>
               </ul>
             </div>

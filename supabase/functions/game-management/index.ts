@@ -54,6 +54,7 @@ interface Database {
           predicted_price: number | null
           is_correct: boolean | null
           xp_earned: number
+          xp_bet: number
           created_at: string
         }
         Insert: {
@@ -64,6 +65,7 @@ interface Database {
           predicted_price?: number | null
           is_correct?: boolean | null
           xp_earned?: number
+          xp_bet?: number
         }
         Update: {
           is_correct?: boolean | null
@@ -141,8 +143,8 @@ serve(async (req) => {
     }
 
     if (path === '/game-management/make-prediction' && req.method === 'POST') {
-      const { roundId, userId, prediction, chosenCoin, predictedPrice } = await req.json()
-      return await makePrediction(supabaseClient, roundId, userId, prediction, chosenCoin, predictedPrice)
+      const { roundId, userId, prediction, chosenCoin, predictedPrice, xpBet } = await req.json()
+      return await makePrediction(supabaseClient, roundId, userId, prediction, chosenCoin, predictedPrice, xpBet)
     }
 
     return new Response(
@@ -230,9 +232,14 @@ async function createNewRound(supabase: any) {
   }
 }
 
-async function makePrediction(supabase: any, roundId: string, userId: string, prediction: 'up' | 'down', chosenCoin: 'BTC' | 'ETH' | 'SOL' | 'BNB' | 'XRP', predictedPrice: number) {
+async function makePrediction(supabase: any, roundId: string, userId: string, prediction: 'up' | 'down', chosenCoin: 'BTC' | 'ETH' | 'SOL' | 'BNB' | 'XRP', predictedPrice: number, xpBet: number) {
   try {
-    console.log(`🎯 Making prediction: ${prediction} for ${chosenCoin} by user ${userId}`)
+    console.log(`🎯 Making prediction: ${prediction} for ${chosenCoin} by user ${userId} with ${xpBet} XP bet`)
+    
+    // Validate XP bet amount
+    if (!xpBet || xpBet < 10 || xpBet > 100 || xpBet % 10 !== 0) {
+      throw new Error('Invalid XP bet amount. Must be between 10-100 in increments of 10.')
+    }
     
     // Get current round details
     const { data: round, error: roundError } = await supabase
@@ -280,8 +287,8 @@ async function makePrediction(supabase: any, roundId: string, userId: string, pr
       throw new Error('Failed to fetch user profile')
     }
 
-    if (profile.xp < 10) {
-      throw new Error('Insufficient XP! You need at least 10 XP to make a prediction.')
+    if (profile.xp < xpBet) {
+      throw new Error(`Insufficient XP! You need at least ${xpBet} XP to make this prediction.`)
     }
 
     // Lock the coin for this round if it's still the default
@@ -307,7 +314,7 @@ async function makePrediction(supabase: any, roundId: string, userId: string, pr
     // Deduct XP from user
     const { error: deductError } = await supabase
       .from('profiles')
-      .update({ xp: profile.xp - 10 })
+      .update({ xp: profile.xp - xpBet })
       .eq('user_id', userId)
 
     if (deductError) {
@@ -322,7 +329,8 @@ async function makePrediction(supabase: any, roundId: string, userId: string, pr
         round_id: roundId,
         user_id: userId,
         prediction: prediction,
-        predicted_price: predictedPrice
+        predicted_price: predictedPrice,
+        xp_bet: xpBet
       }])
       .select()
       .single()
@@ -339,7 +347,7 @@ async function makePrediction(supabase: any, roundId: string, userId: string, pr
       throw new Error('Failed to create prediction')
     }
 
-    console.log(`✅ Prediction created successfully with locked price: ${predictedPrice}`)
+    console.log(`✅ Prediction created successfully with locked price: ${predictedPrice} and XP bet: ${xpBet}`)
 
     return new Response(
       JSON.stringify({ 
@@ -530,7 +538,7 @@ async function completeRound(supabase: any, roundId: string) {
 
     console.log(`📈 [DEBUG] Price direction calculated: ${priceDirection} (difference: ${priceDifference > 0 ? '+' : ''}${priceDifference.toFixed(8)})`)
 
-    // Get all predictions for this round (including predicted_price)
+    // Get all predictions for this round (including predicted_price and xp_bet)
     console.log('🏁 [DEBUG] Fetching predictions for this round...')
     const { data: predictions, error: predictionsError } = await supabase
       .from('predictions')
@@ -548,6 +556,7 @@ async function completeRound(supabase: any, roundId: string) {
       user_id: p.user_id,
       prediction: p.prediction,
       predicted_price: p.predicted_price,
+      xp_bet: p.xp_bet,
       predicted_at: p.predicted_at
     })))
 
@@ -561,6 +570,7 @@ async function completeRound(supabase: any, roundId: string) {
       console.log(`🔍 [DEBUG] Processing prediction ${prediction.id} by user ${prediction.user_id}:`)
       console.log(`   Prediction: ${prediction.prediction}`)
       console.log(`   Predicted Price: ${prediction.predicted_price}`)
+      console.log(`   XP Bet: ${prediction.xp_bet}`)
       
       // Compare individual predicted_price with round end_price
       let isCorrect = false
@@ -591,7 +601,8 @@ async function completeRound(supabase: any, roundId: string) {
       
       if (isCorrect) correctPredictions++
       
-      const baseXp = isCorrect ? 20 : 0 // 20 XP for correct prediction (double the 10 XP cost)
+      // Calculate XP earned: double the bet amount for correct predictions
+      const baseXp = isCorrect ? prediction.xp_bet * 2 : 0
       
       // Get user's current streak for bonus calculation
       console.log(`   [DEBUG] Fetching user profile for streak calculation...`)
@@ -618,7 +629,7 @@ async function completeRound(supabase: any, roundId: string) {
       const streakBonus = isCorrect && profile ? profile.streak * 10 : 0
       const totalXpEarned = baseXp + streakBonus
 
-      console.log(`   [DEBUG] XP Calculation: ${baseXp} base + ${streakBonus} streak bonus = ${totalXpEarned} total`)
+      console.log(`   [DEBUG] XP Calculation: ${baseXp} base (${prediction.xp_bet} bet × 2) + ${streakBonus} streak bonus = ${totalXpEarned} total`)
 
       // Update prediction with result
       console.log(`   [DEBUG] Updating prediction with results...`)
@@ -667,7 +678,7 @@ async function completeRound(supabase: any, roundId: string) {
         continue
       }
 
-      console.log(`✅ [DEBUG] Updated user ${prediction.user_id}: ${isCorrect ? 'WIN' : 'LOSS'}, +${totalXpEarned} XP, streak: ${newStreak}`)
+      console.log(`✅ [DEBUG] Updated user ${prediction.user_id}: ${isCorrect ? 'WIN' : 'LOSS'}, +${totalXpEarned} XP (bet: ${prediction.xp_bet}), streak: ${newStreak}`)
     }
 
     console.log(`📊 [DEBUG] Round completion summary: ${correctPredictions}/${totalPredictions} correct predictions`)
