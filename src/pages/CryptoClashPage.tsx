@@ -26,7 +26,6 @@ const CryptoClashPage = () => {
   const [selectedXpBet, setSelectedXpBet] = useState<number>(10); // XP bet amount
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'connecting' | 'disconnected'>('connecting');
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
   const [roundResults, setRoundResults] = useState<{
     show: boolean;
     isCorrect: boolean | null;
@@ -358,9 +357,13 @@ const CryptoClashPage = () => {
       return;
     }
 
-    // Allow predictions during both waiting and predicting phases
-    if (gameState.currentRound.status !== 'waiting' && gameState.currentRound.status !== 'predicting') {
-      setError('Predictions can only be made during the lobby or prediction phase');
+    // Only allow predictions during waiting phase
+    if (gameState.currentRound.status !== 'waiting') {
+      setError('Predictions can only be made during the lobby phase');
+      toast.error('Predictions can only be made during the lobby phase', {
+        position: "top-right",
+        autoClose: 3000,
+      });
       return;
     }
 
@@ -826,7 +829,7 @@ const CryptoClashPage = () => {
               </div>
 
               {/* Game Controls */}
-              {(gameState.phase === 'waiting' || gameState.phase === 'predicting') && !gameState.userPrediction && (
+              {gameState.phase === 'waiting' && !gameState.userPrediction && (
                 <div className="space-y-4">
                   <div className="text-center mb-4">
                     <p className="text-gray-300 text-sm mb-2">
@@ -917,12 +920,11 @@ const CryptoClashPage = () => {
                 </div>
               )}
 
-              {gameState.phase === 'waiting' && gameState.userPrediction && (
+              {gameState.phase === 'predicting' && (
                 <div className="text-center p-4">
-                  <Clock className="w-8 h-8 text-blue-400 mx-auto mb-2" />
-                  <p className="text-blue-400 mb-1">Prediction Locked!</p>
+                  <div className="text-yellow-400 mb-2">⏳ Prediction locked!</div>
                   <p className="text-sm text-gray-400">
-                    Waiting for prediction window to start...
+                    Watching price movement...
                   </p>
                 </div>
               )}

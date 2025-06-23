@@ -4,7 +4,7 @@ import { CoinSymbol, PriceData, binancePriceService } from './binancePriceServic
 export interface GameRound {
   id: string;
   round_number: number;
-  status: 'waiting' | 'predicting' | 'resolving' | 'completed';
+  status: 'waiting' | 'predicting' | 'resolving' | 'completed' | 'cancelled';
   selected_coin: CoinSymbol;
   start_time: string | null;
   prediction_end_time: string | null;
@@ -214,13 +214,22 @@ class GameLogicService {
           break;
         
         case 'resolving':
-          // Complete round and create new one
-          console.log('🏁 Completing round and creating new one...');
-          await this.completeRound(round.id);
-          // Add a small delay before creating new round to ensure completion
-          setTimeout(async () => {
-            await this.createNewRound();
-          }, 1000);
+          // Complete round and check if new round should be created
+          console.log('🏁 Completing round and checking for predictions...');
+          const result = await this.completeRound(round.id);
+          
+          // Only create new round if the completed round had predictions
+          if (result && result.hasPredictions) {
+            console.log('✅ Round had predictions, creating new round...');
+            setTimeout(async () => {
+              await this.createNewRound();
+            }, 1000);
+          } else {
+            console.log('❌ Round had no predictions, not creating new round');
+            // Set game state to completed without creating new round
+            this.currentGameState.phase = 'completed';
+            this.notifySubscribers();
+          }
           break;
       }
     } catch (error) {
@@ -364,7 +373,7 @@ class GameLogicService {
     }
   }
 
-  private async completeRound(roundId: string) {
+  private async completeRound(roundId: string): Promise<{ hasPredictions: boolean } | null> {
     try {
       console.log('🏁 [DEBUG] Frontend: Starting completeRound request...');
       console.log('🏁 [DEBUG] Frontend: Request body:', { roundId });
@@ -408,17 +417,21 @@ class GameLogicService {
       this.notifySubscribers();
       
       console.log('✅ [DEBUG] Frontend: Round completed successfully');
+      
+      // Return whether the round had predictions
+      return { hasPredictions: result.hasPredictions || false };
     } catch (error) {
       console.error('❌ [DEBUG] Frontend: Failed to complete round:', error);
       console.error('❌ [DEBUG] Frontend: Error stack:', error.stack);
+      return null;
     }
   }
 
   public async makePrediction(prediction: 'up' | 'down', userId: string, chosenCoin: CoinSymbol, xpBet: number) {
     const round = this.currentGameState.currentRound;
-    // Allow predictions during both waiting and predicting phases
-    if (!round || (round.status !== 'waiting' && round.status !== 'predicting')) {
-      throw new Error('No active prediction round');
+    // Only allow predictions during waiting phase
+    if (!round || round.status !== 'waiting') {
+      throw new Error('Predictions can only be made during the lobby phase');
     }
 
     try {
@@ -468,7 +481,7 @@ class GameLogicService {
       this.notifySubscribers();
       
       console.log('✅ Prediction saved with locked price:', currentPrice.price, 'and XP bet:', xpBet);
-      return result.prediction;
+      return result;
     } catch (error) {
       console.error('❌ Failed to make prediction:', error);
       throw error;
