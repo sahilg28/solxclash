@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
-import { User, Mail, Edit3, Save, X, Check, AlertCircle, Trophy, Target, Zap, Award } from 'lucide-react';
+import { User, Mail, Edit3, Save, X, Check, AlertCircle, Trophy, Target, Zap, Award, MapPin, Flame } from 'lucide-react';
 import { useAuthContext } from '../components/AuthProvider';
 import { supabase, Profile } from '../lib/supabase';
 
@@ -18,6 +18,7 @@ const ProfilePage = () => {
     full_name: '',
     username: '',
     email: '',
+    country: '',
   });
 
   const isOwnProfile = currentUserProfile?.username === username;
@@ -32,6 +33,7 @@ const ProfilePage = () => {
         full_name: profile.full_name || '',
         username: profile.username || '',
         email: profile.email || '',
+        country: profile.country || '',
       });
     }
   }, [profile]);
@@ -95,6 +97,7 @@ const ProfilePage = () => {
           full_name: formData.full_name.trim() || null,
           username: formData.username.trim(),
           email: formData.email.trim() || null,
+          country: formData.country.trim() || null,
           updated_at: new Date().toISOString(),
         })
         .eq('id', profile.id);
@@ -107,6 +110,7 @@ const ProfilePage = () => {
         full_name: formData.full_name.trim() || null,
         username: formData.username.trim(),
         email: formData.email.trim() || null,
+        country: formData.country.trim() || null,
         updated_at: new Date().toISOString(),
       });
 
@@ -131,6 +135,7 @@ const ProfilePage = () => {
         full_name: profile.full_name || '',
         username: profile.username || '',
         email: profile.email || '',
+        country: profile.country || '',
       });
     }
     setEditing(false);
@@ -207,6 +212,15 @@ const ProfilePage = () => {
                   <span>{profile.xp} XP</span>
                   <span>•</span>
                   <span>Joined {new Date(profile.created_at).toLocaleDateString()}</span>
+                  {profile.country && (
+                    <>
+                      <span>•</span>
+                      <div className="flex items-center space-x-1">
+                        <MapPin className="w-3 h-3" />
+                        <span>{profile.country}</span>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -266,7 +280,7 @@ const ProfilePage = () => {
         )}
 
         {/* Stats Cards */}
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
+        <div className="grid md:grid-cols-5 gap-6 mb-8">
           <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-sm border border-gray-700 rounded-xl p-6 text-center">
             <div className="w-12 h-12 bg-yellow-400/20 rounded-full flex items-center justify-center mx-auto mb-3">
               <Zap className="w-6 h-6 text-yellow-400" />
@@ -308,7 +322,18 @@ const ProfilePage = () => {
               <Award className="w-6 h-6 text-orange-400" />
             </div>
             <div className="text-3xl font-bold text-orange-400 mb-2">{profile.streak}</div>
-            <div className="text-gray-300 text-sm">Current Streak</div>
+            <div className="text-gray-300 text-sm">Win Streak</div>
+          </div>
+
+          <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-sm border border-gray-700 rounded-xl p-6 text-center">
+            <div className="w-12 h-12 bg-red-400/20 rounded-full flex items-center justify-center mx-auto mb-3">
+              <Flame className="w-6 h-6 text-red-400" />
+            </div>
+            <div className="text-3xl font-bold text-red-400 mb-2">{profile.daily_play_streak}</div>
+            <div className="text-gray-300 text-sm">Daily Streak</div>
+            <div className="text-xs text-gray-500 mt-1">
+              {profile.daily_play_streak >= 7 ? 'Reward earned!' : `${7 - profile.daily_play_streak} days to 300 XP`}
+            </div>
           </div>
         </div>
 
@@ -375,6 +400,27 @@ const ProfilePage = () => {
                 <div className="px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white flex items-center space-x-2">
                   <Mail className="w-4 h-4 text-gray-400" />
                   <span>{profile.email || <span className="text-gray-500">Not provided</span>}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Country */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Country <span className="text-gray-500">(Optional)</span>
+              </label>
+              {editing ? (
+                <input
+                  type="text"
+                  value={formData.country}
+                  onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                  className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all duration-200"
+                  placeholder="Enter your country"
+                />
+              ) : (
+                <div className="px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white flex items-center space-x-2">
+                  <MapPin className="w-4 h-4 text-gray-400" />
+                  <span>{profile.country || <span className="text-gray-500">Not provided</span>}</span>
                 </div>
               )}
             </div>

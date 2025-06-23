@@ -23,4 +23,8 @@ export type Profile = {
   games_played: number;
   wins: number;
   streak: number;
+  country: string | null;
+  last_played_date: string | null;
+  daily_play_streak: number;
+  last_seven_day_reward_date: string | null;
 };

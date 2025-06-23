@@ -87,12 +87,20 @@ interface Database {
           games_played: number
           wins: number
           streak: number
+          country: string | null
+          last_played_date: string | null
+          daily_play_streak: number
+          last_seven_day_reward_date: string | null
         }
         Update: {
           xp?: number
           games_played?: number
           wins?: number
           streak?: number
+          country?: string | null
+          last_played_date?: string | null
+          daily_play_streak?: number
+          last_seven_day_reward_date?: string | null
         }
       }
     }
@@ -233,6 +241,70 @@ async function createNewRound(supabase: any) {
   }
 }
 
+async function updateDailyPlayStreak(supabase: any, userId: string, profile: any) {
+  try {
+    const today = new Date().toISOString().split('T')[0] // YYYY-MM-DD format
+    const lastPlayedDate = profile.last_played_date
+    
+    console.log(`🔥 [STREAK] Processing daily streak for user ${userId}:`)
+    console.log(`   Today: ${today}`)
+    console.log(`   Last played: ${lastPlayedDate}`)
+    console.log(`   Current streak: ${profile.daily_play_streak}`)
+    
+    let newDailyPlayStreak = profile.daily_play_streak
+    let streakReward = 0
+    let newLastSevenDayRewardDate = profile.last_seven_day_reward_date
+    
+    if (!lastPlayedDate) {
+      // First time playing
+      newDailyPlayStreak = 1
+      console.log(`   [STREAK] First time playing - streak set to 1`)
+    } else if (lastPlayedDate === today) {
+      // Already played today - no change to streak
+      console.log(`   [STREAK] Already played today - no streak change`)
+      return { streakReward: 0, newDailyPlayStreak, newLastSevenDayRewardDate }
+    } else {
+      // Calculate days difference
+      const lastDate = new Date(lastPlayedDate)
+      const todayDate = new Date(today)
+      const daysDifference = Math.floor((todayDate.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24))
+      
+      console.log(`   [STREAK] Days since last play: ${daysDifference}`)
+      
+      if (daysDifference === 1) {
+        // Consecutive day - increment streak
+        newDailyPlayStreak = profile.daily_play_streak + 1
+        console.log(`   [STREAK] Consecutive day - streak incremented to ${newDailyPlayStreak}`)
+        
+        // Check for 7-day streak reward
+        if (newDailyPlayStreak === 7) {
+          const lastRewardDate = profile.last_seven_day_reward_date
+          
+          // Only give reward if it's been at least 7 days since last reward
+          if (!lastRewardDate || 
+              Math.floor((todayDate.getTime() - new Date(lastRewardDate).getTime()) / (1000 * 60 * 60 * 24)) >= 7) {
+            streakReward = 300
+            newLastSevenDayRewardDate = today
+            newDailyPlayStreak = 0 // Reset streak after reward
+            console.log(`   [STREAK] 🎉 7-day streak achieved! Awarding 300 XP and resetting streak`)
+          } else {
+            console.log(`   [STREAK] 7-day streak achieved but reward already given recently`)
+          }
+        }
+      } else {
+        // Streak broken - reset to 1
+        newDailyPlayStreak = 1
+        console.log(`   [STREAK] Streak broken (${daysDifference} days gap) - reset to 1`)
+      }
+    }
+    
+    return { streakReward, newDailyPlayStreak, newLastSevenDayRewardDate }
+  } catch (error) {
+    console.error('❌ [STREAK] Error calculating daily play streak:', error)
+    return { streakReward: 0, newDailyPlayStreak: profile.daily_play_streak, newLastSevenDayRewardDate: profile.last_seven_day_reward_date }
+  }
+}
+
 async function makePrediction(supabase: any, roundId: string, userId: string, prediction: 'up' | 'down', chosenCoin: 'BTC' | 'ETH' | 'SOL' | 'BNB' | 'XRP', predictedPrice: number, xpBet: number) {
   try {
     console.log(`🎯 Making prediction: ${prediction} for ${chosenCoin} by user ${userId} with ${xpBet} XP bet`)
@@ -279,7 +351,7 @@ async function makePrediction(supabase: any, roundId: string, userId: string, pr
     // Get user profile and check XP
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('xp')
+      .select('*')
       .eq('user_id', userId)
       .single()
 
@@ -292,6 +364,9 @@ async function makePrediction(supabase: any, roundId: string, userId: string, pr
       throw new Error(`Insufficient XP! You need at least ${xpBet} XP to make this prediction.`)
     }
 
+    // Calculate daily play streak and potential reward
+    const { streakReward, newDailyPlayStreak, newLastSevenDayRewardDate } = await updateDailyPlayStreak(supabase, userId, profile)
+    
     // Lock the coin for this round if it's still the default
     let roundCoinLocked = false
     if (round.selected_coin === 'BTC' && chosenCoin !== 'BTC') {
@@ -312,15 +387,24 @@ async function makePrediction(supabase: any, roundId: string, userId: string, pr
       throw new Error(`This round is locked to ${round.selected_coin}. You cannot predict on ${chosenCoin}.`)
     }
 
-    // Deduct XP from user
-    const { error: deductError } = await supabase
+    // Calculate total XP change (deduct bet, add streak reward)
+    const newXp = profile.xp - xpBet + streakReward
+    const today = new Date().toISOString().split('T')[0]
+    
+    // Update user profile with XP deduction, streak update, and last played date
+    const { error: updateProfileError } = await supabase
       .from('profiles')
-      .update({ xp: profile.xp - xpBet })
+      .update({ 
+        xp: newXp,
+        last_played_date: today,
+        daily_play_streak: newDailyPlayStreak,
+        last_seven_day_reward_date: newLastSevenDayRewardDate
+      })
       .eq('user_id', userId)
 
-    if (deductError) {
-      console.error('❌ Error deducting XP:', deductError)
-      throw new Error('Failed to deduct XP from your account')
+    if (updateProfileError) {
+      console.error('❌ Error updating user profile:', updateProfileError)
+      throw new Error('Failed to update user profile')
     }
 
     // Create the prediction
@@ -339,23 +423,33 @@ async function makePrediction(supabase: any, roundId: string, userId: string, pr
     if (predictionError) {
       console.error('❌ Error creating prediction:', predictionError)
       
-      // Rollback XP deduction
+      // Rollback profile changes
       await supabase
         .from('profiles')
-        .update({ xp: profile.xp })
+        .update({ 
+          xp: profile.xp,
+          last_played_date: profile.last_played_date,
+          daily_play_streak: profile.daily_play_streak,
+          last_seven_day_reward_date: profile.last_seven_day_reward_date
+        })
         .eq('user_id', userId)
       
       throw new Error('Failed to create prediction')
     }
 
     console.log(`✅ Prediction created successfully with locked price: ${predictedPrice} and XP bet: ${xpBet}`)
+    if (streakReward > 0) {
+      console.log(`🎉 Daily streak reward: +${streakReward} XP`)
+    }
 
     return new Response(
       JSON.stringify({ 
         success: true, 
         prediction: newPrediction,
         roundCoinLocked,
-        lockedCoin: chosenCoin
+        lockedCoin: chosenCoin,
+        streakReward,
+        newDailyPlayStreak
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
