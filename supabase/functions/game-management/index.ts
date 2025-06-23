@@ -70,6 +70,7 @@ interface Database {
         Update: {
           is_correct?: boolean | null
           xp_earned?: number
+          xp_bet?: number
         }
       }
       profiles: {
@@ -575,26 +576,27 @@ async function completeRound(supabase: any, roundId: string) {
       // Compare individual predicted_price with round end_price
       let isCorrect = false
       
-      if (prediction.predicted_price && round.end_price) {
+      if (prediction.predicted_price !== null && round.end_price !== null) {
         const individualPriceDifference = round.end_price - prediction.predicted_price
         
         console.log(`   [DEBUG] Individual price difference: ${individualPriceDifference.toFixed(8)}`)
+        console.log(`   [DEBUG] Checking UP condition: ${individualPriceDifference > 0} && ${prediction.prediction === 'up'} = ${individualPriceDifference > 0 && prediction.prediction === 'up'}`)
+        console.log(`   [DEBUG] Checking DOWN condition: ${individualPriceDifference < 0} && ${prediction.prediction === 'down'} = ${individualPriceDifference < 0 && prediction.prediction === 'down'}`)
         
-        if (Math.abs(individualPriceDifference) < 0.01) {
-          // Price unchanged - both predictions are wrong for simplicity
-          isCorrect = false
-          console.log(`   [DEBUG] Result: WRONG (price unchanged)`)
-        } else if (individualPriceDifference > 0 && prediction.prediction === 'up') {
+        if (individualPriceDifference > 0 && prediction.prediction === 'up') {
           isCorrect = true
-          console.log(`   [DEBUG] Result: CORRECT (predicted UP, price went UP)`)
+          console.log(`   [DEBUG] Result: CORRECT (predicted UP, price went UP by ${individualPriceDifference.toFixed(8)})`)
         } else if (individualPriceDifference < 0 && prediction.prediction === 'down') {
           isCorrect = true
-          console.log(`   [DEBUG] Result: CORRECT (predicted DOWN, price went DOWN)`)
+          console.log(`   [DEBUG] Result: CORRECT (predicted DOWN, price went DOWN by ${Math.abs(individualPriceDifference).toFixed(8)})`)
+        } else if (individualPriceDifference === 0) {
+          isCorrect = false
+          console.log(`   [DEBUG] Result: WRONG (price unchanged, no winners)`)
         } else {
           console.log(`   [DEBUG] Result: WRONG (predicted ${prediction.prediction.toUpperCase()}, price went ${individualPriceDifference > 0 ? 'UP' : 'DOWN'})`)
         }
       } else {
-        // Fallback to round-level comparison if no predicted_price
+        // Fallback to round-level comparison if no predicted_price (should not happen)
         isCorrect = prediction.prediction === priceDirection
         console.log(`   [DEBUG] Result: ${isCorrect ? 'CORRECT' : 'WRONG'} (fallback to round-level comparison)`)
       }
