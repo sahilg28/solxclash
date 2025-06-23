@@ -700,8 +700,8 @@ async function completeRound(supabase: any, roundId: string) {
       // Calculate XP earned: double the bet amount for correct predictions
       const baseXp = isCorrect ? prediction.xp_bet * 2 : 0
       
-      // Get user's current streak for bonus calculation
-      console.log(`   [DEBUG] Fetching user profile for streak calculation...`)
+      // Get user's current profile for updating stats (no win streak bonus)
+      console.log(`   [DEBUG] Fetching user profile for stats update...`)
       const { data: profile, error: profileFetchError } = await supabase
         .from('profiles')
         .select('*')
@@ -718,14 +718,12 @@ async function completeRound(supabase: any, roundId: string) {
         username: profile.username,
         current_xp: profile.xp,
         current_games_played: profile.games_played,
-        current_wins: profile.wins,
-        current_streak: profile.streak
+        current_wins: profile.wins
       })
       
-      const streakBonus = isCorrect && profile ? profile.streak * 10 : 0
-      const totalXpEarned = baseXp + streakBonus
+      const totalXpEarned = baseXp
 
-      console.log(`   [DEBUG] XP Calculation: ${baseXp} base (${prediction.xp_bet} bet × 2) + ${streakBonus} streak bonus = ${totalXpEarned} total`)
+      console.log(`   [DEBUG] XP Calculation: ${baseXp} base (${prediction.xp_bet} bet × 2) = ${totalXpEarned} total`)
 
       // Update prediction with result
       console.log(`   [DEBUG] Updating prediction with results...`)
@@ -744,17 +742,15 @@ async function completeRound(supabase: any, roundId: string) {
 
       console.log(`   [DEBUG] Prediction updated successfully`)
 
-      // Calculate new profile values
+      // Calculate new profile values (no win streak)
       const newGamesPlayed = profile.games_played + 1
       const newWins = isCorrect ? profile.wins + 1 : profile.wins
       const newXp = profile.xp + totalXpEarned
-      const newStreak = isCorrect ? profile.streak + 1 : 0
 
       console.log(`   [DEBUG] New profile values calculated:`, {
         newGamesPlayed,
         newWins,
-        newXp,
-        newStreak
+        newXp
       })
 
       // Update user profile
@@ -764,8 +760,7 @@ async function completeRound(supabase: any, roundId: string) {
         .update({
           games_played: newGamesPlayed,
           wins: newWins,
-          xp: newXp,
-          streak: newStreak
+          xp: newXp
         })
         .eq('user_id', prediction.user_id)
 
@@ -774,7 +769,7 @@ async function completeRound(supabase: any, roundId: string) {
         continue
       }
 
-      console.log(`✅ [DEBUG] Updated user ${prediction.user_id}: ${isCorrect ? 'WIN' : 'LOSS'}, +${totalXpEarned} XP (bet: ${prediction.xp_bet}), streak: ${newStreak}`)
+      console.log(`✅ [DEBUG] Updated user ${prediction.user_id}: ${isCorrect ? 'WIN' : 'LOSS'}, +${totalXpEarned} XP (bet: ${prediction.xp_bet})`)
     }
 
     console.log(`📊 [DEBUG] Round completion summary: ${correctPredictions}/${totalPredictions} correct predictions`)

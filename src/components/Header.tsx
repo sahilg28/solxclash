@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Zap, User, ChevronDown, LogOut, Settings, Trophy, Loader2 } from 'lucide-react';
+import { Menu, X, Zap, User, ChevronDown, LogOut, Loader2 } from 'lucide-react';
 import { useAuthContext } from './AuthProvider';
 import AuthButtons from './AuthButtons';
 
@@ -218,16 +218,6 @@ const Header = () => {
                           <User className="w-4 h-4" />
                           <span>View Profile</span>
                         </Link>
-                        
-                        <button className="w-full px-4 py-3 text-left hover:bg-gray-800 transition-colors duration-200 flex items-center space-x-3 text-gray-300 hover:text-white">
-                          <Trophy className="w-4 h-4" />
-                          <span>My Stats</span>
-                        </button>
-                        
-                        <button className="w-full px-4 py-3 text-left hover:bg-gray-800 transition-colors duration-200 flex items-center space-x-3 text-gray-300 hover:text-white">
-                          <Settings className="w-4 h-4" />
-                          <span>Settings</span>
-                        </button>
                         
                         <div className="border-t border-gray-700 mt-2 pt-2">
                           <button

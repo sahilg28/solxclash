@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
-import { User, Mail, Edit3, Save, X, Check, AlertCircle, Trophy, Target, Zap, Award, MapPin, Flame } from 'lucide-react';
+import { User, Mail, Edit3, Save, X, Check, AlertCircle, Trophy, Target, Zap, MapPin, Flame } from 'lucide-react';
 import { useAuthContext } from '../components/AuthProvider';
 import { supabase, Profile } from '../lib/supabase';
 
@@ -280,7 +280,7 @@ const ProfilePage = () => {
         )}
 
         {/* Stats Cards */}
-        <div className="grid md:grid-cols-5 gap-6 mb-8">
+        <div className="grid md:grid-cols-4 gap-6 mb-8">
           <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-sm border border-gray-700 rounded-xl p-6 text-center">
             <div className="w-12 h-12 bg-yellow-400/20 rounded-full flex items-center justify-center mx-auto mb-3">
               <Zap className="w-6 h-6 text-yellow-400" />
@@ -315,14 +315,6 @@ const ProfilePage = () => {
             <div className="text-3xl font-bold text-green-400 mb-2">{profile.wins}</div>
             <div className="text-gray-300 text-sm">Wins</div>
             <div className="text-xs text-gray-500 mt-1">{winRate}% win rate</div>
-          </div>
-          
-          <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-sm border border-gray-700 rounded-xl p-6 text-center">
-            <div className="w-12 h-12 bg-orange-400/20 rounded-full flex items-center justify-center mx-auto mb-3">
-              <Award className="w-6 h-6 text-orange-400" />
-            </div>
-            <div className="text-3xl font-bold text-orange-400 mb-2">{profile.streak}</div>
-            <div className="text-gray-300 text-sm">Win Streak</div>
           </div>
 
           <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-sm border border-gray-700 rounded-xl p-6 text-center">

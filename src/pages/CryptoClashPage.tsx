@@ -336,10 +336,6 @@ const CryptoClashPage = () => {
                     <span className="text-green-400 font-bold">2x XP Return</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-300">Win Streak Bonus</span>
-                    <span className="text-purple-400 font-bold">+10 XP per streak</span>
-                  </div>
-                  <div className="flex items-center justify-between">
                     <span className="text-gray-300">Daily Play Streak</span>
                     <span className="text-orange-400 font-bold">7 days = 300 XP</span>
                   </div>
@@ -630,13 +626,6 @@ const CryptoClashPage = () => {
                   <span className="text-white font-semibold">{profile.games_played}</span>
                   <span className="text-gray-400">Games</span>
                 </div>
-                {profile.streak > 0 && (
-                  <div className="flex items-center space-x-1">
-                    <Flame className="w-4 h-4 text-orange-400" />
-                    <span className="text-white font-semibold">{profile.streak}</span>
-                    <span className="text-gray-400">Streak</span>
-                  </div>
-                )}
                 {profile.daily_play_streak > 0 && (
                   <div className="flex items-center space-x-1">
                     <span className="text-red-400 text-lg">🔥</span>
@@ -963,10 +952,6 @@ const CryptoClashPage = () => {
                 <div className="flex items-center justify-between">
                   <span className="text-gray-300">Potential Return</span>
                   <span className="text-green-400 font-bold">{selectedXpBet * 2} XP</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-300">Win Streak Bonus</span>
-                  <span className="text-purple-400 font-bold">+{profile.streak * 10} XP</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-300">Daily Streak</span>
