@@ -171,6 +171,7 @@ class GameLogicService {
         break;
       
       case 'completed':
+      case 'cancelled':
         this.currentGameState.phase = 'completed';
         this.currentGameState.timeLeft = 0;
         break;
@@ -204,8 +205,21 @@ class GameLogicService {
       
       switch (round.status) {
         case 'waiting':
-          // Start prediction phase
-          await this.startPredictionPhase(round.id);
+          // Check if there are any predictions before starting prediction phase
+          console.log('🔍 Checking for predictions before starting prediction phase...');
+          const hasPredictions = await this.checkRoundHasPredictions(round.id);
+          
+          if (hasPredictions) {
+            console.log('✅ Predictions found, starting prediction phase...');
+            await this.startPredictionPhase(round.id);
+          } else {
+            console.log('❌ No predictions found, cancelling round...');
+            await this.cancelRound(round.id);
+            // Create a new round after cancelling
+            setTimeout(async () => {
+              await this.createNewRound();
+            }, 2000);
+          }
           break;
         
         case 'predicting':
@@ -234,6 +248,66 @@ class GameLogicService {
       }
     } catch (error) {
       console.error('❌ Error handling phase transition:', error);
+    }
+  }
+
+  private async checkRoundHasPredictions(roundId: string): Promise<boolean> {
+    try {
+      const { data: predictions, error } = await supabase
+        .from('predictions')
+        .select('id')
+        .eq('round_id', roundId)
+        .limit(1);
+
+      if (error) {
+        console.error('❌ Error checking predictions:', error);
+        return false;
+      }
+
+      const hasPredictions = predictions && predictions.length > 0;
+      console.log(`🔍 Round ${roundId} has predictions: ${hasPredictions}`);
+      return hasPredictions;
+    } catch (error) {
+      console.error('❌ Error checking round predictions:', error);
+      return false;
+    }
+  }
+
+  private async cancelRound(roundId: string) {
+    try {
+      console.log('❌ Cancelling round due to no predictions...');
+      
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/game-management/cancel-round`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({
+          roundId
+        })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ Cancel round response error:', errorText);
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to cancel round');
+      }
+
+      // Immediately update local state
+      this.currentGameState.currentRound = result.round;
+      this.updateGamePhase();
+      this.notifySubscribers();
+      
+      console.log('✅ Round cancelled successfully');
+    } catch (error) {
+      console.error('❌ Failed to cancel round:', error);
     }
   }
 

@@ -148,6 +148,11 @@ serve(async (req) => {
       return await completeRound(supabaseClient, roundId)
     }
 
+    if (path === '/game-management/cancel-round' && req.method === 'POST') {
+      const { roundId } = await req.json()
+      return await cancelRound(supabaseClient, roundId)
+    }
+
     if (path === '/game-management/make-prediction' && req.method === 'POST') {
       const { roundId, userId, prediction, chosenCoin, predictedPrice, xpBet } = await req.json()
       return await makePrediction(supabaseClient, roundId, userId, prediction, chosenCoin, predictedPrice, xpBet)
@@ -228,6 +233,50 @@ async function createNewRound(supabase: any) {
     )
   } catch (error) {
     console.error('❌ Error creating new round:', error)
+    throw error
+  }
+}
+
+async function cancelRound(supabase: any, roundId: string) {
+  try {
+    console.log('❌ [DEBUG] Starting cancelRound function...')
+    console.log(`❌ [DEBUG] Received roundId: ${roundId}`)
+    
+    // Update round status to cancelled
+    console.log('❌ [DEBUG] Updating round status to cancelled...')
+    const { data: cancelledRound, error: cancelError } = await supabase
+      .from('game_rounds')
+      .update({ status: 'cancelled' })
+      .eq('id', roundId)
+      .select()
+      .single()
+
+    if (cancelError) {
+      console.error('❌ [DEBUG] Error cancelling round:', cancelError)
+      throw cancelError
+    }
+
+    console.log('❌ [DEBUG] Round cancelled successfully:', {
+      id: cancelledRound.id,
+      round_number: cancelledRound.round_number,
+      status: cancelledRound.status
+    })
+
+    console.log('✅ [DEBUG] Round cancelled successfully - returning response')
+
+    const response = { 
+      success: true, 
+      round: cancelledRound
+    }
+    console.log('❌ [DEBUG] Final response object:', response)
+
+    return new Response(
+      JSON.stringify(response),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
+  } catch (error) {
+    console.error('❌ [DEBUG] Error in cancelRound function:', error)
+    console.error('❌ [DEBUG] Error stack:', error.stack)
     throw error
   }
 }
@@ -767,8 +816,7 @@ async function completeRound(supabase: any, roundId: string) {
         continue
       }
 
-      console.log(`✅ [DEBUG] Updated user ${prediction.user_id}: ${isCorrect ? 'WIN' : 'LOSS'}, +${totalXpEarned}
- XP (bet: ${prediction.xp_bet})`)
+      console.log(`✅ [DEBUG] Updated user ${prediction.user_id}: ${isCorrect ? 'WIN' : 'LOSS'}, +${totalXpEarned} XP (bet: ${prediction.xp_bet})`)
     }
 
     console.log(`📊 [DEBUG] Round completion summary: ${correctPredictions}/${totalPredictions} correct predictions`)
