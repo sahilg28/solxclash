@@ -64,10 +64,37 @@ const CryptoClashPage = () => {
 
     // Subscribe to game state updates
     const gameUnsubscribe = gameLogicService.subscribe((state: GameState) => {
+      console.log('🎮 [DEBUG] CryptoClashPage: Received game state update:', {
+        currentRound: state.currentRound ? {
+          id: state.currentRound.id,
+          round_number: state.currentRound.round_number,
+          status: state.currentRound.status,
+          price_direction: state.currentRound.price_direction,
+          start_price: state.currentRound.start_price,
+          end_price: state.currentRound.end_price
+        } : null,
+        userPrediction: state.userPrediction ? {
+          id: state.userPrediction.id,
+          prediction: state.userPrediction.prediction,
+          is_correct: state.userPrediction.is_correct,
+          xp_earned: state.userPrediction.xp_earned
+        } : null,
+        phase: state.phase,
+        timeLeft: state.timeLeft
+      });
+
       setGameState(state);
 
       // Show results when round is completed and user had a prediction
       if (state.currentRound?.status === 'completed' && state.userPrediction) {
+        console.log('🎮 [DEBUG] CryptoClashPage: Round completed, showing results:', {
+          isCorrect: state.userPrediction.is_correct,
+          priceDirection: state.currentRound.price_direction,
+          predictedPrice: state.userPrediction.predicted_price,
+          endPrice: state.currentRound.end_price,
+          xpEarned: state.userPrediction.xp_earned
+        });
+
         setRoundResults({
           show: true,
           isCorrect: state.userPrediction.is_correct,
@@ -78,10 +105,16 @@ const CryptoClashPage = () => {
         });
 
         // Refresh profile to get updated XP
-        refreshSessionAndProfile();
+        console.log('🎮 [DEBUG] CryptoClashPage: Refreshing user profile after round completion...');
+        refreshSessionAndProfile().then(() => {
+          console.log('🎮 [DEBUG] CryptoClashPage: Profile refreshed successfully');
+        }).catch((error) => {
+          console.error('🎮 [DEBUG] CryptoClashPage: Error refreshing profile:', error);
+        });
 
         // Hide results after 10 seconds
         setTimeout(() => {
+          console.log('🎮 [DEBUG] CryptoClashPage: Hiding round results after timeout');
           setRoundResults(prev => ({ ...prev, show: false }));
         }, 10000);
       }

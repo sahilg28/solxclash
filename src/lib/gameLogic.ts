@@ -102,7 +102,7 @@ class GameLogicService {
           table: 'game_rounds'
         },
         (payload) => {
-          console.log('🔄 Game round update received:', payload);
+          console.log('🔄 [DEBUG] Game round update received via realtime:', payload);
           this.handleRoundUpdate(payload);
         }
       )
@@ -110,13 +110,26 @@ class GameLogicService {
   }
 
   private handleRoundUpdate(payload: any) {
+    console.log('🔄 [DEBUG] Processing round update in handleRoundUpdate...');
+    
     if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
       const updatedRound = payload.new as GameRound;
+      console.log('🔄 [DEBUG] Updated round data from realtime:', {
+        id: updatedRound.id,
+        round_number: updatedRound.round_number,
+        status: updatedRound.status,
+        price_direction: updatedRound.price_direction,
+        start_price: updatedRound.start_price,
+        end_price: updatedRound.end_price
+      });
       
       if (this.currentGameState.currentRound?.id === updatedRound.id) {
+        console.log('🔄 [DEBUG] Updating current game state with new round data');
         this.currentGameState.currentRound = updatedRound;
         this.updateGamePhase();
         this.notifySubscribers();
+      } else {
+        console.log('🔄 [DEBUG] Received update for different round, ignoring');
       }
     }
   }
@@ -345,7 +358,8 @@ class GameLogicService {
 
   private async completeRound(roundId: string) {
     try {
-      console.log('🏁 Completing round...');
+      console.log('🏁 [DEBUG] Frontend: Starting completeRound request...');
+      console.log('🏁 [DEBUG] Frontend: Request body:', { roundId });
       
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/game-management/complete-round`, {
         method: 'POST',
@@ -358,26 +372,37 @@ class GameLogicService {
         })
       });
 
+      console.log('🏁 [DEBUG] Frontend: Response received:', {
+        ok: response.ok,
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries())
+      });
+
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('❌ Complete round response error:', errorText);
+        console.error('❌ [DEBUG] Frontend: Complete round response error:', errorText);
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
       const result = await response.json();
+      console.log('🏁 [DEBUG] Frontend: Parsed response result:', result);
       
       if (!result.success) {
+        console.error('❌ [DEBUG] Frontend: Complete round failed:', result.error);
         throw new Error(result.error || 'Failed to complete round');
       }
 
       // Immediately update local state to prevent race conditions
+      console.log('🏁 [DEBUG] Frontend: Updating local game state with completed round');
       this.currentGameState.currentRound = result.round;
       this.updateGamePhase();
       this.notifySubscribers();
       
-      console.log('✅ Round completed');
+      console.log('✅ [DEBUG] Frontend: Round completed successfully');
     } catch (error) {
-      console.error('❌ Failed to complete round:', error);
+      console.error('❌ [DEBUG] Frontend: Failed to complete round:', error);
+      console.error('❌ [DEBUG] Frontend: Error stack:', error.stack);
     }
   }
 
@@ -474,6 +499,23 @@ class GameLogicService {
   }
 
   private notifySubscribers() {
+    console.log('🔔 [DEBUG] Notifying subscribers with current game state:', {
+      currentRound: this.currentGameState.currentRound ? {
+        id: this.currentGameState.currentRound.id,
+        round_number: this.currentGameState.currentRound.round_number,
+        status: this.currentGameState.currentRound.status,
+        price_direction: this.currentGameState.currentRound.price_direction
+      } : null,
+      userPrediction: this.currentGameState.userPrediction ? {
+        id: this.currentGameState.userPrediction.id,
+        prediction: this.currentGameState.userPrediction.prediction,
+        is_correct: this.currentGameState.userPrediction.is_correct,
+        xp_earned: this.currentGameState.userPrediction.xp_earned
+      } : null,
+      phase: this.currentGameState.phase,
+      timeLeft: this.currentGameState.timeLeft
+    });
+
     this.gameStateSubscribers.forEach(callback => {
       try {
         callback({ ...this.currentGameState });
