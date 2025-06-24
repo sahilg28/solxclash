@@ -168,7 +168,7 @@ const Footer = () => {
             {/* Solana Section */}
             <div className="lg:col-span-4 text-center lg:text-right">
               <div className="inline-flex items-center space-x-3 mb-3">
-                <span className="text-gray-300">Built on</span>
+                <span className="text-gray-300">Coming soon! on</span>
                 <img 
                   src="/assets/solanaLogo.png" 
                   alt="Solana" 
