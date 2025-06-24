@@ -38,7 +38,7 @@ const WaitlistSection = () => {
   };
 
   return (
-    <section className="py-20 bg-gradient-to-b from-black to-gray-900">
+    <section id="waitlist" className="py-20 bg-gradient-to-b from-black to-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-4xl mx-auto">
           {/* Header */}
