@@ -586,7 +586,7 @@ const CryptoClashPage = () => {
                 {/* Chart Header */}
                 <div className="p-6 border-b border-gray-700">
                   <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-2xl font-bold text-white">Live Chart</h2>
+                    <h2 className="text-2xl font-bold text-white">Track Your Coins</h2>
                     <div className="flex items-center space-x-2">
                       <div className={`w-2 h-2 rounded-full animate-pulse ${
                         connectionStatus === 'connected' ? 'bg-green-400' : 'bg-yellow-400'
