@@ -208,7 +208,7 @@ const CryptoClashPage = () => {
                   Sign up first to play CryptoClash!
                 </p>
               </div>
-              <div className="items-center justify-center">
+              <div className=" flex items-center justify-center">
                 <AuthButtons />
               </div>
             </div>
