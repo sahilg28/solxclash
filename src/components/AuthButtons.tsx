@@ -26,11 +26,7 @@ const AuthButtons = () => {
         throw error;
       }
       
-      // The user will be redirected to Google for authentication
-      // After successful auth, they'll be redirected back to our app
-      
     } catch (err) {
-      console.error('❌ Google sign in error:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to sign in with Google';
       setError(errorMessage);
     } finally {
@@ -72,7 +68,6 @@ const AuthButtons = () => {
         </span>
       </button>
       
-      {/* Error Message */}
       {error && (
         <div className="absolute top-full mt-2 right-0 bg-red-500/10 border border-red-500/20 rounded-lg p-3 text-red-400 text-sm max-w-xs z-50">
           <div className="flex items-start space-x-2">

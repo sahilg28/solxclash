@@ -55,14 +55,12 @@ const ProfilePage = () => {
         .single();
 
       if (error) {
-        console.error('Error fetching profile:', error);
         setError('Profile not found');
         return;
       }
 
       setProfile(data);
     } catch (err) {
-      console.error('Error:', err);
       setError('Failed to load profile');
     } finally {
       setLoading(false);
@@ -77,12 +75,10 @@ const ProfilePage = () => {
     setSuccess(null);
 
     try {
-      // Validate required fields
       if (!formData.username.trim()) {
         throw new Error('Username is required');
       }
 
-      // Check if username is already taken (if changed)
       if (formData.username !== profile.username) {
         const { data: existingUser } = await supabase
           .from('profiles')
@@ -96,10 +92,8 @@ const ProfilePage = () => {
         }
       }
 
-      // Clean twitter username (remove @ if present)
       const cleanTwitterUsername = formData.twitter_username.trim().replace(/^@/, '');
 
-      // Prepare update data - exclude email from updates
       const updateData = {
         full_name: formData.full_name.trim() || null,
         username: formData.username.trim(),
@@ -115,7 +109,6 @@ const ProfilePage = () => {
 
       if (error) throw error;
 
-      // Update local state
       setProfile({
         ...profile,
         full_name: formData.full_name.trim() || null,
@@ -128,12 +121,10 @@ const ProfilePage = () => {
       setSuccess('Profile updated successfully!');
       setEditing(false);
 
-      // If username changed, redirect to new URL
       if (formData.username !== username) {
         window.history.replaceState(null, '', `/profile/${formData.username}`);
       }
     } catch (err) {
-      console.error('Error updating profile:', err);
       setError(err instanceof Error ? err.message : 'Failed to update profile');
     } finally {
       setSaving(false);
@@ -203,7 +194,6 @@ const ProfilePage = () => {
       
       <div className="pt-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          {/* Profile Header */}
           <div className="bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-xl border border-yellow-400/20 rounded-2xl p-8 mb-8">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
               <div className="flex items-center space-x-6">
@@ -277,7 +267,6 @@ const ProfilePage = () => {
             </div>
           </div>
 
-          {/* Success/Error Messages */}
           {success && (
             <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-4 mb-6">
               <div className="flex items-center space-x-2">
@@ -296,7 +285,6 @@ const ProfilePage = () => {
             </div>
           )}
 
-          {/* Stats Cards */}
           <div className="grid md:grid-cols-4 gap-6 mb-8">
             <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-sm border border-gray-700 rounded-xl p-6 text-center">
               <div className="w-12 h-12 bg-yellow-400/20 rounded-full flex items-center justify-center mx-auto mb-3">
@@ -346,12 +334,10 @@ const ProfilePage = () => {
             </div>
           </div>
 
-          {/* Profile Details */}
           <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-sm border border-gray-700 rounded-xl p-8">
             <h2 className="text-2xl font-bold text-white mb-6">Profile Information</h2>
             
             <div className="space-y-6">
-              {/* Full Name */}
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Full Name
@@ -371,7 +357,6 @@ const ProfilePage = () => {
                 )}
               </div>
 
-              {/* Username */}
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Username <span className="text-red-400">*</span>
@@ -392,7 +377,6 @@ const ProfilePage = () => {
                 )}
               </div>
 
-              {/* Email - Read Only */}
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Email <span className="text-red-400">*</span>
@@ -404,7 +388,6 @@ const ProfilePage = () => {
                 <p className="text-xs text-gray-500 mt-1">Email cannot be changed once set during signup</p>
               </div>
 
-              {/* Country */}
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Country
@@ -425,7 +408,6 @@ const ProfilePage = () => {
                 )}
               </div>
 
-              {/* Twitter Username */}
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Twitter/X Profile
@@ -464,7 +446,6 @@ const ProfilePage = () => {
                 )}
               </div>
 
-              {/* Avatar URL (Read-only) */}
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Profile Picture
@@ -483,7 +464,6 @@ const ProfilePage = () => {
                 </div>
               </div>
 
-              {/* Account Created */}
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Member Since

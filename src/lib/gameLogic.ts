@@ -5,7 +5,7 @@ export interface GameRound {
   id: string;
   round_number: number;
   status: 'waiting' | 'predicting' | 'resolving' | 'completed' | 'cancelled';
-  selected_coin: CoinSymbol | null; // Allow null for unselected coin
+  selected_coin: CoinSymbol | null;
   start_time: string | null;
   prediction_end_time: string | null;
   end_time: string | null;
@@ -25,7 +25,7 @@ export interface Prediction {
   predicted_price?: number | null;
   is_correct: boolean | null;
   xp_earned: number;
-  xp_bet: number; // Added XP bet amount
+  xp_bet: number;
   created_at: string;
 }
 
@@ -49,7 +49,6 @@ class GameLogicService {
   private isInitialized = false;
 
   constructor() {
-    // Don't auto-initialize - wait for explicit call when auth is ready
     this.setupRealtimeSubscription();
   }
 
@@ -59,9 +58,6 @@ class GameLogicService {
     }
 
     try {
-      console.log('🎮 Initializing game state...');
-      
-      // Get the current active round - Fixed to handle empty results
       const { data: rounds, error } = await supabase
         .from('game_rounds')
         .select('*')
@@ -70,29 +66,24 @@ class GameLogicService {
         .limit(1);
 
       if (error) {
-        console.error('Error fetching current round:', error);
         return;
       }
 
-      // Handle case where no active rounds exist
       if (rounds && rounds.length > 0) {
         this.currentGameState.currentRound = rounds[0];
         this.updateGamePhase();
       } else {
-        // No active round, create a new one
         await this.createNewRound();
       }
 
       this.startGameTimer();
       this.isInitialized = true;
-      console.log('✅ Game state initialized');
     } catch (error) {
-      console.error('❌ Failed to initialize game state:', error);
+      // Silent fail
     }
   }
 
   private setupRealtimeSubscription() {
-    // Subscribe to game_rounds changes
     this.realtimeSubscription = supabase
       .channel('game_rounds_changes')
       .on(
@@ -103,7 +94,6 @@ class GameLogicService {
           table: 'game_rounds'
         },
         (payload) => {
-          console.log('🔄 [DEBUG] Game round update received via realtime:', payload);
           this.handleRoundUpdate(payload);
         }
       )
@@ -111,27 +101,13 @@ class GameLogicService {
   }
 
   private handleRoundUpdate(payload: any) {
-    console.log('🔄 [DEBUG] Processing round update in handleRoundUpdate...');
-    
     if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
       const updatedRound = payload.new as GameRound;
-      console.log('🔄 [DEBUG] Updated round data from realtime:', {
-        id: updatedRound.id,
-        round_number: updatedRound.round_number,
-        status: updatedRound.status,
-        selected_coin: updatedRound.selected_coin,
-        price_direction: updatedRound.price_direction,
-        start_price: updatedRound.start_price,
-        end_price: updatedRound.end_price
-      });
       
       if (this.currentGameState.currentRound?.id === updatedRound.id) {
-        console.log('🔄 [DEBUG] Updating current game state with new round data');
         this.currentGameState.currentRound = updatedRound;
         this.updateGamePhase();
         this.notifySubscribers();
-      } else {
-        console.log('🔄 [DEBUG] Received update for different round, ignoring');
       }
     }
   }
@@ -161,12 +137,10 @@ class GameLogicService {
       
       case 'resolving':
         this.currentGameState.phase = 'resolving';
-        // FIX: Calculate time left based on end_time instead of hardcoding to 10
         if (round.end_time) {
           const endTime = new Date(round.end_time);
           this.currentGameState.timeLeft = Math.max(0, Math.floor((endTime.getTime() - now.getTime()) / 1000));
         } else {
-          // Fallback if no end_time is set
           this.currentGameState.timeLeft = 10;
         }
         break;
@@ -202,21 +176,14 @@ class GameLogicService {
     if (!round) return;
 
     try {
-      console.log(`🔄 Phase transition for round ${round.round_number}: ${round.status}`);
-      
       switch (round.status) {
         case 'waiting':
-          // Check if there are any predictions before starting prediction phase
-          console.log('🔍 Checking for predictions before starting prediction phase...');
           const hasPredictions = await this.checkRoundHasPredictions(round.id);
           
           if (hasPredictions) {
-            console.log('✅ Predictions found, starting prediction phase...');
             await this.startPredictionPhase(round.id);
           } else {
-            console.log('❌ No predictions found, cancelling round...');
             await this.cancelRound(round.id);
-            // Create a new round after cancelling
             setTimeout(async () => {
               await this.createNewRound();
             }, 2000);
@@ -224,31 +191,24 @@ class GameLogicService {
           break;
         
         case 'predicting':
-          // Start resolving phase
           await this.startResolvingPhase(round.id);
           break;
         
         case 'resolving':
-          // Complete round and check if new round should be created
-          console.log('🏁 Completing round and checking for predictions...');
           const result = await this.completeRound(round.id);
           
-          // Only create new round if the completed round had predictions
           if (result && result.hasPredictions) {
-            console.log('✅ Round had predictions, creating new round...');
             setTimeout(async () => {
               await this.createNewRound();
             }, 1000);
           } else {
-            console.log('❌ Round had no predictions, not creating new round');
-            // Set game state to completed without creating new round
             this.currentGameState.phase = 'completed';
             this.notifySubscribers();
           }
           break;
       }
     } catch (error) {
-      console.error('❌ Error handling phase transition:', error);
+      // Silent fail
     }
   }
 
@@ -261,23 +221,18 @@ class GameLogicService {
         .limit(1);
 
       if (error) {
-        console.error('❌ Error checking predictions:', error);
         return false;
       }
 
       const hasPredictions = predictions && predictions.length > 0;
-      console.log(`🔍 Round ${roundId} has predictions: ${hasPredictions}`);
       return hasPredictions;
     } catch (error) {
-      console.error('❌ Error checking round predictions:', error);
       return false;
     }
   }
 
   private async cancelRound(roundId: string) {
     try {
-      console.log('❌ Cancelling round due to no predictions...');
-      
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/game-management/cancel-round`, {
         method: 'POST',
         headers: {
@@ -291,7 +246,6 @@ class GameLogicService {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('❌ Cancel round response error:', errorText);
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
@@ -301,21 +255,58 @@ class GameLogicService {
         throw new Error(result.error || 'Failed to cancel round');
       }
 
-      // Immediately update local state
       this.currentGameState.currentRound = result.round;
       this.updateGamePhase();
       this.notifySubscribers();
-      
-      console.log('✅ Round cancelled successfully');
     } catch (error) {
-      console.error('❌ Failed to cancel round:', error);
+      // Silent fail
+    }
+  }
+
+  private async updateDailyPlayStreak(supabase: any, userId: string, profile: any) {
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const lastPlayedDate = profile.last_played_date;
+      
+      let newDailyPlayStreak = profile.daily_play_streak;
+      let streakReward = 0;
+      let newLastSevenDayRewardDate = profile.last_seven_day_reward_date;
+      
+      if (!lastPlayedDate) {
+        newDailyPlayStreak = 1;
+      } else if (lastPlayedDate === today) {
+        return { streakReward: 0, newDailyPlayStreak, newLastSevenDayRewardDate };
+      } else {
+        const lastDate = new Date(lastPlayedDate);
+        const todayDate = new Date(today);
+        const daysDifference = Math.floor((todayDate.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
+        
+        if (daysDifference === 1) {
+          newDailyPlayStreak = profile.daily_play_streak + 1;
+          
+          if (newDailyPlayStreak === 7) {
+            const lastRewardDate = profile.last_seven_day_reward_date;
+            
+            if (!lastRewardDate || 
+                Math.floor((todayDate.getTime() - new Date(lastRewardDate).getTime()) / (1000 * 60 * 60 * 24)) >= 7) {
+              streakReward = 300;
+              newLastSevenDayRewardDate = today;
+              newDailyPlayStreak = 0;
+            }
+          }
+        } else {
+          newDailyPlayStreak = 1;
+        }
+      }
+      
+      return { streakReward, newDailyPlayStreak, newLastSevenDayRewardDate };
+    } catch (error) {
+      return { streakReward: 0, newDailyPlayStreak: profile.daily_play_streak, newLastSevenDayRewardDate: profile.last_seven_day_reward_date };
     }
   }
 
   private async createNewRound() {
     try {
-      console.log('🆕 Creating new game round...');
-      
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/game-management/create-round`, {
         method: 'POST',
         headers: {
@@ -326,7 +317,6 @@ class GameLogicService {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('❌ Create round response error:', errorText);
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
@@ -336,27 +326,20 @@ class GameLogicService {
         throw new Error(result.error || 'Failed to create new round');
       }
 
-      // Immediately update local state to prevent race conditions
       this.currentGameState.currentRound = result.round;
-      this.currentGameState.userPrediction = null; // Reset user prediction for new round
+      this.currentGameState.userPrediction = null;
       this.updateGamePhase();
       this.notifySubscribers();
-      
-      console.log(`✅ New round created: #${result.round.round_number} with no coin selected (will be set by first prediction)`);
     } catch (error) {
-      console.error('❌ Failed to create new round:', error);
+      // Silent fail
     }
   }
 
   private async startPredictionPhase(roundId: string) {
     try {
-      console.log('🎯 Starting prediction phase...');
-      
-      // Get current price from Binance service
       const round = this.currentGameState.currentRound;
       if (!round) return;
 
-      // Use the round's selected coin, or fallback to BTC if somehow still null
       const coinToUse = round.selected_coin || 'BTC';
       const currentPrice = binancePriceService.getCurrentPrice(coinToUse);
       let startPrice = null;
@@ -379,7 +362,6 @@ class GameLogicService {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('❌ Start prediction response error:', errorText);
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
@@ -389,26 +371,19 @@ class GameLogicService {
         throw new Error(result.error || 'Failed to start prediction phase');
       }
 
-      // Immediately update local state to prevent race conditions
       this.currentGameState.currentRound = result.round;
       this.updateGamePhase();
       this.notifySubscribers();
-      
-      console.log('✅ Prediction phase started');
     } catch (error) {
-      console.error('❌ Failed to start prediction phase:', error);
+      // Silent fail
     }
   }
 
   private async startResolvingPhase(roundId: string) {
     try {
-      console.log('⚖️ Starting resolving phase...');
-      
-      // Get current price from Binance service
       const round = this.currentGameState.currentRound;
       if (!round) return;
 
-      // Use the round's selected coin, fallback to BTC if somehow still null
       const coinToUse = round.selected_coin || 'BTC';
       const currentPrice = binancePriceService.getCurrentPrice(coinToUse);
       let endPrice = null;
@@ -431,7 +406,6 @@ class GameLogicService {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('❌ Start resolving response error:', errorText);
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
@@ -441,22 +415,16 @@ class GameLogicService {
         throw new Error(result.error || 'Failed to start resolving phase');
       }
 
-      // Immediately update local state to prevent race conditions
       this.currentGameState.currentRound = result.round;
       this.updateGamePhase();
       this.notifySubscribers();
-      
-      console.log('✅ Resolving phase started');
     } catch (error) {
-      console.error('❌ Failed to start resolving phase:', error);
+      // Silent fail
     }
   }
 
   private async completeRound(roundId: string): Promise<{ hasPredictions: boolean } | null> {
     try {
-      console.log('🏁 [DEBUG] Frontend: Starting completeRound request...');
-      console.log('🏁 [DEBUG] Frontend: Request body:', { roundId });
-      
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/game-management/complete-round`, {
         method: 'POST',
         headers: {
@@ -468,55 +436,34 @@ class GameLogicService {
         })
       });
 
-      console.log('🏁 [DEBUG] Frontend: Response received:', {
-        ok: response.ok,
-        status: response.status,
-        statusText: response.statusText,
-        headers: Object.fromEntries(response.headers.entries())
-      });
-
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('❌ [DEBUG] Frontend: Complete round response error:', errorText);
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
       const result = await response.json();
-      console.log('🏁 [DEBUG] Frontend: Parsed response result:', result);
       
       if (!result.success) {
-        console.error('❌ [DEBUG] Frontend: Complete round failed:', result.error);
         throw new Error(result.error || 'Failed to complete round');
       }
 
-      // Immediately update local state to prevent race conditions
-      console.log('🏁 [DEBUG] Frontend: Updating local game state with completed round');
       this.currentGameState.currentRound = result.round;
       this.updateGamePhase();
       this.notifySubscribers();
       
-      console.log('✅ [DEBUG] Frontend: Round completed successfully');
-      
-      // Return whether the round had predictions
       return { hasPredictions: result.hasPredictions || false };
     } catch (error) {
-      console.error('❌ [DEBUG] Frontend: Failed to complete round:', error);
-      console.error('❌ [DEBUG] Frontend: Error stack:', error.stack);
       return null;
     }
   }
 
   public async makePrediction(prediction: 'up' | 'down', userId: string, chosenCoin: CoinSymbol, xpBet: number) {
     const round = this.currentGameState.currentRound;
-    // Only allow predictions during waiting phase
     if (!round || round.status !== 'waiting') {
       throw new Error('Predictions can only be made during the lobby phase');
     }
 
     try {
-      console.log(`🎯 Making prediction: ${prediction} for ${chosenCoin} in round ${round.round_number} with ${xpBet} XP bet`);
-      
-      // Get current price for the chosen coin
       const currentPrice = binancePriceService.getCurrentPrice(chosenCoin);
       if (!currentPrice || currentPrice.price <= 0) {
         throw new Error('Unable to get current price. Please try again.');
@@ -540,7 +487,6 @@ class GameLogicService {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('❌ Make prediction response error:', errorText);
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
@@ -552,17 +498,14 @@ class GameLogicService {
 
       this.currentGameState.userPrediction = result.prediction;
       
-      // If the round coin was locked to the chosen coin, update local state
       if (result.roundCoinLocked && this.currentGameState.currentRound) {
         this.currentGameState.currentRound.selected_coin = result.lockedCoin;
       }
       
       this.notifySubscribers();
       
-      console.log('✅ Prediction saved with locked price:', currentPrice.price, 'and XP bet:', xpBet);
       return result;
     } catch (error) {
-      console.error('❌ Failed to make prediction:', error);
       throw error;
     }
   }
@@ -583,7 +526,6 @@ class GameLogicService {
       this.currentGameState.userPrediction = data;
       return data;
     } catch (error) {
-      console.error('Error fetching user prediction:', error);
       return null;
     }
   }
@@ -591,7 +533,6 @@ class GameLogicService {
   public subscribe(callback: (state: GameState) => void): () => void {
     this.gameStateSubscribers.add(callback);
     
-    // Send current state immediately
     callback(this.currentGameState);
     
     return () => {
@@ -600,30 +541,11 @@ class GameLogicService {
   }
 
   private notifySubscribers() {
-    console.log('🔔 [DEBUG] Notifying subscribers with current game state:', {
-      currentRound: this.currentGameState.currentRound ? {
-        id: this.currentGameState.currentRound.id,
-        round_number: this.currentGameState.currentRound.round_number,
-        status: this.currentGameState.currentRound.status,
-        selected_coin: this.currentGameState.currentRound.selected_coin,
-        price_direction: this.currentGameState.currentRound.price_direction
-      } : null,
-      userPrediction: this.currentGameState.userPrediction ? {
-        id: this.currentGameState.userPrediction.id,
-        prediction: this.currentGameState.userPrediction.prediction,
-        is_correct: this.currentGameState.userPrediction.is_correct,
-        xp_earned: this.currentGameState.userPrediction.xp_earned,
-        xp_bet: this.currentGameState.userPrediction.xp_bet
-      } : null,
-      phase: this.currentGameState.phase,
-      timeLeft: this.currentGameState.timeLeft
-    });
-
     this.gameStateSubscribers.forEach(callback => {
       try {
         callback({ ...this.currentGameState });
       } catch (error) {
-        console.error('Error notifying game state subscriber:', error);
+        // Silent fail
       }
     });
   }
@@ -645,7 +567,7 @@ class GameLogicService {
 
       if (error) throw error;
     } catch (error) {
-      console.error('Error updating round price:', error);
+      // Silent fail
     }
   }
 
@@ -662,9 +584,7 @@ class GameLogicService {
     
     this.gameStateSubscribers.clear();
     this.isInitialized = false;
-    console.log('🎮 Game logic service disconnected');
   }
 }
 
-// Export singleton instance
 export const gameLogicService = new GameLogicService();

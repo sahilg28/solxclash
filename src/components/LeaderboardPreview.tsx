@@ -26,11 +26,9 @@ const LeaderboardPreview = () => {
         .limit(3);
 
       if (error) {
-        console.error('Error fetching top players:', error);
         return;
       }
 
-      // Process the data to add rank, win rate, and level
       const processedData: LeaderboardEntry[] = data.map((profile, index) => ({
         ...profile,
         rank: index + 1,
@@ -40,7 +38,7 @@ const LeaderboardPreview = () => {
 
       setTopPlayers(processedData);
     } catch (error) {
-      console.error('❌ Failed to fetch top players:', error);
+      // Silent fail
     } finally {
       setLoading(false);
     }
@@ -98,9 +96,7 @@ const LeaderboardPreview = () => {
         </div>
 
         <div className="max-w-4xl mx-auto">
-          {/* Leaderboard Table */}
           <div className="bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-xl border border-yellow-400/20 rounded-2xl overflow-hidden shadow-2xl">
-            {/* Table Header */}
             <div className="bg-yellow-400/10 border-b border-yellow-400/20 px-6 py-4">
               <div className="grid grid-cols-12 gap-4 items-center text-sm font-semibold text-yellow-400 uppercase tracking-wider">
                 <div className="col-span-1">Rank</div>
@@ -111,7 +107,6 @@ const LeaderboardPreview = () => {
               </div>
             </div>
 
-            {/* Table Body */}
             <div className="divide-y divide-gray-800">
               {topPlayers.length === 0 ? (
                 <div className="text-center py-12">
@@ -125,12 +120,10 @@ const LeaderboardPreview = () => {
                     className="px-6 py-6 hover:bg-yellow-400/5 transition-colors duration-200"
                   >
                     <div className="grid grid-cols-12 gap-4 items-center">
-                      {/* Rank */}
                       <div className="col-span-1 flex items-center justify-center">
                         {getRankIcon(player.rank)}
                       </div>
 
-                      {/* Player */}
                       <div className="col-span-4 flex items-center space-x-3">
                         <div className="relative">
                           {player.avatar_url ? (
@@ -153,19 +146,16 @@ const LeaderboardPreview = () => {
                         </div>
                       </div>
 
-                      {/* XP */}
                       <div className="col-span-2">
                         <div className="font-bold text-white">{player.xp.toLocaleString()}</div>
                         <div className="text-sm text-gray-400">Level {player.level}</div>
                       </div>
 
-                      {/* Games Played */}
                       <div className="col-span-2">
                         <div className="font-bold text-white">{player.games_played}</div>
                         <div className="text-sm text-gray-400">{player.wins} wins</div>
                       </div>
 
-                      {/* Win Rate */}
                       <div className="col-span-3">
                         <div className="font-bold text-green-400">{player.winRate}%</div>
                         <div className="text-sm text-gray-400">Win Rate</div>
@@ -176,7 +166,6 @@ const LeaderboardPreview = () => {
               )}
             </div>
 
-            {/* View More Button */}
             <div className="bg-gray-900/50 px-6 py-6 text-center border-t border-gray-800">
               <Link
                 to="/leaderboard"
@@ -188,7 +177,6 @@ const LeaderboardPreview = () => {
             </div>
           </div>
 
-          {/* Stats Cards */}
           <div className="grid md:grid-cols-3 gap-6 mt-12">
             <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-sm border border-gray-700 rounded-xl p-6 text-center">
               <div className="text-3xl font-bold text-yellow-400 mb-2">{topPlayers.length > 0 ? topPlayers.reduce((sum, player) => sum + 1, 0) : 0}</div>

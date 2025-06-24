@@ -25,7 +25,6 @@ const LeaderboardPage = () => {
   }, [timeframe]);
 
   useEffect(() => {
-    // Filter leaderboard based on search term
     if (searchTerm.trim() === '') {
       setFilteredLeaderboard(leaderboard);
     } else {
@@ -35,7 +34,7 @@ const LeaderboardPage = () => {
       );
       setFilteredLeaderboard(filtered);
     }
-    setCurrentPage(1); // Reset to first page when searching
+    setCurrentPage(1);
   }, [searchTerm, leaderboard]);
 
   const fetchLeaderboard = async () => {
@@ -45,9 +44,8 @@ const LeaderboardPage = () => {
         .from('profiles')
         .select('*')
         .order('xp', { ascending: false })
-        .limit(100); // Get more players for search functionality
+        .limit(100);
 
-      // Add time-based filtering if needed
       if (timeframe === 'week') {
         const weekAgo = new Date();
         weekAgo.setDate(weekAgo.getDate() - 7);
@@ -61,11 +59,9 @@ const LeaderboardPage = () => {
       const { data, error } = await query;
 
       if (error) {
-        console.error('Error fetching leaderboard:', error);
         return;
       }
 
-      // Process the data to add rank, win rate, and level
       const processedData: LeaderboardEntry[] = data.map((profile, index) => ({
         ...profile,
         rank: index + 1,
@@ -75,7 +71,7 @@ const LeaderboardPage = () => {
 
       setLeaderboard(processedData);
     } catch (error) {
-      console.error('❌ Failed to fetch leaderboard:', error);
+      // Silent fail
     } finally {
       setLoading(false);
     }
@@ -114,7 +110,6 @@ const LeaderboardPage = () => {
     return 'hover:bg-gray-800/50';
   };
 
-  // Pagination logic
   const totalPages = Math.ceil(filteredLeaderboard.length / playersPerPage);
   const startIndex = (currentPage - 1) * playersPerPage;
   const endIndex = startIndex + playersPerPage;
@@ -145,7 +140,6 @@ const LeaderboardPage = () => {
       
       <div className="pt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          {/* Header */}
           <div className="text-center mb-12">
             <h1 className="text-4xl lg:text-5xl font-bold text-white mb-6">
               <span className="text-yellow-400">Live</span> Leaderboard
@@ -155,10 +149,8 @@ const LeaderboardPage = () => {
             </p>
           </div>
 
-          {/* Controls */}
           <div className="bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-xl border border-yellow-400/20 rounded-2xl p-6 mb-8">
             <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
-              {/* Search Bar */}
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
@@ -170,7 +162,6 @@ const LeaderboardPage = () => {
                 />
               </div>
 
-              {/* Timeframe Selector */}
               <div className="flex items-center space-x-2">
                 {(['all', 'week', 'month'] as const).map((period) => (
                   <button
@@ -188,7 +179,6 @@ const LeaderboardPage = () => {
               </div>
             </div>
 
-            {/* Stats Summary */}
             <div className="grid grid-cols-3 gap-4 text-center mt-6 pt-6 border-t border-gray-700">
               <div>
                 <div className="text-2xl font-bold text-yellow-400">{leaderboard.length}</div>
@@ -209,9 +199,7 @@ const LeaderboardPage = () => {
             </div>
           </div>
 
-          {/* Leaderboard Table */}
           <div className="bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-xl border border-yellow-400/20 rounded-2xl overflow-hidden">
-            {/* Table Header */}
             <div className="bg-yellow-400/10 border-b border-yellow-400/20 px-6 py-4">
               <div className="grid grid-cols-12 gap-4 items-center text-sm font-semibold text-yellow-400 uppercase tracking-wider">
                 <div className="col-span-1">Rank</div>
@@ -222,7 +210,6 @@ const LeaderboardPage = () => {
               </div>
             </div>
 
-            {/* Table Body */}
             <div className="max-h-96 overflow-y-auto">
               {currentPlayers.length === 0 ? (
                 <div className="text-center py-12">
@@ -239,13 +226,12 @@ const LeaderboardPage = () => {
                       className={`px-6 py-4 transition-all duration-200 border-l-4 border-transparent ${getRowStyle(player.rank)}`}
                     >
                       <div className="grid grid-cols-12 gap-4 items-center">
-                        {/* Rank */}
                         <div className="col-span-1 flex items-center justify-center relative">
+                
                           {getRankIcon(player.rank)}
                           {getRankBadge(player.rank)}
                         </div>
 
-                        {/* Player Info */}
                         <div className="col-span-4 flex items-center space-x-3">
                           <div className="relative">
                             {player.avatar_url ? (
@@ -277,19 +263,16 @@ const LeaderboardPage = () => {
                           </div>
                         </div>
 
-                        {/* XP */}
                         <div className="col-span-2">
                           <div className="font-bold text-yellow-400">{player.xp.toLocaleString()}</div>
                           <div className="text-sm text-gray-400">Level {player.level}</div>
                         </div>
 
-                        {/* Games */}
                         <div className="col-span-2">
                           <div className="font-bold text-white">{player.games_played}</div>
                           <div className="text-sm text-gray-400">{player.wins} wins</div>
                         </div>
 
-                        {/* Win Rate */}
                         <div className="col-span-3">
                           <div className="flex items-center space-x-2">
                             <Target className="w-4 h-4 text-green-400" />
@@ -313,7 +296,6 @@ const LeaderboardPage = () => {
               )}
             </div>
 
-            {/* Pagination */}
             {totalPages > 1 && (
               <div className="bg-gray-900/50 border-t border-gray-700 px-6 py-4">
                 <div className="flex items-center justify-between">

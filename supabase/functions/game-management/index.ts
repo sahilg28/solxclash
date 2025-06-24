@@ -127,8 +127,6 @@ serve(async (req) => {
     const url = new URL(req.url)
     const path = url.pathname
 
-    console.log(`🎮 Game Management API called: ${req.method} ${path}`)
-
     if (path === '/game-management/create-round' && req.method === 'POST') {
       return await createNewRound(supabaseClient)
     }
@@ -167,7 +165,6 @@ serve(async (req) => {
     )
 
   } catch (error) {
-    console.error('❌ Game management error:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
       { 
@@ -180,8 +177,6 @@ serve(async (req) => {
 
 async function createNewRound(supabase: any) {
   try {
-    console.log('🆕 Creating new game round...')
-    
     const { data: rounds, error: roundsError } = await supabase
       .from('game_rounds')
       .select('round_number')
@@ -189,29 +184,22 @@ async function createNewRound(supabase: any) {
       .limit(1)
 
     if (roundsError) {
-      console.error('❌ Error fetching rounds:', roundsError)
       throw roundsError
     }
 
     const nextRoundNumber = (rounds && rounds.length > 0) ? rounds[0].round_number + 1 : 1
     
-    // Start with NULL selected_coin - will be set when first prediction is made
     const now = new Date()
     const startTime = new Date(now.getTime() + 240 * 1000)
     const predictionEndTime = new Date(startTime.getTime() + 60 * 1000)
     const endTime = new Date(predictionEndTime.getTime() + 10 * 1000)
-
-    console.log(`📅 Round ${nextRoundNumber} schedule:`)
-    console.log(`   Lobby phase: ${now.toISOString()} -> ${startTime.toISOString()}`)
-    console.log(`   Prediction phase: ${startTime.toISOString()} -> ${predictionEndTime.toISOString()}`)
-    console.log(`   Resolution: ${predictionEndTime.toISOString()} -> ${endTime.toISOString()}`)
 
     const { data: newRound, error } = await supabase
       .from('game_rounds')
       .insert([{
         round_number: nextRoundNumber,
         status: 'waiting',
-        selected_coin: null, // Start with null - first prediction will set the coin
+        selected_coin: null,
         start_time: startTime.toISOString(),
         prediction_end_time: predictionEndTime.toISOString(),
         end_time: endTime.toISOString()
@@ -220,29 +208,20 @@ async function createNewRound(supabase: any) {
       .single()
 
     if (error) {
-      console.error('❌ Error inserting new round:', error)
       throw error
     }
-
-    console.log(`✅ New round created: #${nextRoundNumber} with no coin selected (will be set by first prediction)`)
 
     return new Response(
       JSON.stringify({ success: true, round: newRound }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
-    console.error('❌ Error creating new round:', error)
     throw error
   }
 }
 
 async function cancelRound(supabase: any, roundId: string) {
   try {
-    console.log('❌ [DEBUG] Starting cancelRound function...')
-    console.log(`❌ [DEBUG] Received roundId: ${roundId}`)
-    
-    // Update round status to cancelled
-    console.log('❌ [DEBUG] Updating round status to cancelled...')
     const { data: cancelledRound, error: cancelError } = await supabase
       .from('game_rounds')
       .update({ status: 'cancelled' })
@@ -251,31 +230,19 @@ async function cancelRound(supabase: any, roundId: string) {
       .single()
 
     if (cancelError) {
-      console.error('❌ [DEBUG] Error cancelling round:', cancelError)
       throw cancelError
     }
-
-    console.log('❌ [DEBUG] Round cancelled successfully:', {
-      id: cancelledRound.id,
-      round_number: cancelledRound.round_number,
-      status: cancelledRound.status
-    })
-
-    console.log('✅ [DEBUG] Round cancelled successfully - returning response')
 
     const response = { 
       success: true, 
       round: cancelledRound
     }
-    console.log('❌ [DEBUG] Final response object:', response)
 
     return new Response(
       JSON.stringify(response),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
-    console.error('❌ [DEBUG] Error in cancelRound function:', error)
-    console.error('❌ [DEBUG] Error stack:', error.stack)
     throw error
   }
 }
@@ -285,31 +252,21 @@ async function updateDailyPlayStreak(supabase: any, userId: string, profile: any
     const today = new Date().toISOString().split('T')[0]
     const lastPlayedDate = profile.last_played_date
     
-    console.log(`🔥 [STREAK] Processing daily streak for user ${userId}:`)
-    console.log(`   Today: ${today}`)
-    console.log(`   Last played: ${lastPlayedDate}`)
-    console.log(`   Current streak: ${profile.daily_play_streak}`)
-    
     let newDailyPlayStreak = profile.daily_play_streak
     let streakReward = 0
     let newLastSevenDayRewardDate = profile.last_seven_day_reward_date
     
     if (!lastPlayedDate) {
       newDailyPlayStreak = 1
-      console.log(`   [STREAK] First time playing - streak set to 1`)
     } else if (lastPlayedDate === today) {
-      console.log(`   [STREAK] Already played today - no streak change`)
       return { streakReward: 0, newDailyPlayStreak, newLastSevenDayRewardDate }
     } else {
       const lastDate = new Date(lastPlayedDate)
       const todayDate = new Date(today)
       const daysDifference = Math.floor((todayDate.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24))
       
-      console.log(`   [STREAK] Days since last play: ${daysDifference}`)
-      
       if (daysDifference === 1) {
         newDailyPlayStreak = profile.daily_play_streak + 1
-        console.log(`   [STREAK] Consecutive day - streak incremented to ${newDailyPlayStreak}`)
         
         if (newDailyPlayStreak === 7) {
           const lastRewardDate = profile.last_seven_day_reward_date
@@ -319,28 +276,21 @@ async function updateDailyPlayStreak(supabase: any, userId: string, profile: any
             streakReward = 300
             newLastSevenDayRewardDate = today
             newDailyPlayStreak = 0
-            console.log(`   [STREAK] 🎉 7-day streak achieved! Awarding 300 XP and resetting streak`)
-          } else {
-            console.log(`   [STREAK] 7-day streak achieved but reward already given recently`)
           }
         }
       } else {
         newDailyPlayStreak = 1
-        console.log(`   [STREAK] Streak broken (${daysDifference} days gap) - reset to 1`)
       }
     }
     
     return { streakReward, newDailyPlayStreak, newLastSevenDayRewardDate }
   } catch (error) {
-    console.error('❌ [STREAK] Error calculating daily play streak:', error)
     return { streakReward: 0, newDailyPlayStreak: profile.daily_play_streak, newLastSevenDayRewardDate: profile.last_seven_day_reward_date }
   }
 }
 
 async function makePrediction(supabase: any, roundId: string, userId: string, prediction: 'up' | 'down', chosenCoin: 'BTC' | 'ETH' | 'SOL' | 'BNB' | 'XRP', predictedPrice: number, xpBet: number) {
   try {
-    console.log(`🎯 Making prediction: ${prediction} for ${chosenCoin} by user ${userId} with ${xpBet} XP bet`)
-    
     if (!xpBet || xpBet < 10 || xpBet > 100 || xpBet % 10 !== 0) {
       throw new Error('Invalid XP bet amount. Must be between 10-100 in increments of 10.')
     }
@@ -352,7 +302,6 @@ async function makePrediction(supabase: any, roundId: string, userId: string, pr
       .single()
 
     if (roundError) {
-      console.error('❌ Error fetching round:', roundError)
       throw new Error('Round not found')
     }
 
@@ -368,7 +317,6 @@ async function makePrediction(supabase: any, roundId: string, userId: string, pr
       .single()
 
     if (existingError && existingError.code !== 'PGRST116') {
-      console.error('❌ Error checking existing prediction:', existingError)
       throw new Error('Failed to check existing predictions')
     }
 
@@ -383,7 +331,6 @@ async function makePrediction(supabase: any, roundId: string, userId: string, pr
       .single()
 
     if (profileError) {
-      console.error('❌ Error fetching user profile:', profileError)
       throw new Error('Failed to fetch user profile')
     }
 
@@ -394,17 +341,13 @@ async function makePrediction(supabase: any, roundId: string, userId: string, pr
     const { streakReward, newDailyPlayStreak, newLastSevenDayRewardDate } = await updateDailyPlayStreak(supabase, userId, profile)
     
     let roundCoinLocked = false
-    // Check if round coin is null (not yet set) and lock it to the chosen coin
     if (round.selected_coin === null) {
-      console.log(`🔒 Locking round coin to ${chosenCoin} (first prediction)`)
-      
       const { error: updateRoundError } = await supabase
         .from('game_rounds')
         .update({ selected_coin: chosenCoin })
         .eq('id', roundId)
 
       if (updateRoundError) {
-        console.error('❌ Error updating round coin:', updateRoundError)
         throw new Error('Failed to lock round coin')
       }
       
@@ -427,7 +370,6 @@ async function makePrediction(supabase: any, roundId: string, userId: string, pr
       .eq('user_id', userId)
 
     if (updateProfileError) {
-      console.error('❌ Error updating user profile:', updateProfileError)
       throw new Error('Failed to update user profile')
     }
 
@@ -444,8 +386,6 @@ async function makePrediction(supabase: any, roundId: string, userId: string, pr
       .single()
 
     if (predictionError) {
-      console.error('❌ Error creating prediction:', predictionError)
-      
       await supabase
         .from('profiles')
         .update({ 
@@ -457,11 +397,6 @@ async function makePrediction(supabase: any, roundId: string, userId: string, pr
         .eq('user_id', userId)
       
       throw new Error('Failed to create prediction')
-    }
-
-    console.log(`✅ Prediction created successfully with locked price: ${predictedPrice} and XP bet: ${xpBet}`)
-    if (streakReward > 0) {
-      console.log(`🎉 Daily streak reward: +${streakReward} XP`)
     }
 
     return new Response(
@@ -476,7 +411,6 @@ async function makePrediction(supabase: any, roundId: string, userId: string, pr
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
-    console.error('❌ Error making prediction:', error)
     return new Response(
       JSON.stringify({ success: false, error: error.message }),
       { 
@@ -489,8 +423,6 @@ async function makePrediction(supabase: any, roundId: string, userId: string, pr
 
 async function startPredictionPhase(supabase: any, roundId: string, startPrice?: number) {
   try {
-    console.log('🎯 Starting prediction phase...')
-    
     const { data: round, error: roundError } = await supabase
       .from('game_rounds')
       .select('*')
@@ -498,11 +430,9 @@ async function startPredictionPhase(supabase: any, roundId: string, startPrice?:
       .single()
 
     if (roundError) {
-      console.error('❌ Error fetching round:', roundError)
       throw roundError
     }
 
-    // If selected_coin is still null, use BTC as fallback
     const coinToUse = round.selected_coin || 'BTC'
 
     let finalStartPrice = startPrice
@@ -517,17 +447,13 @@ async function startPredictionPhase(supabase: any, roundId: string, startPrice?:
       finalStartPrice = fallbackPrices[coinToUse]
     }
 
-    console.log(`📊 Setting start price for ${coinToUse}: ${finalStartPrice}`)
-
     const updateData: any = { 
       status: 'predicting',
       start_price: finalStartPrice
     }
 
-    // If coin is still null, set it to BTC as fallback
     if (round.selected_coin === null) {
       updateData.selected_coin = 'BTC'
-      console.log('🔒 Setting fallback coin to BTC for prediction phase')
     }
 
     const { data: updatedRound, error } = await supabase
@@ -538,26 +464,20 @@ async function startPredictionPhase(supabase: any, roundId: string, startPrice?:
       .single()
 
     if (error) {
-      console.error('❌ Error updating round to predicting:', error)
       throw error
     }
-
-    console.log('✅ Prediction phase started successfully')
 
     return new Response(
       JSON.stringify({ success: true, round: updatedRound }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
-    console.error('❌ Error starting prediction phase:', error)
     throw error
   }
 }
 
 async function startResolvingPhase(supabase: any, roundId: string, endPrice?: number) {
   try {
-    console.log('⚖️ Starting resolving phase...')
-    
     const { data: round, error: roundError } = await supabase
       .from('game_rounds')
       .select('*')
@@ -565,11 +485,9 @@ async function startResolvingPhase(supabase: any, roundId: string, endPrice?: nu
       .single()
 
     if (roundError) {
-      console.error('❌ Error fetching round:', roundError)
       throw roundError
     }
 
-    // Use the round's selected coin, fallback to BTC if somehow still null
     const coinToUse = round.selected_coin || 'BTC'
 
     let finalEndPrice = endPrice
@@ -578,8 +496,6 @@ async function startResolvingPhase(supabase: any, roundId: string, endPrice?: nu
       const changePercent = (Math.random() - 0.5) * 4
       finalEndPrice = startPrice * (1 + changePercent / 100)
     }
-
-    console.log(`📊 Setting end price for ${coinToUse}: ${finalEndPrice}`)
 
     const { data: updatedRound, error } = await supabase
       .from('game_rounds')
@@ -592,44 +508,32 @@ async function startResolvingPhase(supabase: any, roundId: string, endPrice?: nu
       .single()
 
     if (error) {
-      console.error('❌ Error updating round to resolving:', error)
       throw error
     }
-
-    console.log('✅ Resolving phase started successfully')
 
     return new Response(
       JSON.stringify({ success: true, round: updatedRound }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
-    console.error('❌ Error starting resolving phase:', error)
     throw error
   }
 }
 
 async function completeRound(supabase: any, roundId: string) {
   try {
-    console.log('🏁 [DEBUG] Starting completeRound function...')
-    console.log(`🏁 [DEBUG] Received roundId: ${roundId}`)
-    
-    console.log('🏁 [DEBUG] Checking for predictions in this round...')
     const { data: predictions, error: predictionsCountError } = await supabase
       .from('predictions')
       .select('id')
       .eq('round_id', roundId)
 
     if (predictionsCountError) {
-      console.error('❌ [DEBUG] Error counting predictions:', predictionsCountError)
       throw predictionsCountError
     }
 
     const predictionCount = predictions ? predictions.length : 0
-    console.log(`🏁 [DEBUG] Found ${predictionCount} predictions for this round`)
 
     if (predictionCount === 0) {
-      console.log('🏁 [DEBUG] No predictions found, marking round as cancelled...')
-      
       const { data: cancelledRound, error: cancelError } = await supabase
         .from('game_rounds')
         .update({ status: 'cancelled' })
@@ -638,12 +542,9 @@ async function completeRound(supabase: any, roundId: string) {
         .single()
 
       if (cancelError) {
-        console.error('❌ [DEBUG] Error cancelling round:', cancelError)
         throw cancelError
       }
 
-      console.log('✅ [DEBUG] Round cancelled successfully - no new round will be created')
-      
       return new Response(
         JSON.stringify({ 
           success: true, 
@@ -654,8 +555,6 @@ async function completeRound(supabase: any, roundId: string) {
       )
     }
 
-    console.log('🏁 [DEBUG] Predictions found, proceeding with normal completion...')
-    
     const { data: round, error: roundError } = await supabase
       .from('game_rounds')
       .select('*')
@@ -663,32 +562,12 @@ async function completeRound(supabase: any, roundId: string) {
       .single()
 
     if (roundError) {
-      console.error('❌ [DEBUG] Error fetching round for completion:', roundError)
       throw roundError
     }
 
-    console.log('🏁 [DEBUG] Round fetched successfully:', {
-      id: round.id,
-      round_number: round.round_number,
-      status: round.status,
-      selected_coin: round.selected_coin,
-      start_price: round.start_price,
-      end_price: round.end_price,
-      price_direction: round.price_direction
-    })
-
     if (!round.start_price || !round.end_price) {
-      console.error('❌ [DEBUG] Cannot complete round: missing price data', { 
-        start_price: round.start_price, 
-        end_price: round.end_price 
-      })
       throw new Error('Cannot complete round: missing price data')
     }
-
-    console.log(`📊 [DEBUG] Round ${round.round_number} price data:`)
-    console.log(`   Start: ${round.start_price}`)
-    console.log(`   End: ${round.end_price}`)
-    console.log(`   Coin: ${round.selected_coin}`)
 
     const priceDifference = round.end_price - round.start_price
     let priceDirection: 'up' | 'down' | 'unchanged'
@@ -701,71 +580,39 @@ async function completeRound(supabase: any, roundId: string) {
       priceDirection = 'down'
     }
 
-    console.log(`📈 [DEBUG] Price direction calculated: ${priceDirection} (difference: ${priceDifference > 0 ? '+' : ''}${priceDifference.toFixed(8)})`)
-
-    console.log('🏁 [DEBUG] Fetching predictions for this round...')
     const { data: allPredictions, error: allPredictionsError } = await supabase
       .from('predictions')
       .select('*')
       .eq('round_id', roundId)
 
     if (allPredictionsError) {
-      console.error('❌ [DEBUG] Error fetching predictions:', allPredictionsError)
       throw allPredictionsError
     }
-
-    console.log(`📊 [DEBUG] Found ${allPredictions.length} predictions for round ${round.round_number}`)
-    console.log('📊 [DEBUG] Predictions details:', allPredictions.map(p => ({
-      id: p.id,
-      user_id: p.user_id,
-      prediction: p.prediction,
-      predicted_price: p.predicted_price,
-      xp_bet: p.xp_bet,
-      predicted_at: p.predicted_at
-    })))
 
     let correctPredictions = 0
     let totalPredictions = allPredictions.length
 
-    console.log('🏁 [DEBUG] Starting to process individual predictions...')
-
     for (const prediction of allPredictions) {
-      console.log(`🔍 [DEBUG] Processing prediction ${prediction.id} by user ${prediction.user_id}:`)
-      console.log(`   Prediction: ${prediction.prediction}`)
-      console.log(`   Predicted Price: ${prediction.predicted_price}`)
-      console.log(`   XP Bet: ${prediction.xp_bet}`)
-      
       let isCorrect = false
       
       if (prediction.predicted_price !== null && round.end_price !== null) {
         const individualPriceDifference = round.end_price - prediction.predicted_price
         
-        console.log(`   [DEBUG] Individual price difference: ${individualPriceDifference.toFixed(8)}`)
-        console.log(`   [DEBUG] Checking UP condition: ${individualPriceDifference > 0} && ${prediction.prediction === 'up'} = ${individualPriceDifference > 0 && prediction.prediction === 'up'}`)
-        console.log(`   [DEBUG] Checking DOWN condition: ${individualPriceDifference < 0} && ${prediction.prediction === 'down'} = ${individualPriceDifference < 0 && prediction.prediction === 'down'}`)
-        
         if (individualPriceDifference > 0 && prediction.prediction === 'up') {
           isCorrect = true
-          console.log(`   [DEBUG] Result: CORRECT (predicted UP, price went UP by ${individualPriceDifference.toFixed(8)})`)
         } else if (individualPriceDifference < 0 && prediction.prediction === 'down') {
           isCorrect = true
-          console.log(`   [DEBUG] Result: CORRECT (predicted DOWN, price went DOWN by ${Math.abs(individualPriceDifference).toFixed(8)})`)
         } else if (individualPriceDifference === 0) {
           isCorrect = false
-          console.log(`   [DEBUG] Result: WRONG (price unchanged, no winners)`)
-        } else {
-          console.log(`   [DEBUG] Result: WRONG (predicted ${prediction.prediction.toUpperCase()}, price went ${individualPriceDifference > 0 ? 'UP' : 'DOWN'})`)
         }
       } else {
         isCorrect = prediction.prediction === priceDirection
-        console.log(`   [DEBUG] Result: ${isCorrect ? 'CORRECT' : 'WRONG'} (fallback to round-level comparison)`)
       }
       
       if (isCorrect) correctPredictions++
       
       const baseXp = isCorrect ? prediction.xp_bet * 2 : 0
       
-      console.log(`   [DEBUG] Fetching user profile for stats update...`)
       const { data: profile, error: profileFetchError } = await supabase
         .from('profiles')
         .select('*')
@@ -773,23 +620,11 @@ async function completeRound(supabase: any, roundId: string) {
         .single()
       
       if (profileFetchError) {
-        console.error(`❌ [DEBUG] Error fetching profile for user ${prediction.user_id}:`, profileFetchError)
         continue
       }
       
-      console.log(`   [DEBUG] User profile fetched:`, {
-        user_id: profile.user_id,
-        username: profile.username,
-        current_xp: profile.xp,
-        current_games_played: profile.games_played,
-        current_wins: profile.wins
-      })
-      
       const totalXpEarned = baseXp
 
-      console.log(`   [DEBUG] XP Calculation: ${baseXp} base (${prediction.xp_bet} bet × 2) = ${totalXpEarned} total`)
-
-      console.log(`   [DEBUG] Updating prediction with results...`)
       const { error: updatePredictionError } = await supabase
         .from('predictions')
         .update({
@@ -799,23 +634,13 @@ async function completeRound(supabase: any, roundId: string) {
         .eq('id', prediction.id)
 
       if (updatePredictionError) {
-        console.error('❌ [DEBUG] Error updating prediction:', updatePredictionError)
         continue
       }
-
-      console.log(`   [DEBUG] Prediction updated successfully`)
 
       const newGamesPlayed = profile.games_played + 1
       const newWins = isCorrect ? profile.wins + 1 : profile.wins
       const newXp = profile.xp + totalXpEarned
 
-      console.log(`   [DEBUG] New profile values calculated:`, {
-        newGamesPlayed,
-        newWins,
-        newXp
-      })
-
-      console.log(`   [DEBUG] Updating user profile...`)
       const { error: updateProfileError } = await supabase
         .from('profiles')
         .update({
@@ -826,16 +651,10 @@ async function completeRound(supabase: any, roundId: string) {
         .eq('user_id', prediction.user_id)
 
       if (updateProfileError) {
-        console.error('❌ [DEBUG] Error updating user profile:', updateProfileError)
         continue
       }
-
-      console.log(`✅ [DEBUG] Updated user ${prediction.user_id}: ${isCorrect ? 'WIN' : 'LOSS'}, +${totalXpEarned} XP (bet: ${prediction.xp_bet})`)
     }
 
-    console.log(`📊 [DEBUG] Round completion summary: ${correctPredictions}/${totalPredictions} correct predictions`)
-
-    console.log('🏁 [DEBUG] Updating round status to completed...')
     const { data: completedRound, error: completeError } = await supabase
       .from('game_rounds')
       .update({ 
@@ -847,35 +666,20 @@ async function completeRound(supabase: any, roundId: string) {
       .single()
 
     if (completeError) {
-      console.error('❌ [DEBUG] Error marking round as completed:', completeError)
       throw completeError
     }
-
-    console.log('🏁 [DEBUG] Round status updated successfully:', {
-      id: completedRound.id,
-      round_number: completedRound.round_number,
-      status: completedRound.status,
-      price_direction: completedRound.price_direction,
-      start_price: completedRound.start_price,
-      end_price: completedRound.end_price
-    })
-
-    console.log('✅ [DEBUG] Round completed successfully - returning response')
 
     const response = { 
       success: true, 
       round: completedRound,
       hasPredictions: true
     }
-    console.log('🏁 [DEBUG] Final response object:', response)
 
     return new Response(
       JSON.stringify(response),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
-    console.error('❌ [DEBUG] Error in completeRound function:', error)
-    console.error('❌ [DEBUG] Error stack:', error.stack)
     throw error
   }
 }

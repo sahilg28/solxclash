@@ -1,4 +1,3 @@
-// Binance WebSocket symbols mapping
 export const BINANCE_SYMBOLS = {
   BTC: 'btcusdt',
   ETH: 'ethusdt', 
@@ -26,15 +25,15 @@ export interface PriceUpdate {
 }
 
 interface BinanceMiniTickerData {
-  e: string;      // Event type
-  E: number;      // Event time
-  s: string;      // Symbol
-  c: string;      // Close price
-  o: string;      // Open price
-  h: string;      // High price
-  l: string;      // Low price
-  v: string;      // Total traded base asset volume
-  q: string;      // Total traded quote asset volume
+  e: string;
+  E: number;
+  s: string;
+  c: string;
+  o: string;
+  h: string;
+  l: string;
+  v: string;
+  q: string;
 }
 
 class BinancePriceService {
@@ -54,19 +53,16 @@ class BinancePriceService {
 
   private async initializeConnection() {
     try {
-      // Clear any existing connection
       if (this.ws) {
         this.ws.close();
       }
 
-      // Create combined stream for all symbols
       const symbols = Object.values(BINANCE_SYMBOLS);
       const streams = symbols.map(symbol => `${symbol}@miniTicker`).join('/');
       const wsUrl = `wss://stream.binance.com:9443/ws/${streams}`;
       
       this.ws = new WebSocket(wsUrl);
       
-      // Set connection timeout
       this.connectionTimeout = setTimeout(() => {
         if (this.ws && this.ws.readyState !== WebSocket.OPEN) {
           this.handleConnectionError();
@@ -82,10 +78,7 @@ class BinancePriceService {
           this.connectionTimeout = null;
         }
         
-        // Start heartbeat
         this.startHeartbeat();
-        
-        // Initialize with some base prices for immediate display
         this.initializeBasePrices();
       };
 
@@ -94,12 +87,11 @@ class BinancePriceService {
           const data: BinanceMiniTickerData = JSON.parse(event.data);
           this.processPriceUpdate(data);
         } catch (error) {
-          console.error('❌ Error parsing WebSocket message:', error);
+          // Silent fail
         }
       };
 
       this.ws.onerror = (error) => {
-        console.error('❌ WebSocket error:', error);
         this.handleConnectionError();
       };
 
@@ -116,20 +108,17 @@ class BinancePriceService {
           this.connectionTimeout = null;
         }
         
-        // Only attempt reconnection if it wasn't a manual close
         if (event.code !== 1000) {
           this.handleConnectionError();
         }
       };
 
     } catch (error) {
-      console.error('❌ Failed to initialize Binance WebSocket:', error);
       this.handleConnectionError();
     }
   }
 
   private initializeBasePrices() {
-    // Set initial prices for immediate display
     const basePrices = {
       BTC: 67234.50,
       ETH: 3456.78,
@@ -148,7 +137,6 @@ class BinancePriceService {
         status: 'trading'
       });
 
-      // Notify subscribers with initial data
       const update: PriceUpdate = {
         symbol: coinSymbol,
         price,
@@ -162,10 +150,9 @@ class BinancePriceService {
   }
 
   private startHeartbeat() {
-    // Send ping every 30 seconds to keep connection alive
     this.heartbeatInterval = setInterval(() => {
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-        // Binance WebSocket doesn't require explicit ping, but we can check connection
+        // Connection is healthy
       } else {
         this.handleConnectionError();
       }
@@ -174,7 +161,6 @@ class BinancePriceService {
 
   private processPriceUpdate(data: BinanceMiniTickerData) {
     try {
-      // Find the symbol that matches this Binance symbol
       const symbol = Object.entries(BINANCE_SYMBOLS).find(
         ([_, binanceSymbol]) => binanceSymbol === data.s.toLowerCase()
       )?.[0] as CoinSymbol;
@@ -190,22 +176,19 @@ class BinancePriceService {
         return;
       }
 
-      // Calculate 24h change
       const change24h = currentPrice - openPrice;
       const changePercent24h = openPrice > 0 ? (change24h / openPrice) * 100 : 0;
 
       const priceData: PriceData = {
         symbol,
         price: currentPrice,
-        confidence: 0.01, // Binance has high confidence
+        confidence: 0.01,
         timestamp: data.E,
         status: 'trading'
       };
 
-      // Update cache
       this.priceCache.set(symbol, priceData);
 
-      // Create update object
       const update: PriceUpdate = {
         symbol,
         price: currentPrice,
@@ -214,11 +197,10 @@ class BinancePriceService {
         timestamp: data.E
       };
 
-      // Notify subscribers
       this.notifySubscribers(symbol, update);
 
     } catch (error) {
-      console.error('❌ Error processing price update:', error, data);
+      // Silent fail
     }
   }
 
@@ -227,7 +209,7 @@ class BinancePriceService {
       try {
         callback(update);
       } catch (error) {
-        console.error(`❌ Error notifying subscriber ${subscriberId}:`, error);
+        // Silent fail
       }
     });
   }
@@ -268,7 +250,6 @@ class BinancePriceService {
     };
 
     symbols.forEach(symbol => {
-      // Initialize with base price if not already set
       if (!this.priceCache.has(symbol)) {
         const basePrice = basePrices[symbol];
         this.priceCache.set(symbol, {
@@ -280,7 +261,6 @@ class BinancePriceService {
         });
       }
 
-      // Simulate realistic price updates every 2-4 seconds
       setInterval(() => {
         const currentData = this.priceCache.get(symbol);
         if (!currentData) return;
@@ -288,12 +268,10 @@ class BinancePriceService {
         const currentPrice = currentData.price;
         const basePrice = basePrices[symbol];
         
-        // Random price movement between -0.5% and +0.5%
         const changePercent = (Math.random() - 0.5) * 1;
         const newPrice = currentPrice * (1 + changePercent / 100);
         
-        // Ensure price doesn't deviate too much from base price
-        const maxDeviation = 0.05; // 5%
+        const maxDeviation = 0.05;
         const deviationFromBase = Math.abs(newPrice - basePrice) / basePrice;
         const finalPrice = deviationFromBase > maxDeviation 
           ? basePrice * (1 + (Math.random() - 0.5) * maxDeviation * 2)
@@ -319,7 +297,7 @@ class BinancePriceService {
         });
 
         this.notifySubscribers(symbol, update);
-      }, 2000 + Math.random() * 2000); // 2-4 seconds
+      }, 2000 + Math.random() * 2000);
     });
 
     this.isConnected = true;
@@ -329,12 +307,11 @@ class BinancePriceService {
     const subscriberId = Math.random().toString(36).substr(2, 9);
     this.subscribers.set(subscriberId, callback);
     
-    // Send current prices to new subscriber
     this.priceCache.forEach((priceData) => {
       const update: PriceUpdate = {
         symbol: priceData.symbol,
         price: priceData.price,
-        change24h: 0, // Would need historical data for accurate calculation
+        change24h: 0,
         changePercent24h: 0,
         timestamp: priceData.timestamp
       };
@@ -342,7 +319,7 @@ class BinancePriceService {
       try {
         callback(update);
       } catch (error) {
-        console.error('❌ Error sending initial price to subscriber:', error);
+        // Silent fail
       }
     });
     
@@ -387,15 +364,13 @@ class BinancePriceService {
       this.subscribers.clear();
       this.priceCache.clear();
     } catch (error) {
-      console.error('❌ Error disconnecting from Binance:', error);
+      // Silent fail
     }
   }
 }
 
-// Export singleton instance
 export const binancePriceService = new BinancePriceService();
 
-// Utility functions
 export const formatPrice = (price: number, symbol: CoinSymbol): string => {
   const decimals = symbol === 'XRP' ? 4 : 2;
   return new Intl.NumberFormat('en-US', {

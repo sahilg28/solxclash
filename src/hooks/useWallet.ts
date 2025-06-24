@@ -32,7 +32,6 @@ interface WalletConnectionResult {
   sessionSet: boolean;
 }
 
-// Retry operation utility with exponential backoff
 const retryOperation = async <T>(
   operation: () => Promise<T>, 
   maxRetries: number = 3,
@@ -47,11 +46,10 @@ const retryOperation = async <T>(
       attempts++;
       
       if (attempts === maxRetries) {
-        console.error(`❌ Operation failed after ${maxRetries} attempts:`, error);
         throw error;
       }
       
-      const delay = baseDelay * Math.pow(2, attempts - 1); // Exponential backoff
+      const delay = baseDelay * Math.pow(2, attempts - 1);
       await new Promise(resolve => setTimeout(resolve, delay));
     }
   }
@@ -68,7 +66,6 @@ export const useWallet = () => {
     setError(null);
 
     try {
-      // Check if Solana wallet is available
       if (!window.solana && !window.phantom?.solana) {
         throw new Error('Solana wallet not found. Please install Phantom or another Solana wallet.');
       }
@@ -78,7 +75,6 @@ export const useWallet = () => {
         throw new Error('No Solana wallet available');
       }
 
-      // Connect to wallet first with retry logic
       const response = await retryOperation(
         () => wallet.connect(),
         3,
@@ -87,24 +83,20 @@ export const useWallet = () => {
       
       const walletAddress = response.publicKey.toString();
 
-      // Create a message to sign for authentication
       const timestamp = Date.now();
       const message = `Sign this message to authenticate with SolxClash.\n\nWallet: ${walletAddress}\nTimestamp: ${timestamp}`;
       const encodedMessage = new TextEncoder().encode(message);
       
-      // Sign the message with retry logic
       const signResult = await retryOperation(
         () => wallet.signMessage(encodedMessage),
         3,
         1000
       );
 
-      // Convert signature to hex string
       const signatureHex = Array.from(signResult.signature)
         .map(b => b.toString(16).padStart(2, '0'))
         .join('');
 
-      // Call our Edge Function for wallet authentication with retry logic
       const functionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/wallet-auth`;
       
       const authResult: AuthResult = await retryOperation(
@@ -138,12 +130,10 @@ export const useWallet = () => {
         2000
       );
 
-      // Validate auth tokens
       if (!authResult.access_token || !authResult.refresh_token) {
         throw new Error('Authentication failed: Missing access or refresh tokens');
       }
 
-      // Set session with retry logic and enhanced validation
       const sessionResult = await retryOperation(
         async () => {
           const { data, error: sessionError } = await supabase.auth.setSession({
@@ -169,18 +159,16 @@ export const useWallet = () => {
         1500
       );
 
-      // Immediately verify the session was set correctly
       const { data: { session: verificationSession }, error: getSessionError } = await supabase.auth.getSession();
       
       if (!verificationSession || !verificationSession.user) {
         throw new Error('Session verification failed: Session not properly established');
       }
 
-      // Monitor for SIGNED_IN event
       const authStatePromise = new Promise<void>((resolve, reject) => {
         const timeout = setTimeout(() => {
           reject(new Error('SIGNED_IN event timeout'));
-        }, 10000); // 10 second timeout
+        }, 10000);
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
           if (event === 'SIGNED_IN' && session?.user) {
@@ -191,7 +179,6 @@ export const useWallet = () => {
         });
       });
 
-      // Wait for SIGNED_IN event or timeout
       try {
         await Promise.race([
           authStatePromise,
@@ -203,7 +190,6 @@ export const useWallet = () => {
         // Continue anyway since session is verified
       }
 
-      // Return the wallet connection result
       return {
         walletAddress,
         userId: authResult.user_id,
@@ -211,7 +197,6 @@ export const useWallet = () => {
       };
 
     } catch (err) {
-      console.error('💳 Wallet connection error:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to connect wallet';
       setError(errorMessage);
       throw new Error(errorMessage);
@@ -222,13 +207,12 @@ export const useWallet = () => {
 
   const disconnectWallet = useCallback(async () => {
     try {
-      // Disconnect wallet
       const wallet = window.solana || window.phantom?.solana;
       if (wallet && wallet.disconnect) {
         await wallet.disconnect();
       }
     } catch (err) {
-      console.error('💳 Error disconnecting wallet:', err);
+      // Silent fail
     }
   }, []);
 

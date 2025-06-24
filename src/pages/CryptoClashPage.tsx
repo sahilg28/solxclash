@@ -24,8 +24,8 @@ const CryptoClashPage = () => {
     phase: 'waiting'
   });
   const [priceData, setPriceData] = useState<Map<CoinSymbol, PriceUpdate>>(new Map());
-  const [selectedCoin, setSelectedCoin] = useState<CoinSymbol>('BTC'); // User's choice for chart viewing and prediction
-  const [selectedXpBet, setSelectedXpBet] = useState<number>(10); // XP bet amount
+  const [selectedCoin, setSelectedCoin] = useState<CoinSymbol>('BTC');
+  const [selectedXpBet, setSelectedXpBet] = useState<number>(10);
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'connecting' | 'disconnected'>('connecting');
   const [error, setError] = useState<string | null>(null);
   const [cancelledRoundDisplayMessage, setCancelledRoundDisplayMessage] = useState<string | null>(null);
@@ -45,7 +45,6 @@ const CryptoClashPage = () => {
     xpEarned: 0
   });
 
-  // Cryptocurrency options with TradingView symbols
   const cryptoOptions = [
     { symbol: 'BTC' as CoinSymbol, name: 'Bitcoin', tvSymbol: 'BINANCE:BTCUSDT', color: 'text-orange-400' },
     { symbol: 'ETH' as CoinSymbol, name: 'Ethereum', tvSymbol: 'BINANCE:ETHUSDT', color: 'text-blue-400' },
@@ -54,64 +53,24 @@ const CryptoClashPage = () => {
     { symbol: 'XRP' as CoinSymbol, name: 'XRP', tvSymbol: 'BINANCE:XRPUSDT', color: 'text-blue-500' }
   ];
 
-  // XP bet options
   const xpBetOptions = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 
-  // Initialize price service and game logic
   useEffect(() => {
-    console.log('🎮 Initializing CryptoClash page...');
-    
-    // Subscribe to price updates
     const priceSubscriptionId = binancePriceService.subscribe((update: PriceUpdate) => {
       setPriceData(prev => new Map(prev.set(update.symbol, update)));
-      
-      // Update connection status based on price service health
       setConnectionStatus(binancePriceService.isConnectionHealthy() ? 'connected' : 'disconnected');
     });
 
-    // Subscribe to game state updates
     const gameUnsubscribe = gameLogicService.subscribe((state: GameState) => {
-      console.log('🎮 [DEBUG] CryptoClashPage: Received game state update:', {
-        currentRound: state.currentRound ? {
-          id: state.currentRound.id,
-          round_number: state.currentRound.round_number,
-          status: state.currentRound.status,
-          selected_coin: state.currentRound.selected_coin,
-          price_direction: state.currentRound.price_direction,
-          start_price: state.currentRound.start_price,
-          end_price: state.currentRound.end_price
-        } : null,
-        userPrediction: state.userPrediction ? {
-          id: state.userPrediction.id,
-          prediction: state.userPrediction.prediction,
-          is_correct: state.userPrediction.is_correct,
-          xp_earned: state.userPrediction.xp_earned,
-          xp_bet: state.userPrediction.xp_bet
-        } : null,
-        phase: state.phase,
-        timeLeft: state.timeLeft
-      });
-
       setGameState(state);
 
-      // Handle cancelled round display message
       if (state.currentRound?.status === 'cancelled') {
         setCancelledRoundDisplayMessage("No players participated and the round was cancelled. A new round is starting!");
       } else if (state.currentRound?.status === 'waiting') {
-        // Clear cancelled message when new round starts
         setCancelledRoundDisplayMessage(null);
       }
 
-      // Show results when round is completed and user had a prediction
       if (state.currentRound?.status === 'completed' && state.userPrediction) {
-        console.log('🎮 [DEBUG] CryptoClashPage: Round completed, showing results:', {
-          isCorrect: state.userPrediction.is_correct,
-          priceDirection: state.currentRound.price_direction,
-          predictedPrice: state.userPrediction.predicted_price,
-          endPrice: state.currentRound.end_price,
-          xpEarned: state.userPrediction.xp_earned
-        });
-
         setRoundResults({
           show: true,
           isCorrect: state.userPrediction.is_correct,
@@ -121,7 +80,6 @@ const CryptoClashPage = () => {
           xpEarned: state.userPrediction.xp_earned || 0
         });
 
-        // Show toast notification
         if (state.userPrediction.is_correct) {
           toast.success(`🎉 Correct prediction! +${state.userPrediction.xp_earned} XP earned!`, {
             position: "top-right",
@@ -134,23 +92,18 @@ const CryptoClashPage = () => {
           });
         }
 
-        // Refresh profile to get updated XP
-        console.log('🎮 [DEBUG] CryptoClashPage: Refreshing user profile after round completion...');
         refreshSessionAndProfile().then(() => {
-          console.log('🎮 [DEBUG] CryptoClashPage: Profile refreshed successfully');
+          // Profile refreshed
         }).catch((error) => {
-          console.error('🎮 [DEBUG] CryptoClashPage: Error refreshing profile:', error);
+          // Silent fail
         });
 
-        // Hide results after 10 seconds
         setTimeout(() => {
-          console.log('🎮 [DEBUG] CryptoClashPage: Hiding round results after timeout');
           setRoundResults(prev => ({ ...prev, show: false }));
         }, 10000);
       }
     });
 
-    // Set initial connection status
     setConnectionStatus(binancePriceService.isConnectionHealthy() ? 'connected' : 'connecting');
 
     return () => {
@@ -159,21 +112,18 @@ const CryptoClashPage = () => {
     };
   }, []);
 
-  // Initialize game logic when authentication is ready
   useEffect(() => {
     if (!loading && user && profile) {
       gameLogicService.initializeGameState();
     }
   }, [loading, user, profile]);
 
-  // Load user prediction for current round
   useEffect(() => {
     if (gameState.currentRound && user && !gameState.userPrediction) {
       gameLogicService.getUserPrediction(gameState.currentRound.id, user.id);
     }
   }, [gameState.currentRound, user]);
 
-  // Show loading state while authentication is being determined
   if (loading) {
     return (
       <div className="min-h-screen bg-black">
@@ -188,14 +138,12 @@ const CryptoClashPage = () => {
     );
   }
 
-  // Show anonymous user access page if not authenticated
   if (!user || !profile) {
     return (
       <div className="min-h-screen bg-black">
         <Header />
         <div className="pt-16 min-h-screen flex items-center justify-center">
           <div className="max-w-lg mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            {/* Minimal CTA */}
             <div className="bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-xl border border-yellow-400/20 rounded-2xl p-8">
               <div className="mb-6">
                 <LogIn className="w-16 h-16 text-yellow-400 mx-auto mb-4"/>
@@ -226,7 +174,6 @@ const CryptoClashPage = () => {
       return;
     }
 
-    // Only allow predictions during waiting phase
     if (gameState.currentRound.status !== 'waiting') {
       setError('Predictions can only be made during the lobby phase');
       toast.error('Predictions can only be made during the lobby phase', {
@@ -240,13 +187,11 @@ const CryptoClashPage = () => {
       setError(null);
       const result = await gameLogicService.makePrediction(direction, user.id, selectedCoin, selectedXpBet);
       
-      // Show success toast
       toast.success(`Prediction "${direction.toUpperCase()}" locked in for ${selectedCoin}! ${selectedXpBet} XP invested.`, {
         position: "top-right",
         autoClose: 3000,
       });
 
-      // Show daily streak reward if applicable
       if (result && 'streakReward' in result && result.streakReward > 0) {
         toast.success(`🔥 Daily play streak! +${result.streakReward} XP bonus!`, {
           position: "top-right",
@@ -254,11 +199,9 @@ const CryptoClashPage = () => {
         });
       }
       
-      // Refresh profile to show updated XP
       await refreshSessionAndProfile();
       
     } catch (err) {
-      console.error('Failed to make prediction:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to submit prediction';
       setError(errorMessage);
       toast.error(errorMessage, {
@@ -333,16 +276,13 @@ const CryptoClashPage = () => {
 
   const phaseDisplay = getPhaseDisplay();
 
-  // Helper function to determine what coin to display for the round
   const getDisplayedRoundCoin = () => {
     if (!gameState.currentRound) return 'Select Coin';
     
-    // If round coin is null (not yet selected), show "Select Coin"
     if (gameState.currentRound.selected_coin === null) {
       return 'Select Coin';
     }
     
-    // Otherwise, show the actual locked round coin
     return gameState.currentRound.selected_coin;
   };
 
@@ -355,7 +295,6 @@ const CryptoClashPage = () => {
       
       <div className="pt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-4xl lg:text-5xl font-bold text-white mb-4">
               <span className="text-yellow-400">Crypto</span>Clash
@@ -364,7 +303,6 @@ const CryptoClashPage = () => {
               Skill-based crypto prediction game. Choose your coin, predict price movements, and earn XP rewards!
             </p>
             
-            {/* Connection Status */}
             <div className="flex items-center justify-center space-x-2 mb-4">
               {connectionStatus === 'connected' ? (
                 <>
@@ -385,7 +323,6 @@ const CryptoClashPage = () => {
             </div>
           </div>
 
-          {/* Round Results Modal */}
           {roundResults.show && (
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
               <div className={`bg-gradient-to-br from-gray-900 to-black border-2 rounded-2xl p-8 max-w-md w-full text-center transform animate-in zoom-in-95 duration-300 ${
@@ -456,7 +393,6 @@ const CryptoClashPage = () => {
             </div>
           )}
 
-          {/* User Stats Bar */}
           <div className="bg-gradient-to-r from-gray-900/80 to-black/80 backdrop-blur-xl border border-yellow-400/20 rounded-xl p-4 mb-8">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-6">
@@ -515,10 +451,8 @@ const CryptoClashPage = () => {
             </div>
           </div>
 
-          {/* Game Round Info */}
           {gameState.currentRound && (
             <div className={`bg-gradient-to-r ${phaseDisplay.bgColor} border ${phaseDisplay.borderColor} rounded-xl p-6 mb-8`}>
-              {/* Show cancelled round message if applicable */}
               {gameState.currentRound.status === 'cancelled' && cancelledRoundDisplayMessage ? (
                 <div className="text-center">
                   <h3 className="text-xl font-bold text-white mb-2">
@@ -560,7 +494,6 @@ const CryptoClashPage = () => {
                 </div>
               )}
               
-              {/* Progress Bar - only show for non-cancelled rounds */}
               {gameState.currentRound.status !== 'cancelled' && (
                 <div className="w-full bg-gray-700 rounded-full h-2 mt-4">
                   <div 
@@ -581,10 +514,8 @@ const CryptoClashPage = () => {
           )}
 
           <div className="grid lg:grid-cols-3 gap-8 mb-12">
-            {/* Chart Section */}
             <div className="lg:col-span-2">
               <div className="bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-xl border border-yellow-400/20 rounded-2xl overflow-hidden">
-                {/* Chart Header */}
                 <div className="p-6 border-b border-gray-700">
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-2xl font-bold text-white">Track Your Coins</h2>
@@ -600,7 +531,6 @@ const CryptoClashPage = () => {
                     </div>
                   </div>
                   
-                  {/* Coin Selector - Free selection for chart viewing and prediction */}
                   <div className="flex flex-wrap gap-2 mb-4">
                     {cryptoOptions.map((coin) => (
                       <button
@@ -619,7 +549,6 @@ const CryptoClashPage = () => {
                     ))}
                   </div>
 
-                  {/* Current Price Display */}
                   {currentPrice && (
                     <div className="bg-black/30 rounded-lg p-4">
                       <div className="flex items-center justify-between">
@@ -640,7 +569,6 @@ const CryptoClashPage = () => {
                   )}
                 </div>
 
-                {/* Chart Container */}
                 <div className="h-96 lg:h-[500px]">
                   <TradingViewChart
                     symbol={selectedCoinData?.tvSymbol || 'BINANCE:BTCUSDT'}
@@ -654,9 +582,7 @@ const CryptoClashPage = () => {
               </div>
             </div>
 
-            {/* Game Hub Panel */}
             <div className="space-y-6">
-              {/* Dynamic Game Hub */}
               <div className={`bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-xl border-2 rounded-2xl p-6 transition-all duration-500 ${phaseDisplay.borderColor}`}>
                 <div className="text-center mb-6">
                   <div className={`inline-flex items-center px-4 py-2 rounded-full mb-4 ${phaseDisplay.bgColor} ${phaseDisplay.borderColor} border`}>
@@ -674,7 +600,6 @@ const CryptoClashPage = () => {
                     {selectedCoin} Prediction
                   </h3>
                   
-                  {/* Show current price for the SELECTED coin */}
                   <div className="text-3xl font-bold text-yellow-400 mb-2">
                     {getCurrentPriceData(selectedCoin) ? 
                       formatPrice(getCurrentPriceData(selectedCoin)!.price, selectedCoin) :
@@ -683,7 +608,6 @@ const CryptoClashPage = () => {
                   </div>
                 </div>
 
-                {/* Timer */}
                 <div className="text-center mb-6">
                   <div className="text-4xl font-bold text-white mb-2">
                     {formatTimeLeft(gameState.timeLeft)}
@@ -707,7 +631,6 @@ const CryptoClashPage = () => {
                   </div>
                 </div>
 
-                {/* Game Controls */}
                 {gameState.phase === 'waiting' && !gameState.userPrediction && (
                   <div className="space-y-4">
                     <div className="text-center mb-4">
@@ -716,7 +639,6 @@ const CryptoClashPage = () => {
                       </p>
                     </div>
 
-                    {/* XP Bet Selector */}
                     <div className="mb-4">
                       <div className="text-center mb-3">
                         <div className="flex items-center justify-center space-x-2 text-yellow-400 text-sm mb-2">
@@ -747,7 +669,6 @@ const CryptoClashPage = () => {
                       </div>
                     </div>
                     
-                    {/* XP Check */}
                     {profile.xp < selectedXpBet ? (
                       <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 text-center">
                         <AlertCircle className="w-8 h-8 text-red-400 mx-auto mb-2" />
@@ -755,7 +676,6 @@ const CryptoClashPage = () => {
                         <p className="text-gray-400 text-sm">You need at least {selectedXpBet} XP to make this prediction.</p>
                       </div>
                     ) : (
-                      /* Prediction Buttons */
                       <div className="grid grid-cols-2 gap-4">
                         <button
                           onClick={() => makePrediction('up')}
@@ -819,7 +739,6 @@ const CryptoClashPage = () => {
                 )}
               </div>
 
-              {/* Quick Stats */}
               <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-sm border border-gray-700 rounded-xl p-6">
                 <h4 className="text-lg font-bold text-white mb-4 flex items-center space-x-2">
                   <Star className="w-5 h-5 text-yellow-400" />

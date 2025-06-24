@@ -27,7 +27,6 @@ const GameLeaderboard = () => {
         .order('xp', { ascending: false })
         .limit(50);
 
-      // Add time-based filtering if needed
       if (timeframe === 'week') {
         const weekAgo = new Date();
         weekAgo.setDate(weekAgo.getDate() - 7);
@@ -41,11 +40,9 @@ const GameLeaderboard = () => {
       const { data, error } = await query;
 
       if (error) {
-        console.error('Error fetching leaderboard:', error);
         return;
       }
 
-      // Process the data to add rank, win rate, and level
       const processedData: LeaderboardEntry[] = data.map((profile, index) => ({
         ...profile,
         rank: index + 1,
@@ -55,7 +52,7 @@ const GameLeaderboard = () => {
 
       setLeaderboard(processedData);
     } catch (error) {
-      console.error('❌ Failed to fetch leaderboard:', error);
+      // Silent fail
     } finally {
       setLoading(false);
     }
@@ -107,7 +104,6 @@ const GameLeaderboard = () => {
 
   return (
     <div className="bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-xl border border-yellow-400/20 rounded-2xl overflow-hidden">
-      {/* Header */}
       <div className="bg-yellow-400/10 border-b border-yellow-400/20 p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold text-white flex items-center space-x-2">
@@ -115,7 +111,6 @@ const GameLeaderboard = () => {
             <span>Live Leaderboard</span>
           </h2>
           
-          {/* Timeframe Selector */}
           <div className="flex items-center space-x-2">
             {(['all', 'week', 'month'] as const).map((period) => (
               <button
@@ -133,7 +128,6 @@ const GameLeaderboard = () => {
           </div>
         </div>
 
-        {/* Stats Summary */}
         <div className="grid grid-cols-3 gap-4 text-center">
           <div>
             <div className="text-2xl font-bold text-yellow-400">{leaderboard.length}</div>
@@ -154,7 +148,6 @@ const GameLeaderboard = () => {
         </div>
       </div>
 
-      {/* Table Header */}
       <div className="bg-gray-900/50 border-b border-gray-700 px-6 py-4">
         <div className="grid grid-cols-12 gap-4 items-center text-sm font-semibold text-yellow-400 uppercase tracking-wider">
           <div className="col-span-1">Rank</div>
@@ -166,7 +159,6 @@ const GameLeaderboard = () => {
         </div>
       </div>
 
-      {/* Leaderboard Entries */}
       <div className="max-h-96 overflow-y-auto">
         {leaderboard.length === 0 ? (
           <div className="text-center py-12">
@@ -181,13 +173,11 @@ const GameLeaderboard = () => {
                 className={`px-6 py-4 transition-all duration-200 border-l-4 border-transparent ${getRowStyle(player.rank)}`}
               >
                 <div className="grid grid-cols-12 gap-4 items-center">
-                  {/* Rank */}
                   <div className="col-span-1 flex items-center justify-center relative">
                     {getRankIcon(player.rank)}
                     {getRankBadge(player.rank)}
                   </div>
 
-                  {/* Player Info */}
                   <div className="col-span-4 flex items-center space-x-3">
                     <div className="relative">
                       {player.avatar_url ? (
@@ -219,7 +209,6 @@ const GameLeaderboard = () => {
                     </div>
                   </div>
 
-                  {/* Level */}
                   <div className="col-span-2">
                     <div className="flex items-center space-x-2">
                       <Zap className="w-4 h-4 text-yellow-400" />
@@ -232,13 +221,11 @@ const GameLeaderboard = () => {
                     </div>
                   </div>
 
-                  {/* XP */}
                   <div className="col-span-2">
                     <div className="font-bold text-yellow-400">{player.xp.toLocaleString()}</div>
                     <div className="text-sm text-gray-400">{player.games_played} games</div>
                   </div>
 
-                  {/* Win Rate */}
                   <div className="col-span-2">
                     <div className="flex items-center space-x-2">
                       <Target className="w-4 h-4 text-green-400" />
@@ -256,7 +243,6 @@ const GameLeaderboard = () => {
                     </div>
                   </div>
 
-                  {/* Streak */}
                   <div className="col-span-1">
                     <div className="flex items-center justify-center">
                       {player.streak > 0 ? (
@@ -276,7 +262,6 @@ const GameLeaderboard = () => {
         )}
       </div>
 
-      {/* Footer */}
       <div className="bg-gray-900/50 border-t border-gray-700 px-6 py-4 text-center">
         <p className="text-sm text-gray-400">
           Leaderboard updates in real-time • Last updated: {new Date().toLocaleTimeString()}
