@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Zap, ArrowRight, Check, AlertCircle } from 'lucide-react';
+import { ArrowRight, Check, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 
@@ -64,9 +64,11 @@ const Footer = () => {
             {/* Brand Section */}
             <div className="lg:col-span-5">
               <div className="flex items-center space-x-2 mb-4">
-                <div className="w-10 h-10 bg-yellow-400 rounded-lg flex items-center justify-center">
-                  <Zap className="w-6 h-6 text-black" />
-                </div>
+                <img 
+                  src="/assets/solxclash_logo.svg" 
+                  alt="SolxClash" 
+                  className="w-10 h-10"
+                />
                 <span className="text-2xl font-bold text-white">SolxClash</span>
               </div>
               
