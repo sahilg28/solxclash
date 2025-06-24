@@ -56,13 +56,11 @@ const Header = () => {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity duration-200">
-              <div className="w-10 h-10 rounded overflow-hidden">
                 <img 
                   src="/assets/solxclash_logo.svg" 
                   alt="SolxClash" 
-                  className="w-full h-full"
+                  className="w-10 h-10 rounded"
                 />
-              </div>
               <span className="text-xl font-bold text-white">SolxClash</span>
             </Link>
 
