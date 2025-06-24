@@ -19,7 +19,7 @@ const Header = () => {
 
   const scrollToSection = (href: string) => {
     if (location.pathname !== '/') {
-      // If not on home page, navigate to home first
+      // If not on home page, navigate to home first then scroll
       window.location.href = `/${href}`;
       return;
     }
