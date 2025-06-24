@@ -74,7 +74,7 @@ const FeaturedGame = () => {
 
                     {/* Price Display */}
                     <div className="text-center mb-6">
-                      <div className="text-4xl font-bold text-yellow-400 mb-2">$67,234.50</div>
+                      <div className="text-4xl font-bold text-yellow-400 mb-2">$105,449.00</div>
                       <div className="text-green-400 text-sm">+2.34% (+$1,523.12)</div>
                     </div>
 
