@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="360" viewBox="0 0 360 360">
+  <circle cx="180" cy="180" r="180" fill="white"/>
+  <g transform="translate(180,180)">
+    <text font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="black" text-anchor="middle">
+      <textPath href="#circle">POWERED BY BOLT.NEW MADE IN BOLT.NEW</textPath>
+    </text>
+    <defs>
+      <path id="circle" d="M 0,-140 A 140,140 0 1,1 0,140 A 140,140 0 1,1 0,-140"/>
+    </defs>
+    <text font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="black" text-anchor="middle" y="15">b</text>
+  </g>
+</svg>

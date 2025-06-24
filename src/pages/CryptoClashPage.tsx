@@ -10,8 +10,8 @@ import { useAuthContext } from '../components/AuthProvider';
 import { binancePriceService, PriceUpdate, CoinSymbol, formatPrice, formatPriceChange, getPriceChangeColor } from '../lib/binancePriceService';
 import { gameLogicService, GameState } from '../lib/gameLogic';
 import TradingViewChart from '../components/TradingViewChart';
-import GameLeaderboard from '../components/GameLeaderboard';
 import AuthButtons from '../components/AuthButtons';
+import Footer from '../components/Footer';
 
 const CryptoClashPage = () => {
   const { user, profile, loading, refreshSessionAndProfile } = useAuthContext();
@@ -186,178 +186,68 @@ const CryptoClashPage = () => {
   // Show anonymous user access page if not authenticated
   if (!user || !profile) {
     return (
-      <div className="min-h-screen bg-black pt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-4xl lg:text-5xl font-bold text-white mb-4">
-              <span className="text-yellow-400">Crypto</span>Clash
-            </h1>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-4">
-              Skill-based crypto prediction game. Choose your coin, predict price movements, and earn XP rewards!
-            </p>
-          </div>
+      <div className="min-h-screen bg-black">
+        <div className="pt-16 min-h-screen flex items-center justify-center">
+          <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            {/* Hero Section */}
+            <div className="mb-12">
+              <h1 className="text-4xl lg:text-6xl font-bold text-white mb-6">
+                Ready to test your <span className="text-yellow-400">crypto instincts?</span>
+              </h1>
+              <p className="text-xl text-gray-300 mb-8 leading-relaxed">
+                Predict the next move. Win rewards. But first, log in.
+              </p>
+              <p className="text-lg text-gray-400 mb-8">
+                Start your Web3 gaming journey — login to play!
+              </p>
+            </div>
 
-          {/* Demo Game Preview */}
-          <div className="grid lg:grid-cols-3 gap-8 mb-12">
-            {/* Chart Section */}
-            <div className="lg:col-span-2">
-              <div className="bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-xl border border-yellow-400/20 rounded-2xl overflow-hidden">
-                {/* Chart Header */}
-                <div className="p-6 border-b border-gray-700">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-2xl font-bold text-white">Live Chart</h2>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                      <span className="text-green-400 text-sm">Live Demo</span>
-                    </div>
-                  </div>
-                  
-                  {/* Coin Selector - Free selection for chart viewing */}
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {cryptoOptions.map((coin) => (
-                      <button
-                        key={coin.symbol}
-                        onClick={() => setSelectedCoin(coin.symbol)}
-                        className={`px-4 py-2 rounded-lg font-semibold transition-all duration-200 ${
-                          selectedCoin === coin.symbol
-                            ? 'bg-yellow-400 text-black'
-                            : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                        }`}
-                      >
-                        <span className={selectedCoin === coin.symbol ? 'text-black' : coin.color}>
-                          {coin.symbol}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
+            {/* Call to Action */}
+            <div className="bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-xl border border-yellow-400/20 rounded-2xl p-8 mb-8">
+              <div className="mb-6">
+                <LogIn className="w-16 h-16 text-yellow-400 mx-auto mb-4" />
+                <h2 className="text-2xl font-bold text-white mb-4">
+                  Only real players get real rewards. Join now.
+                </h2>
+                <p className="text-gray-300 mb-6">
+                  Get <span className="text-yellow-400 font-semibold">100 XP bonus</span> on signup and start competing!
+                </p>
+              </div>
+              
+              <AuthButtons />
+            </div>
 
-                  {/* Current Price Display */}
-                  <div className="bg-black/30 rounded-lg p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="text-sm text-gray-400">{cryptoOptions.find(c => c.symbol === selectedCoin)?.name}</div>
-                        <div className="text-2xl font-bold text-white">
-                          {selectedCoin === 'BTC' ? '$67,234.50' : 
-                           selectedCoin === 'ETH' ? '$3,456.78' :
-                           selectedCoin === 'SOL' ? '$145.23' :
-                           selectedCoin === 'BNB' ? '$312.45' : '$0.6234'}
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-lg font-semibold text-green-400">+2.34%</div>
-                        <div className="text-sm text-gray-400">24h Change</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Chart Container */}
-                <div className="h-96 lg:h-[500px]">
-                  <TradingViewChart
-                    symbol={cryptoOptions.find(c => c.symbol === selectedCoin)?.tvSymbol || 'BINANCE:BTCUSDT'}
-                    theme="dark"
-                    interval="1"
-                    allowSymbolChange={false}
-                    saveImage={false}
-                    className="w-full h-full"
-                  />
-                </div>
+            {/* Features Preview */}
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-sm border border-gray-700 rounded-xl p-6 text-center">
+                <TrendingUp className="w-8 h-8 text-green-400 mx-auto mb-3" />
+                <h3 className="text-lg font-bold text-white mb-2">Real-Time Predictions</h3>
+                <p className="text-gray-400 text-sm">Predict crypto price movements in 60-second rounds</p>
+              </div>
+              
+              <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-sm border border-gray-700 rounded-xl p-6 text-center">
+                <Zap className="w-8 h-8 text-yellow-400 mx-auto mb-3" />
+                <h3 className="text-lg font-bold text-white mb-2">Earn XP Rewards</h3>
+                <p className="text-gray-400 text-sm">Correct predictions earn 2x your XP investment</p>
+              </div>
+              
+              <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-sm border border-gray-700 rounded-xl p-6 text-center">
+                <Trophy className="w-8 h-8 text-purple-400 mx-auto mb-3" />
+                <h3 className="text-lg font-bold text-white mb-2">Climb Leaderboards</h3>
+                <p className="text-gray-400 text-sm">Compete with players worldwide for top rankings</p>
               </div>
             </div>
 
-            {/* Game Preview Panel */}
-            <div className="space-y-6">
-              {/* Game Preview */}
-              <div className="bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-xl border-2 border-yellow-400/30 rounded-2xl p-6">
-                <div className="text-center mb-6">
-                  <div className="inline-flex items-center px-4 py-2 rounded-full mb-4 bg-yellow-400/10 border border-yellow-400/20">
-                    <div className="w-2 h-2 bg-yellow-400 rounded-full mr-2 animate-pulse"></div>
-                    <span className="text-sm font-medium text-yellow-400">Demo Mode</span>
-                  </div>
-                  
-                  <h3 className="text-xl font-bold text-white mb-2">
-                    Ready to predict?
-                  </h3>
-                  
-                  <p className="text-gray-300 text-sm mb-4">
-                    Choose your coin and predict if <span className="text-yellow-400 font-semibold">{selectedCoin}</span> will go UP or DOWN!
-                  </p>
-                </div>
-
-                {/* Demo Timer */}
-                <div className="text-center mb-6">
-                  <div className="text-4xl font-bold text-white mb-2">4:32</div>
-                  <div className="text-sm text-blue-400">Lobby phase - prediction window opens soon</div>
-                  <div className="w-full bg-gray-700 rounded-full h-2 mt-3">
-                    <div className="bg-blue-400 h-2 rounded-full w-3/4 transition-all duration-1000"></div>
-                  </div>
-                </div>
-
-                {/* Disabled Prediction Buttons */}
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <button
-                    disabled
-                    className="py-4 rounded-lg font-semibold text-lg transition-all duration-200 flex items-center justify-center space-x-2 bg-gray-700 text-gray-500 cursor-not-allowed opacity-50"
-                  >
-                    <TrendingUp className="w-5 h-5" />
-                    <span>UP</span>
-                  </button>
-                  
-                  <button
-                    disabled
-                    className="py-4 rounded-lg font-semibold text-lg transition-all duration-200 flex items-center justify-center space-x-2 bg-gray-700 text-gray-500 cursor-not-allowed opacity-50"
-                  >
-                    <TrendingUp className="w-5 h-5 rotate-180" />
-                    <span>DOWN</span>
-                  </button>
-                </div>
-
-                {/* Call to Action */}
-                <div className="bg-yellow-400/10 border border-yellow-400/20 rounded-lg p-4 text-center">
-                  <div className="mb-4">
-                    <LogIn className="w-8 h-8 text-yellow-400 mx-auto mb-2" />
-                    <p className="text-white font-semibold mb-1">Sign up to start playing!</p>
-                    <p className="text-gray-400 text-sm">Get 100 XP bonus on signup</p>
-                  </div>
-                  
-                  <AuthButtons />
-                </div>
-              </div>
-
-              {/* Game Info */}
-              <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-sm border border-gray-700 rounded-xl p-6">
-                <h4 className="text-lg font-bold text-white mb-4 flex items-center space-x-2">
-                  <Star className="w-5 h-5 text-yellow-400" />
-                  <span>How It Works</span>
-                </h4>
-                <div className="space-y-3 text-sm">
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-300">Choose Your Coin</span>
-                    <span className="text-yellow-400 font-bold">BTC, ETH, SOL, BNB, XRP</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-300">XP Investment</span>
-                    <span className="text-blue-400 font-bold">10-100 XP</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-300">Correct Prediction</span>
-                    <span className="text-green-400 font-bold">2x XP Return</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-300">Daily Play Streak</span>
-                    <span className="text-orange-400 font-bold">7 days = 300 XP</span>
-                  </div>
-                </div>
-              </div>
+            {/* Bottom Message */}
+            <div className="mt-12">
+              <p className="text-gray-500 text-sm">
+                The market won't wait. Sign up now to play!
+              </p>
             </div>
-          </div>
-
-          {/* Live Leaderboard Section */}
-          <div className="mb-8">
-            <GameLeaderboard />
           </div>
         </div>
+        
+        <Footer />
       </div>
     );
   }
@@ -674,7 +564,7 @@ const CryptoClashPage = () => {
                     <span>
                       Round Coin: <span className="text-yellow-400 font-semibold">{displayedRoundCoin}</span>
                       {!isRoundCoinLocked && displayedRoundCoin === 'Select Coin' && (
-                        <span className="text-gray-500 text-xs ml-1">(choose below)</span>
+                        <span className="text-gray-500  text-xs ml-1">(choose below)</span>
                       )}
                     </span>
                     <span>•</span>
@@ -980,12 +870,9 @@ const CryptoClashPage = () => {
             </div>
           </div>
         </div>
-
-        {/* Live Leaderboard Section */}
-        <div className="mb-8">
-          <GameLeaderboard />
-        </div>
       </div>
+      
+      <Footer />
     </div>
   );
 };

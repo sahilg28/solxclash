@@ -4,16 +4,30 @@ import { Link } from 'react-router-dom';
 const Footer = () => {
   const platformLinks = [
     { name: 'CryptoClash', href: '/cryptoclash', isRoute: true },
-    { name: 'Leaderboard', href: '#leaderboard', isRoute: false },
-    { name: 'About', href: '#about', isRoute: false },
+    { name: 'Leaderboard', href: '/leaderboard', isRoute: true },
+    { name: 'About', href: '/about', isRoute: true },
     { name: 'Roadmap', href: '#roadmap', isRoute: false }
   ];
 
   const legalLinks = [
-    { name: 'Terms of Service', href: '#' },
-    { name: 'Privacy Policy', href: '#' },
-    { name: 'Cookie Policy', href: '#' }
+    { name: 'Terms of Service', href: '/terms' },
+    { name: 'Privacy Policy', href: '/privacy' },
+    { name: 'Disclaimer', href: '/disclaimer' }
   ];
+
+  const scrollToSection = (href: string) => {
+    if (window.location.pathname !== '/') {
+      // If not on home page, navigate to home first
+      window.location.href = `/${href}`;
+      return;
+    }
+    
+    // If on home page, scroll to section
+    const element = document.querySelector(href);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   return (
     <footer className="bg-gradient-to-t from-black to-gray-900 border-t border-gray-800">
@@ -40,7 +54,9 @@ const Footer = () => {
               {/* Social Links */}
               <div className="flex items-center space-x-4 mb-6">
                 <a
-                  href="#"
+                  href="https://x.com/sahilgupta_as"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="w-12 h-12 bg-gray-800 hover:bg-yellow-400/20 border border-gray-700 hover:border-yellow-400/30 rounded-lg flex items-center justify-center transition-all duration-200"
                 >
                   <img 
@@ -66,12 +82,12 @@ const Footer = () => {
                         {link.name}
                       </Link>
                     ) : (
-                      <a
-                        href={link.href}
+                      <button
+                        onClick={() => scrollToSection(link.href)}
                         className="text-gray-400 hover:text-yellow-400 transition-colors duration-200"
                       >
                         {link.name}
-                      </a>
+                      </button>
                     )}
                   </li>
                 ))}
@@ -106,12 +122,12 @@ const Footer = () => {
             <div className="flex items-center space-x-6">
               {legalLinks.map((link, index) => (
                 <React.Fragment key={link.name}>
-                  <a
-                    href={link.href}
+                  <Link
+                    to={link.href}
                     className="text-gray-400 hover:text-yellow-400 transition-colors duration-200 text-sm"
                   >
                     {link.name}
-                  </a>
+                  </Link>
                   {index < legalLinks.length - 1 && (
                     <span className="text-gray-600">•</span>
                   )}

@@ -12,9 +12,9 @@ const Header = () => {
 
   const navLinks = [
     { name: 'CryptoClash', href: '/cryptoclash', isRoute: true },
-    { name: 'Leaderboard', href: '#leaderboard', isRoute: false },
+    { name: 'Leaderboard', href: '/leaderboard', isRoute: true },
     { name: 'Roadmap', href: '#roadmap', isRoute: false },
-    { name: 'About Us', href: '#about', isRoute: false },
+    { name: 'About', href: '/about', isRoute: true },
   ];
 
   const scrollToSection = (href: string) => {

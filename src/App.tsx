@@ -6,18 +6,31 @@ import Header from './components/Header';
 import HomePage from './pages/HomePage';
 import ProfilePage from './pages/ProfilePage';
 import CryptoClashPage from './pages/CryptoClashPage';
+import LeaderboardPage from './pages/LeaderboardPage';
+import AboutPage from './pages/AboutPage';
+import TermsPage from './pages/TermsPage';
+import PrivacyPage from './pages/PrivacyPage';
+import DisclaimerPage from './pages/DisclaimerPage';
+import BoltBadge from './components/BoltBadge';
 import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   return (
     <AuthProvider>
       <div className="min-h-screen bg-black font-['Poppins']">
-        <Header />
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/profile/:username" element={<ProfilePage />} />
           <Route path="/cryptoclash" element={<CryptoClashPage />} />
+          <Route path="/leaderboard" element={<LeaderboardPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/disclaimer" element={<DisclaimerPage />} />
         </Routes>
+        
+        {/* Bolt Badge */}
+        <BoltBadge />
         
         {/* Toast Container */}
         <ToastContainer
