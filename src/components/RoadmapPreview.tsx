@@ -142,7 +142,7 @@ const RoadmapPreview = () => {
             <h3 className="text-2xl font-bold text-white mb-4">
               Want to Shape the Future of Web3 Gaming?
             </h3>
-            <p className="text-gray-300 mb-2">
+            <p className="text-gray-300">
               Follow us on X and be the first to discover updates, drops, and exclusive features.
             </p>
           </div>
