@@ -165,6 +165,7 @@ serve(async (req) => {
     )
 
   } catch (error) {
+    console.error('❌ Edge Function Error:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
       { 
@@ -291,10 +292,35 @@ async function updateDailyPlayStreak(supabase: any, userId: string, profile: any
 
 async function makePrediction(supabase: any, roundId: string, userId: string, prediction: 'up' | 'down', chosenCoin: 'BTC' | 'ETH' | 'SOL' | 'BNB' | 'XRP', predictedPrice: number, xpBet: number) {
   try {
+    console.log('🎯 Making prediction:', {
+      roundId,
+      userId,
+      prediction,
+      chosenCoin,
+      predictedPrice,
+      xpBet
+    })
+
+    // Validate input parameters
+    if (!roundId || !userId || !prediction || !chosenCoin || !predictedPrice || !xpBet) {
+      console.error('❌ Missing required parameters:', {
+        roundId: !!roundId,
+        userId: !!userId,
+        prediction: !!prediction,
+        chosenCoin: !!chosenCoin,
+        predictedPrice: !!predictedPrice,
+        xpBet: !!xpBet
+      })
+      throw new Error('Missing required parameters for prediction')
+    }
+
     if (!xpBet || xpBet < 10 || xpBet > 100 || xpBet % 10 !== 0) {
+      console.error('❌ Invalid XP bet amount:', xpBet)
       throw new Error('Invalid XP bet amount. Must be between 10-100 in increments of 10.')
     }
     
+    // Fetch round information
+    console.log('🔍 Fetching round:', roundId)
     const { data: round, error: roundError } = await supabase
       .from('game_rounds')
       .select('*')
@@ -302,13 +328,18 @@ async function makePrediction(supabase: any, roundId: string, userId: string, pr
       .single()
 
     if (roundError) {
+      console.error('❌ Round fetch error:', roundError)
       throw new Error('Round not found')
     }
 
+    console.log('📊 Round status:', round.status)
     if (round.status !== 'waiting') {
+      console.error('❌ Invalid round status for prediction:', round.status)
       throw new Error('Predictions can only be made during the lobby phase')
     }
 
+    // Check for existing prediction
+    console.log('🔍 Checking for existing prediction...')
     const { data: existingPrediction, error: existingError } = await supabase
       .from('predictions')
       .select('id')
@@ -317,13 +348,17 @@ async function makePrediction(supabase: any, roundId: string, userId: string, pr
       .single()
 
     if (existingError && existingError.code !== 'PGRST116') {
+      console.error('❌ Error checking existing predictions:', existingError)
       throw new Error('Failed to check existing predictions')
     }
 
     if (existingPrediction) {
+      console.error('❌ User already has prediction for this round:', existingPrediction.id)
       throw new Error('You have already made a prediction for this round')
     }
 
+    // Fetch user profile
+    console.log('🔍 Fetching user profile:', userId)
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('*')
@@ -331,34 +366,53 @@ async function makePrediction(supabase: any, roundId: string, userId: string, pr
       .single()
 
     if (profileError) {
+      console.error('❌ Profile fetch error:', profileError)
       throw new Error('Failed to fetch user profile')
     }
 
+    console.log('💰 User XP check:', { currentXP: profile.xp, requiredXP: xpBet })
     if (profile.xp < xpBet) {
+      console.error('❌ Insufficient XP:', { currentXP: profile.xp, requiredXP: xpBet })
       throw new Error(`Insufficient XP! You need at least ${xpBet} XP to make this prediction.`)
     }
 
+    // Update daily play streak
+    console.log('🔥 Updating daily play streak...')
     const { streakReward, newDailyPlayStreak, newLastSevenDayRewardDate } = await updateDailyPlayStreak(supabase, userId, profile)
+    console.log('🎁 Streak reward calculated:', { streakReward, newDailyPlayStreak })
     
+    // Handle round coin locking
     let roundCoinLocked = false
     if (round.selected_coin === null) {
+      console.log('🔒 Locking round coin to:', chosenCoin)
       const { error: updateRoundError } = await supabase
         .from('game_rounds')
         .update({ selected_coin: chosenCoin })
         .eq('id', roundId)
 
       if (updateRoundError) {
+        console.error('❌ Failed to lock round coin:', updateRoundError)
         throw new Error('Failed to lock round coin')
       }
       
       roundCoinLocked = true
     } else if (round.selected_coin !== chosenCoin) {
+      console.error('❌ Round coin mismatch:', { roundCoin: round.selected_coin, chosenCoin })
       throw new Error(`This round is locked to ${round.selected_coin}. You cannot predict on ${chosenCoin}.`)
     }
 
+    // Update user profile (deduct XP bet, add streak reward, update streak info)
     const newXp = profile.xp - xpBet + streakReward
     const today = new Date().toISOString().split('T')[0]
     
+    console.log('💾 Updating user profile:', {
+      oldXP: profile.xp,
+      newXP: newXp,
+      xpBet,
+      streakReward,
+      newDailyPlayStreak
+    })
+
     const { error: updateProfileError } = await supabase
       .from('profiles')
       .update({ 
@@ -370,9 +424,12 @@ async function makePrediction(supabase: any, roundId: string, userId: string, pr
       .eq('user_id', userId)
 
     if (updateProfileError) {
+      console.error('❌ Failed to update user profile:', updateProfileError)
       throw new Error('Failed to update user profile')
     }
 
+    // Create the prediction
+    console.log('📝 Creating prediction...')
     const { data: newPrediction, error: predictionError } = await supabase
       .from('predictions')
       .insert([{
@@ -386,6 +443,10 @@ async function makePrediction(supabase: any, roundId: string, userId: string, pr
       .single()
 
     if (predictionError) {
+      console.error('❌ Failed to create prediction:', predictionError)
+      
+      // Rollback profile changes if prediction creation fails
+      console.log('🔄 Rolling back profile changes...')
       await supabase
         .from('profiles')
         .update({ 
@@ -399,6 +460,8 @@ async function makePrediction(supabase: any, roundId: string, userId: string, pr
       throw new Error('Failed to create prediction')
     }
 
+    console.log('✅ Prediction created successfully:', newPrediction.id)
+
     return new Response(
       JSON.stringify({ 
         success: true, 
@@ -411,6 +474,7 @@ async function makePrediction(supabase: any, roundId: string, userId: string, pr
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
+    console.error('❌ makePrediction error:', error)
     return new Response(
       JSON.stringify({ success: false, error: error.message }),
       { 
