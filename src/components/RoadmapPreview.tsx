@@ -145,7 +145,7 @@ const RoadmapPreview = () => {
                 <img
     src="/assets/icons8-twitter-100.png"
     alt="X Logo"
-    className="w-5 h-5"
+    className="w-5 h-5 text-black"
   />
             </button>
           </div>
