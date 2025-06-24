@@ -197,7 +197,7 @@ const CryptoClashPage = () => {
             {/* Minimal CTA */}
             <div className="bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-xl border border-yellow-400/20 rounded-2xl p-8">
               <div className="mb-6">
-                <LogIn className="w-16 h-16 text-yellow-400 mx-auto mb-4" />
+                {/* <LogIn className="w-16 h-16 text-yellow-400 mx-auto mb-4" /> */} 
                 <h1 className="text-3xl font-bold text-white mb-4">
                   Ready to play <span className="text-yellow-400">CryptoClash?</span>
                 </h1>
