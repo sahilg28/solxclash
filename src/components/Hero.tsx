@@ -97,7 +97,7 @@ const Hero = () => {
                     <span className="text-gray-400">BTC/USD</span>
                     <span className="text-green-400 text-sm">+2.34%</span>
                   </div>
-                  <div className="text-3xl font-bold text-yellow-400">$67,234.50</div>
+                  <div className="text-3xl font-bold text-yellow-400">$105,449.00</div>
                   <div className="text-sm text-gray-400 mt-1">Next prediction in 45s</div>
                 </div>
 
