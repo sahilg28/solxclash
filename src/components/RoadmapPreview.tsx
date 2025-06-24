@@ -2,50 +2,53 @@ import React from 'react';
 import { Rocket, Users, Zap, ArrowRight, CheckCircle, Clock } from 'lucide-react';
 
 const RoadmapPreview = () => {
-  const phases = [
-    {
-      phase: 'Phase 1',
-      title: 'CryptoClash MVP Launch',
-      status: 'current',
-      description:
-        'Live crypto prediction game powered by XP and leaderboard rewards. Built with web2 simplicity and ready for users to test their skills.',
-      features: [
-        'Real-time price prediction',
-        'Google sign-in authentication',
-        'XP-based ranking system',
-        'Leaderboard & bonus XP rewards',
-      ],
-      icon: <Rocket className="w-8 h-8" />,
-    },
-    {
-      phase: 'Phase 2',
-      title: 'Solana & ChessClash Integration',
-      status: 'upcoming',
-      description:
-        'Introducing on-chain gameplay with ChessClash — a skill-based PvP and bot battle game. Built with Solana, real rewards, and seasonal events.',
-      features: [
-        'Solana wallet integration',
-        '1v1 PvP Chess + Bot battles',
-        'Tournament system & seasonal rankings',
-        'NFT-based trophies & rewards',
-      ],
-      icon: <Users className="w-8 h-8" />,
-    },
-    {
-      phase: 'Phase 3',
-      title: 'Play-to-Earn & Platform Expansion',
-      status: 'planned',
-      description:
-        'Launch real-money CryptoClash matches, introduce cross-game analytics, and grow into a full skill-based Web3 platform. More coming soon and in development.',
-      features: [
-        'USDT-based play & rewards',
-        'Smart contract-based payouts',
-        'Game analytics & XP tracking',
-        'Mobile-friendly & social features',
-      ],
-      icon: <Zap className="w-8 h-8" />,
-    },
-  ];
+ const phases = [
+  {
+    phase: 'Phase 1',
+    title: 'CryptoClash Launch (MVP)',
+    status: 'current',
+    description:
+      'A real-time price prediction game built to onboard new users, blending crypto volatility with gaming thrills.',
+    features: [
+      'Live price prediction gameplay',
+      'XP-based ranking system',
+      'Leaderboards & streak rewards',
+      'Web2 authentication with Web3 readiness'
+    ],
+    icon: <Rocket className="w-8 h-8" />,
+  },
+  {
+    phase: 'Phase 2',
+    title: 'ChessClash & PvP Engine',
+    status: 'upcoming',
+    description:
+      'Launching Solana-based 1v1 competitive chess, blending skill-based gameplay with play-to-earn logic and real rewards.',
+    features: [
+      'Play vs Bot & PvP matches',
+      'Solana wallet integration',
+      'XP-to-token bridge & reward logic',
+      'Match fee & prize pool mechanics',
+    ],
+    icon: <Users className="w-8 h-8" />,
+    timeline: 'Coming Soon',
+  },
+  {
+    phase: 'Phase 3',
+    title: 'SolxClash as Web3 Gaming Layer',
+    status: 'planned',
+    description:
+      'Evolving SolxClash into a multi-game, on-chain gaming layer where communities compete, earn, and connect.',
+    features: [
+      'Multiple skill-based games',
+      'Smart contract-based leaderboards',
+      'Mobile-first experience',
+      'Tournaments, analytics & creator tools',
+      'More coming soon & in development',
+    ],
+    icon: <Zap className="w-8 h-8" />,
+    timeline: 'In Development',
+  }
+];
 
   const getStatusIcon = (status: string) => {
     switch (status) {
