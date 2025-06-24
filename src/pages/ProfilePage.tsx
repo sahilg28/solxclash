@@ -82,10 +82,6 @@ const ProfilePage = () => {
         throw new Error('Username is required');
       }
 
-      if (!formData.email.trim()) {
-        throw new Error('Email is required');
-      }
-
       // Check if username is already taken (if changed)
       if (formData.username !== profile.username) {
         const { data: existingUser } = await supabase
@@ -103,16 +99,18 @@ const ProfilePage = () => {
       // Clean twitter username (remove @ if present)
       const cleanTwitterUsername = formData.twitter_username.trim().replace(/^@/, '');
 
+      // Prepare update data - exclude email from updates
+      const updateData = {
+        full_name: formData.full_name.trim() || null,
+        username: formData.username.trim(),
+        country: formData.country.trim() || null,
+        twitter_username: cleanTwitterUsername || null,
+        updated_at: new Date().toISOString(),
+      };
+
       const { error } = await supabase
         .from('profiles')
-        .update({
-          full_name: formData.full_name.trim() || null,
-          username: formData.username.trim(),
-          email: formData.email.trim(),
-          country: formData.country.trim() || null,
-          twitter_username: cleanTwitterUsername || null,
-          updated_at: new Date().toISOString(),
-        })
+        .update(updateData)
         .eq('id', profile.id);
 
       if (error) throw error;
@@ -122,7 +120,6 @@ const ProfilePage = () => {
         ...profile,
         full_name: formData.full_name.trim() || null,
         username: formData.username.trim(),
-        email: formData.email.trim(),
         country: formData.country.trim() || null,
         twitter_username: cleanTwitterUsername || null,
         updated_at: new Date().toISOString(),
@@ -395,30 +392,16 @@ const ProfilePage = () => {
                 )}
               </div>
 
-              {/* Email */}
+              {/* Email - Read Only */}
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Email <span className="text-red-400">*</span>
                 </label>
-                {editing ? (
-                  <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all duration-200"
-                    placeholder="Enter your email address"
-                    required
-                    disabled={!isOwnProfile}
-                  />
-                ) : (
-                  <div className="px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white flex items-center space-x-2">
-                    <Mail className="w-4 h-4 text-gray-400" />
-                    <span>{profile.email || <span className="text-gray-500">Not provided</span>}</span>
-                  </div>
-                )}
-                {!editing && isOwnProfile && (
-                  <p className="text-xs text-gray-500 mt-1">Email cannot be changed once set</p>
-                )}
+                <div className="px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white flex items-center space-x-2">
+                  <Mail className="w-4 h-4 text-gray-400" />
+                  <span>{profile.email || <span className="text-gray-500">Not provided</span>}</span>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">Email cannot be changed once set during signup</p>
               </div>
 
               {/* Country */}

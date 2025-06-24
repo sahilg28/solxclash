@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, User, ChevronDown, LogOut, Loader2 } from 'lucide-react';
 import { useAuthContext } from './AuthProvider';
 import AuthButtons from './AuthButtons';
+import { getLevel } from '../lib/levelSystem';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -176,7 +177,7 @@ const Header = () => {
                       {profile.full_name || profile.username}
                     </div>
                     <div className="text-xs text-gray-400">
-                      {profile.xp} XP • Level {Math.floor(profile.xp / 1000) + 1}
+                      {profile.xp} XP • Level {getLevel(profile.xp)}
                     </div>
                   </div>
                   <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${showUserDropdown ? 'rotate-180' : ''}`} />
