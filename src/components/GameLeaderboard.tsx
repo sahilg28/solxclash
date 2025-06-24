@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Trophy, Medal, Award, TrendingUp, Target, Zap, Crown, Star } from 'lucide-react';
 import { supabase, Profile } from '../lib/supabase';
+import { getLevel } from '../lib/levelSystem';
 
 interface LeaderboardEntry extends Profile {
   rank: number;
@@ -49,7 +50,7 @@ const GameLeaderboard = () => {
         ...profile,
         rank: index + 1,
         winRate: profile.games_played > 0 ? Math.round((profile.wins / profile.games_played) * 100) : 0,
-        level: Math.floor(profile.xp / 1000) + 1
+        level: getLevel(profile.xp)
       }));
 
       setLeaderboard(processedData);
@@ -225,7 +226,7 @@ const GameLeaderboard = () => {
                       <div>
                         <div className="font-bold text-white">Level {player.level}</div>
                         <div className="text-xs text-gray-400">
-                          {player.xp % 1000}/1000 XP
+                          {player.xp % 500}/500 XP
                         </div>
                       </div>
                     </div>

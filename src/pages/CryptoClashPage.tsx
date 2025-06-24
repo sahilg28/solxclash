@@ -13,6 +13,7 @@ import TradingViewChart from '../components/TradingViewChart';
 import AuthButtons from '../components/AuthButtons';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { getLevel } from '../lib/levelSystem';
 
 const CryptoClashPage = () => {
   const { user, profile, loading, refreshSessionAndProfile } = useAuthContext();
@@ -475,7 +476,7 @@ const CryptoClashPage = () => {
                   )}
                   <div>
                     <div className="font-semibold text-white">{profile.full_name || profile.username}</div>
-                    <div className="text-sm text-gray-400">Level {Math.floor(profile.xp / 1000) + 1}</div>
+                    <div className="text-sm text-gray-400">Level {getLevel(profile.xp)}</div>
                   </div>
                 </div>
                 

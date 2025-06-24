@@ -27,4 +27,5 @@ export type Profile = {
   last_played_date: string | null;
   daily_play_streak: number;
   last_seven_day_reward_date: string | null;
+  twitter_username: string | null;
 };
