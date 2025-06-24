@@ -136,12 +136,13 @@ const RoadmapPreview = () => {
         {/* CTA Section */}
         <div className="text-center mt-16">
           <div className="bg-gradient-to-r from-yellow-400/10 to-yellow-600/10 border border-yellow-400/20 rounded-2xl p-8 max-w-2xl mx-auto">
-            <h3 className="text-2xl font-bold text-white mb-4">Want to Shape Our Future?</h3>
+            <h3 className="text-2xl font-bold text-white mb-4">Want to Shape the Future of Web3 Gaming?
+</h3>
             <p className="text-gray-300 mb-6">
-              Join our community and help us build the next generation of Web3 gaming.
+              Follow us on X and be the first to discover updates, drops, and exclusive features.
             </p>
             <button className="bg-yellow-400 text-black px-8 py-3 rounded-lg font-semibold hover:bg-yellow-300 transition-colors duration-200">
-              Join Discord Community
+              Follow us on X
             </button>
           </div>
         </div>
