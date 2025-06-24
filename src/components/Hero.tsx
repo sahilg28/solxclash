@@ -55,31 +55,7 @@ const Hero = () => {
               </button>
             </div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-3 gap-8 pt-8 border-t border-gray-800">
-              <div className="text-center">
-                <div className="flex items-center justify-center w-12 h-12 bg-yellow-400/10 rounded-lg mb-3 mx-auto">
-                  <TrendingUp className="w-6 h-6 text-yellow-400" />
-                </div>
-                <div className="text-2xl font-bold">$50K+</div>
-                <div className="text-gray-400 text-sm">Total Rewards</div>
-              </div>
 
-              <div className="text-center">
-                <div className="flex items-center justify-center w-12 h-12 bg-yellow-400/10 rounded-lg mb-3 mx-auto">
-                  <Users className="w-6 h-6 text-yellow-400" />
-                </div>
-                <div className="text-2xl font-bold">2.5K+</div>
-                <div className="text-gray-400 text-sm">Active Players</div>
-              </div>
-
-              <div className="text-center">
-                <div className="flex items-center justify-center w-12 h-12 bg-yellow-400/10 rounded-lg mb-3 mx-auto">
-                  <Trophy className="w-6 h-6 text-yellow-400" />
-                </div>
-                <div className="text-2xl font-bold">98%</div>
-                <div className="text-gray-400 text-sm">Win Rate</div>
-              </div>
             </div>
           </div>
 
