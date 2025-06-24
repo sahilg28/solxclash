@@ -141,12 +141,11 @@ const RoadmapPreview = () => {
             <p className="text-gray-300 mb-6">
               Follow us on X and be the first to discover updates, drops, and exclusive features.
             </p>
-            <button className="bg-black text-black px-8 py-3 rounded-lg font-semibold hover:bg-yellow-300 transition-colors duration-200">
-                <img
+            <button className="bg-yellow-400 text-black px-8 py-3 rounded-lg font-semibold hover:bg-yellow-300 transition-colors duration-200">
+    <img
     src="/assets/icons8-twitter-100.png"
     alt="X Logo"
-    className="w-5 h-5 "
-  />
+    className="w-5 h-5 " />
             </button>
           </div>
         </div>
