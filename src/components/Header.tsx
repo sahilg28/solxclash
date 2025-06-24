@@ -60,7 +60,7 @@ const Header = () => {
                 <img 
                   src="/assets/solxclash_logo.svg" 
                   alt="SolxClash" 
-                  className="w-full h-full rounded object-contain"
+                  className="w-full h-full rounded"
                 />
               </div>
               <span className="text-xl font-bold text-white">SolxClash</span>
