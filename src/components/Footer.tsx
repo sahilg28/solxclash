@@ -173,7 +173,7 @@ const Footer = () => {
                   alt="Solana" 
                   className="h-5 w-auto"
                 />
-                <span className="text-gray-300">Coming soon</span>
+                <span className="text-gray-300">Launching soon</span>
               </div>
               <p className="text-gray-400 text-sm max-w-xs mx-auto lg:mx-0 lg:ml-auto">
                 Experience lightning-fast transactions and low fees on the most performant blockchain.
