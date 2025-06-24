@@ -176,8 +176,10 @@ const CryptoClashPage = () => {
     }
   }, [loading, user, profile]);
 
+  // CRITICAL FIX: Always fetch user prediction when round or user changes
   useEffect(() => {
-    if (gameState.currentRound && user && !gameState.userPrediction) {
+    if (gameState.currentRound && user) {
+      console.log('🔍 Fetching user prediction for round:', gameState.currentRound.id);
       gameLogicService.getUserPrediction(gameState.currentRound.id, user.id);
     }
   }, [gameState.currentRound, user]);
