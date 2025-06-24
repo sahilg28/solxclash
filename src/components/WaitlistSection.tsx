@@ -44,7 +44,7 @@ const WaitlistSection = () => {
           {/* Header */}
           <div className="mb-12">
             <h2 className="text-4xl lg:text-6xl font-bold text-white mb-6">
-              Join the <span className="text-yellow-400">SolxClash Movement</span>
+              Join <span className="text-yellow-400">SolxClash</span>
             </h2>
             <p className="text-xl text-gray-300 leading-relaxed max-w-3xl mx-auto">
               Be part of the next-gen Web3 gaming revolution. Sign up for early access to new game modes,
