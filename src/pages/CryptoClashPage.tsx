@@ -48,6 +48,7 @@ const CryptoClashPage = () => {
   // Track processed rounds to prevent duplicate notifications
   const processedRoundsRef = useRef<Set<string>>(new Set());
   const lastNotificationRoundRef = useRef<string | null>(null);
+  const toastShownRef = useRef<Set<string>>(new Set());
 
   const cryptoOptions = [
     { symbol: 'BTC' as CoinSymbol, name: 'Bitcoin', tvSymbol: 'BINANCE:BTCUSDT', color: 'text-orange-400' },
@@ -66,6 +67,17 @@ const CryptoClashPage = () => {
     });
 
     const gameUnsubscribe = gameLogicService.subscribe((state: GameState) => {
+      console.log('🎮 Game state update:', {
+        roundId: state.currentRound?.id,
+        status: state.currentRound?.status,
+        phase: state.phase,
+        userPrediction: state.userPrediction ? {
+          id: state.userPrediction.id,
+          isCorrect: state.userPrediction.is_correct,
+          xpEarned: state.userPrediction.xp_earned
+        } : null
+      });
+
       setGameState(state);
 
       if (state.currentRound?.status === 'cancelled') {
@@ -74,20 +86,23 @@ const CryptoClashPage = () => {
         setCancelledRoundDisplayMessage(null);
       }
 
-      // Handle completed rounds with duplicate prevention
+      // Handle completed rounds with comprehensive duplicate prevention
       if (state.currentRound?.status === 'completed' && state.userPrediction && state.currentRound.id) {
         const roundId = state.currentRound.id;
+        const toastId = `result-${roundId}`;
+        
+        console.log('🏁 Round completed:', {
+          roundId,
+          isCorrect: state.userPrediction.is_correct,
+          xpEarned: state.userPrediction.xp_earned,
+          priceDirection: state.currentRound.price_direction,
+          alreadyProcessed: processedRoundsRef.current.has(roundId),
+          toastAlreadyShown: toastShownRef.current.has(toastId)
+        });
         
         // Check if we've already processed this round
         if (!processedRoundsRef.current.has(roundId)) {
-          console.log('🎯 Processing completed round:', {
-            roundId,
-            userPrediction: state.userPrediction,
-            isCorrect: state.userPrediction.is_correct,
-            xpEarned: state.userPrediction.xp_earned
-          });
-
-          // Mark this round as processed
+          // Mark this round as processed immediately
           processedRoundsRef.current.add(roundId);
           
           // Show result card
@@ -100,21 +115,21 @@ const CryptoClashPage = () => {
             xpEarned: state.userPrediction.xp_earned || 0
           });
 
-          // Show toast notification only once per round
-          if (lastNotificationRoundRef.current !== roundId) {
-            lastNotificationRoundRef.current = roundId;
+          // Show toast notification only once per round with additional checks
+          if (!toastShownRef.current.has(toastId) && !toast.isActive(toastId)) {
+            toastShownRef.current.add(toastId);
             
             if (state.userPrediction.is_correct) {
               toast.success(`🎉 Correct prediction! +${state.userPrediction.xp_earned} XP earned!`, {
                 position: "top-right",
                 autoClose: 5000,
-                toastId: `win-${roundId}`, // Unique ID to prevent duplicates
+                toastId: toastId,
               });
             } else {
               toast.error(`😔 Wrong prediction. Better luck next time!`, {
                 position: "top-right",
                 autoClose: 5000,
-                toastId: `lose-${roundId}`, // Unique ID to prevent duplicates
+                toastId: toastId,
               });
             }
           }
@@ -133,11 +148,17 @@ const CryptoClashPage = () => {
         }
       }
 
-      // Clean up old processed rounds (keep only last 10)
+      // Clean up old processed rounds and toasts (keep only last 10)
       if (processedRoundsRef.current.size > 10) {
         const roundsArray = Array.from(processedRoundsRef.current);
-        const toKeep = roundsArray.slice(-5); // Keep last 5
+        const toKeep = roundsArray.slice(-5);
         processedRoundsRef.current = new Set(toKeep);
+      }
+
+      if (toastShownRef.current.size > 10) {
+        const toastsArray = Array.from(toastShownRef.current);
+        const toKeep = toastsArray.slice(-5);
+        toastShownRef.current = new Set(toKeep);
       }
     });
 

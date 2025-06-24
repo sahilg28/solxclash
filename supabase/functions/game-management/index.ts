@@ -611,7 +611,7 @@ async function completeRound(supabase: any, roundId: string) {
     // Check if round has already been completed to prevent duplicate processing
     const { data: currentRound, error: currentRoundError } = await supabase
       .from('game_rounds')
-      .select('status')
+      .select('*')
       .eq('id', roundId)
       .single()
 
@@ -667,36 +667,24 @@ async function completeRound(supabase: any, roundId: string) {
       )
     }
 
-    const { data: round, error: roundError } = await supabase
-      .from('game_rounds')
-      .select('*')
-      .eq('id', roundId)
-      .single()
-
-    if (roundError) {
-      throw roundError
-    }
-
-    if (!round.start_price || !round.end_price) {
+    if (!currentRound.start_price || !currentRound.end_price) {
       throw new Error('Cannot complete round: missing price data')
     }
 
     console.log('💰 Price analysis:', {
-      startPrice: round.start_price,
-      endPrice: round.end_price,
-      difference: round.end_price - round.start_price
+      startPrice: currentRound.start_price,
+      endPrice: currentRound.end_price,
+      difference: currentRound.end_price - currentRound.start_price
     })
 
-    // IMPROVED: More accurate price direction calculation
-    const priceDifference = round.end_price - round.start_price
+    // Simplified and more accurate price direction calculation
+    const priceDifference = currentRound.end_price - currentRound.start_price
+    const percentageChange = Math.abs(priceDifference / currentRound.start_price) * 100
+    
+    // Use a very small threshold for unchanged (0.001% = 0.00001)
+    const UNCHANGED_THRESHOLD_PERCENT = 0.001
+    
     let priceDirection: 'up' | 'down' | 'unchanged'
-    
-    // Calculate percentage change for more accurate direction determination
-    const percentageChange = Math.abs(priceDifference / round.start_price) * 100
-    
-    // Use a very small percentage threshold (0.01% = 0.0001) for "unchanged"
-    // This means price must move less than 0.01% to be considered unchanged
-    const UNCHANGED_THRESHOLD_PERCENT = 0.01
     
     if (percentageChange < UNCHANGED_THRESHOLD_PERCENT) {
       priceDirection = 'unchanged'
@@ -708,8 +696,9 @@ async function completeRound(supabase: any, roundId: string) {
 
     console.log('📈 Price direction determined:', {
       priceDirection,
-      percentageChange: percentageChange.toFixed(6),
-      threshold: UNCHANGED_THRESHOLD_PERCENT
+      percentageChange: percentageChange.toFixed(8),
+      threshold: UNCHANGED_THRESHOLD_PERCENT,
+      priceDifference
     })
 
     const { data: allPredictions, error: allPredictionsError } = await supabase
@@ -726,67 +715,43 @@ async function completeRound(supabase: any, roundId: string) {
 
     console.log('🔍 Processing', totalPredictions, 'predictions...')
 
+    // Process all predictions in a transaction-like manner
     for (const prediction of allPredictions) {
-      let isCorrect = false
-      
       console.log('🎯 Analyzing prediction:', {
         predictionId: prediction.id,
         userId: prediction.user_id,
         prediction: prediction.prediction,
-        predictedPrice: prediction.predicted_price,
         xpBet: prediction.xp_bet
       })
       
-      // IMPROVED: Use individual prediction price comparison for maximum accuracy
-      if (prediction.predicted_price !== null && round.end_price !== null) {
-        const individualPriceDifference = round.end_price - prediction.predicted_price
-        const individualPercentageChange = Math.abs(individualPriceDifference / prediction.predicted_price) * 100
-        
-        console.log('📊 Individual price analysis:', {
-          predictedPrice: prediction.predicted_price,
-          endPrice: round.end_price,
-          individualPriceDifference,
-          individualPercentageChange: individualPercentageChange.toFixed(6),
-          threshold: UNCHANGED_THRESHOLD_PERCENT
-        })
-        
-        // Apply the same percentage threshold for individual predictions
-        if (individualPercentageChange < UNCHANGED_THRESHOLD_PERCENT) {
-          // If price change is negligible, no one wins
-          isCorrect = false
-          console.log('❌ Price change too small - no winner')
-        } else if (individualPriceDifference > 0 && prediction.prediction === 'up') {
-          isCorrect = true
-          console.log('✅ Correct UP prediction')
-        } else if (individualPriceDifference < 0 && prediction.prediction === 'down') {
-          isCorrect = true
-          console.log('✅ Correct DOWN prediction')
-        } else {
-          isCorrect = false
-          console.log('❌ Wrong prediction')
-        }
+      // Determine if prediction is correct based on price direction
+      let isCorrect = false
+      
+      if (priceDirection === 'unchanged') {
+        // If price is essentially unchanged, no one wins
+        isCorrect = false
+        console.log('❌ Price unchanged - no winner')
       } else {
-        // Fallback to round-level comparison if individual price is missing
-        console.log('⚠️ Using fallback round-level comparison')
-        if (priceDirection === 'unchanged') {
-          isCorrect = false // No one wins if unchanged
-        } else {
-          isCorrect = prediction.prediction === priceDirection
-        }
+        // Check if prediction matches the actual price direction
+        isCorrect = prediction.prediction === priceDirection
+        console.log(isCorrect ? '✅ Correct prediction' : '❌ Wrong prediction', {
+          predicted: prediction.prediction,
+          actual: priceDirection
+        })
       }
       
       if (isCorrect) correctPredictions++
       
-      // XP calculation: only give XP if correct, otherwise 0
-      const baseXp = isCorrect ? prediction.xp_bet * 2 : 0
+      // Calculate XP earned: only give XP if correct, otherwise 0
+      const xpEarned = isCorrect ? prediction.xp_bet * 2 : 0
       
       console.log('💰 XP calculation:', {
         isCorrect,
         xpBet: prediction.xp_bet,
-        baseXp,
-        totalXpEarned: baseXp
+        xpEarned
       })
       
+      // Fetch user profile
       const { data: profile, error: profileFetchError } = await supabase
         .from('profiles')
         .select('*')
@@ -797,15 +762,13 @@ async function completeRound(supabase: any, roundId: string) {
         console.error('❌ Failed to fetch profile for user:', prediction.user_id)
         continue
       }
-      
-      const totalXpEarned = baseXp
 
       // Update prediction with results
       const { error: updatePredictionError } = await supabase
         .from('predictions')
         .update({
           is_correct: isCorrect,
-          xp_earned: totalXpEarned
+          xp_earned: xpEarned
         })
         .eq('id', prediction.id)
 
@@ -814,10 +777,10 @@ async function completeRound(supabase: any, roundId: string) {
         continue
       }
 
-      // Update user profile
+      // Update user profile stats and XP
       const newGamesPlayed = profile.games_played + 1
       const newWins = isCorrect ? profile.wins + 1 : profile.wins
-      const newXp = profile.xp + totalXpEarned
+      const newXp = profile.xp + xpEarned
 
       console.log('👤 Updating profile:', {
         userId: prediction.user_id,
@@ -827,7 +790,7 @@ async function completeRound(supabase: any, roundId: string) {
         newWins,
         oldXp: profile.xp,
         newXp,
-        xpAdded: totalXpEarned
+        xpAdded: xpEarned
       })
 
       const { error: updateProfileError } = await supabase
