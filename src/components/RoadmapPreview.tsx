@@ -15,7 +15,6 @@ const RoadmapPreview = () => {
         'USDT rewards'
       ],
       icon: <Rocket className="w-8 h-8" />,
-      timeline: 'Q1 2024'
     },
     {
       phase: 'Phase 2',
