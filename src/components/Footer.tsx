@@ -1,47 +1,7 @@
-import React, { useState } from 'react';
-import { ArrowRight, Check, AlertCircle } from 'lucide-react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
 
 const Footer = () => {
-  const [email, setEmail] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleNewsletterSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    setSuccess(false);
-
-    try {
-      // Insert email into newsletter_subscribers table
-      const { error: insertError } = await supabase
-        .from('newsletter_subscribers')
-        .insert([{ email: email.trim() }]);
-
-      if (insertError) {
-        // Check if email already exists
-        if (insertError.code === '23505') {
-          throw new Error('Email is already subscribed to our newsletter');
-        }
-        throw insertError;
-      }
-
-      setSuccess(true);
-      setEmail('');
-      
-      // Reset success message after 3 seconds
-      setTimeout(() => setSuccess(false), 3000);
-    } catch (err) {
-      console.error('Newsletter signup error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to subscribe to newsletter');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const platformLinks = [
     { name: 'CryptoClash', href: '/cryptoclash', isRoute: true },
     { name: 'Leaderboard', href: '#leaderboard', isRoute: false },
@@ -89,53 +49,6 @@ const Footer = () => {
                     className="w-6 h-6 filter brightness-0 invert opacity-70 hover:opacity-100 transition-opacity duration-200"
                   />
                 </a>
-              </div>
-
-              {/* Newsletter - Enhanced */}
-              <div className="max-w-sm">
-                <h3 className="text-sm font-semibold text-white mb-2">Stay Updated</h3>
-                <form onSubmit={handleNewsletterSubmit} className="space-y-2">
-                  <div className="flex gap-2">
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Your email"
-                      className="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 text-sm focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400/20 transition-all duration-200"
-                      required
-                      disabled={loading}
-                    />
-                    <button
-                      type="submit"
-                      disabled={loading || success}
-                      className="bg-yellow-400 text-black px-4 py-2 rounded-lg font-semibold hover:bg-yellow-300 transition-all duration-200 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {loading ? (
-                        <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin"></div>
-                      ) : success ? (
-                        <Check className="w-4 h-4" />
-                      ) : (
-                        <ArrowRight className="w-4 h-4" />
-                      )}
-                    </button>
-                  </div>
-                  
-                  {/* Success Message */}
-                  {success && (
-                    <div className="flex items-center space-x-2 text-green-400 text-xs">
-                      <Check className="w-3 h-3" />
-                      <span>Successfully subscribed!</span>
-                    </div>
-                  )}
-                  
-                  {/* Error Message */}
-                  {error && (
-                    <div className="flex items-center space-x-2 text-red-400 text-xs">
-                      <AlertCircle className="w-3 h-3" />
-                      <span>{error}</span>
-                    </div>
-                  )}
-                </form>
               </div>
             </div>
 
