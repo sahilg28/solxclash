@@ -147,7 +147,6 @@ const RoadmapPreview = () => {
     alt="X Logo"
     className="w-5 h-5"
   />
-  <span>Follow us</span>
             </button>
           </div>
         </div>
