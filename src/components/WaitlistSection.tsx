@@ -15,13 +15,11 @@ const WaitlistSection = () => {
     setSuccess(false);
 
     try {
-      // Insert email into waitlist_subscribers table
       const { error: insertError } = await supabase
         .from('waitlist_subscribers')
         .insert([{ email: email.trim() }]);
 
       if (insertError) {
-        // Check if email already exists
         if (insertError.code === '23505') {
           throw new Error('Email is already on the waitlist');
         }
@@ -30,8 +28,6 @@ const WaitlistSection = () => {
 
       setSuccess(true);
       setEmail('');
-      
-      // Reset success message after 5 seconds
       setTimeout(() => setSuccess(false), 5000);
     } catch (err) {
       console.error('Waitlist signup error:', err);
@@ -48,11 +44,11 @@ const WaitlistSection = () => {
           {/* Header */}
           <div className="mb-12">
             <h2 className="text-4xl lg:text-6xl font-bold text-white mb-6">
-              Be early. <span className="text-yellow-400">Be rewarded.</span>
+              Join the <span className="text-yellow-400">SolxClash Movement</span>
             </h2>
             <p className="text-xl text-gray-300 leading-relaxed max-w-3xl mx-auto">
-              Join our exclusive waitlist and get early access to SolxClash. 
-              First 1,000 members receive bonus XP, exclusive NFTs, and priority tournament access.
+              Be part of the next-gen Web3 gaming revolution. Sign up for early access to new game modes,
+              on-chain features, and community perks.
             </p>
           </div>
 
@@ -92,17 +88,17 @@ const WaitlistSection = () => {
                   )}
                 </button>
               </div>
-              
+
               {/* Success Message */}
               {success && (
                 <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-4">
                   <div className="flex items-center justify-center space-x-2 text-green-400">
                     <Check className="w-5 h-5" />
-                    <span>Successfully joined the waitlist! Check your email for confirmation.</span>
+                    <span>You're in! We’ll reach out with exclusive updates soon.</span>
                   </div>
                 </div>
               )}
-              
+
               {/* Error Message */}
               {error && (
                 <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4">
@@ -121,24 +117,24 @@ const WaitlistSection = () => {
               <div className="w-16 h-16 bg-yellow-400/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Gift className="w-8 h-8 text-yellow-400" />
               </div>
-              <h3 className="text-lg font-semibold text-white mb-2">Exclusive Rewards</h3>
-              <p className="text-gray-400">Bonus XP, rare NFTs, and special tournament access for early members.</p>
+              <h3 className="text-lg font-semibold text-white mb-2">Community Rewards</h3>
+              <p className="text-gray-400">Unlock early perks, bonus XP, and access to test new game modes.</p>
             </div>
-            
+
             <div className="text-center">
               <div className="w-16 h-16 bg-yellow-400/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Users className="w-8 h-8 text-yellow-400" />
               </div>
-              <h3 className="text-lg font-semibold text-white mb-2">VIP Community</h3>
-              <p className="text-gray-400">Direct access to developers and influence platform development.</p>
+              <h3 className="text-lg font-semibold text-white mb-2">Shape the Platform</h3>
+              <p className="text-gray-400">Your feedback helps drive feature development and direction.</p>
             </div>
-            
+
             <div className="text-center">
               <div className="w-16 h-16 bg-yellow-400/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Clock className="w-8 h-8 text-yellow-400" />
               </div>
-              <h3 className="text-lg font-semibold text-white mb-2">Early Access</h3>
-              <p className="text-gray-400">Be among the first to experience new games and features.</p>
+              <h3 className="text-lg font-semibold text-white mb-2">Get Early Access</h3>
+              <p className="text-gray-400">Try out SolxClash updates and game expansions before anyone else.</p>
             </div>
           </div>
         </div>
