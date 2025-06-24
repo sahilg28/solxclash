@@ -168,12 +168,12 @@ const Footer = () => {
             {/* Solana Section */}
             <div className="lg:col-span-4 text-center lg:text-right">
               <div className="inline-flex items-center space-x-3 mb-3">
-                <span className="text-gray-300">Coming soon</span>
                 <img 
                   src="/assets/solanaLogo.png" 
                   alt="Solana" 
                   className="h-5 w-auto"
                 />
+                <span className="text-gray-300">Coming soon</span>
               </div>
               <p className="text-gray-400 text-sm max-w-xs mx-auto lg:mx-0 lg:ml-auto">
                 Experience lightning-fast transactions and low fees on the most performant blockchain.
