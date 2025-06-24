@@ -5,7 +5,7 @@ const RoadmapPreview = () => {
   const phases = [
     {
       phase: 'Phase 1',
-      title: 'CryptoClash Launch',
+      title: 'MVP & CryptoClash Launch',
       status: 'current',
       description: 'Real-time price prediction game with leaderboards and rewards',
       features: [
