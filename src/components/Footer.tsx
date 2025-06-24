@@ -41,7 +41,7 @@ const Footer = () => {
                 <img 
                   src="/assets/solxclash_logo.svg" 
                   alt="SolxClash" 
-                  className="w-10 h-10"
+                  className="w-10 h-10 rounded-full object-cover"
                 />
                 <span className="text-2xl font-bold text-white">SolxClash</span>
               </div>
