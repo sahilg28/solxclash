@@ -5,45 +5,48 @@ const RoadmapPreview = () => {
   const phases = [
     {
       phase: 'Phase 1',
-      title: 'MVP & CryptoClash Launch',
+      title: 'CryptoClash MVP Launch',
       status: 'current',
-      description: 'Real-time price prediction game with leaderboards and rewards',
+      description:
+        'Live crypto prediction game powered by XP and leaderboard rewards. Built with web2 simplicity and ready for users to test their skills.',
       features: [
-        'Price prediction gameplay',
-        'Solana wallet integration',
-        'XP & ranking system',
-        'USDT rewards'
+        'Real-time price prediction',
+        'Google sign-in authentication',
+        'XP-based ranking system',
+        'Leaderboard & bonus XP rewards',
       ],
       icon: <Rocket className="w-8 h-8" />,
     },
     {
       phase: 'Phase 2',
-      title: 'Battle Arena',
+      title: 'Solana & ChessClash Integration',
       status: 'upcoming',
-      description: '1v1 battles, tournaments, and seasonal competitions',
+      description:
+        'Introducing on-chain gameplay with ChessClash — a skill-based PvP and bot battle game. Built with Solana, real rewards, and seasonal events.',
       features: [
-        'Player vs Player battles',
-        'Tournament system',
-        'Seasonal events',
-        'NFT rewards'
+        'Solana wallet integration',
+        '1v1 PvP Chess + Bot battles',
+        'Tournament system & seasonal rankings',
+        'NFT-based trophies & rewards',
       ],
       icon: <Users className="w-8 h-8" />,
-      timeline: 'Q2 2024'
+      timeline: 'Q3 2024',
     },
     {
       phase: 'Phase 3',
-      title: 'Multi-Game Platform',
+      title: 'Play-to-Earn & Platform Expansion',
       status: 'planned',
-      description: 'Expand to multiple skill-based games and advanced features',
+      description:
+        'Launch real-money CryptoClash matches, introduce cross-game analytics, and grow into a full skill-based Web3 platform. More coming soon and in development.',
       features: [
-        'Multiple game types',
-        'Advanced analytics',
-        'Social features',
-        'Mobile app'
+        'USDT-based play & rewards',
+        'Smart contract-based payouts',
+        'Game analytics & XP tracking',
+        'Mobile-friendly & social features',
       ],
       icon: <Zap className="w-8 h-8" />,
-      timeline: 'Q3 2024'
-    }
+      timeline: 'Q4 2024',
+    },
   ];
 
   const getStatusIcon = (status: string) => {
@@ -76,8 +79,8 @@ const RoadmapPreview = () => {
             What's <span className="text-yellow-400">Coming</span>
           </h2>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Our roadmap to building the ultimate Web3 gaming platform. 
-            Each phase brings new games, features, and rewards.
+            Our roadmap to building the ultimate Web3 gaming platform.
+            Each phase unlocks new games, features, and competitive rewards.
           </p>
         </div>
 
@@ -124,7 +127,7 @@ const RoadmapPreview = () => {
                 </button>
               </div>
 
-              {/* Connection Line (except for last item) */}
+              {/* Connection Line */}
               {index < phases.length - 1 && (
                 <div className="hidden lg:block absolute top-1/2 -right-4 w-8 h-0.5 bg-gradient-to-r from-yellow-400/50 to-transparent"></div>
               )}
@@ -135,16 +138,18 @@ const RoadmapPreview = () => {
         {/* CTA Section */}
         <div className="text-center mt-16">
           <div className="bg-gradient-to-r from-yellow-400/10 to-yellow-600/10 border border-yellow-400/20 rounded-2xl p-8 max-w-2xl mx-auto">
-            <h3 className="text-2xl font-bold text-white mb-4">Want to Shape the Future of Web3 Gaming?
-</h3>
+            <h3 className="text-2xl font-bold text-white mb-4">
+              Want to Shape the Future of Web3 Gaming?
+            </h3>
             <p className="text-gray-300 mb-6">
               Follow us on X and be the first to discover updates, drops, and exclusive features.
             </p>
             <button className="bg-yellow-400 text-black px-8 py-3 rounded-lg font-semibold hover:bg-yellow-300 transition-colors duration-200">
-    <img
-    src="/assets/icons8-twitter-100.png"
-    alt="X Logo"
-    className="w-5 h-5 " />
+              <img
+                src="/assets/icons8-twitter-100.png"
+                alt="X Logo"
+                className="w-5 h-5"
+              />
             </button>
           </div>
         </div>
