@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Navigate } from 'react-router-dom';
 import { 
   TrendingUp, Clock, Trophy, Zap, Target, Users, 
@@ -45,6 +45,10 @@ const CryptoClashPage = () => {
     xpEarned: 0
   });
 
+  // Track processed rounds to prevent duplicate notifications
+  const processedRoundsRef = useRef<Set<string>>(new Set());
+  const lastNotificationRoundRef = useRef<string | null>(null);
+
   const cryptoOptions = [
     { symbol: 'BTC' as CoinSymbol, name: 'Bitcoin', tvSymbol: 'BINANCE:BTCUSDT', color: 'text-orange-400' },
     { symbol: 'ETH' as CoinSymbol, name: 'Ethereum', tvSymbol: 'BINANCE:ETHUSDT', color: 'text-blue-400' },
@@ -70,37 +74,70 @@ const CryptoClashPage = () => {
         setCancelledRoundDisplayMessage(null);
       }
 
-      if (state.currentRound?.status === 'completed' && state.userPrediction) {
-        setRoundResults({
-          show: true,
-          isCorrect: state.userPrediction.is_correct,
-          priceDirection: state.currentRound.price_direction,
-          predictedPrice: state.userPrediction.predicted_price || null,
-          endPrice: state.currentRound.end_price,
-          xpEarned: state.userPrediction.xp_earned || 0
-        });
+      // Handle completed rounds with duplicate prevention
+      if (state.currentRound?.status === 'completed' && state.userPrediction && state.currentRound.id) {
+        const roundId = state.currentRound.id;
+        
+        // Check if we've already processed this round
+        if (!processedRoundsRef.current.has(roundId)) {
+          console.log('🎯 Processing completed round:', {
+            roundId,
+            userPrediction: state.userPrediction,
+            isCorrect: state.userPrediction.is_correct,
+            xpEarned: state.userPrediction.xp_earned
+          });
 
-        if (state.userPrediction.is_correct) {
-          toast.success(`🎉 Correct prediction! +${state.userPrediction.xp_earned} XP earned!`, {
-            position: "top-right",
-            autoClose: 5000,
+          // Mark this round as processed
+          processedRoundsRef.current.add(roundId);
+          
+          // Show result card
+          setRoundResults({
+            show: true,
+            isCorrect: state.userPrediction.is_correct,
+            priceDirection: state.currentRound.price_direction,
+            predictedPrice: state.userPrediction.predicted_price || null,
+            endPrice: state.currentRound.end_price,
+            xpEarned: state.userPrediction.xp_earned || 0
           });
-        } else {
-          toast.error(`😔 Wrong prediction. Better luck next time!`, {
-            position: "top-right",
-            autoClose: 5000,
+
+          // Show toast notification only once per round
+          if (lastNotificationRoundRef.current !== roundId) {
+            lastNotificationRoundRef.current = roundId;
+            
+            if (state.userPrediction.is_correct) {
+              toast.success(`🎉 Correct prediction! +${state.userPrediction.xp_earned} XP earned!`, {
+                position: "top-right",
+                autoClose: 5000,
+                toastId: `win-${roundId}`, // Unique ID to prevent duplicates
+              });
+            } else {
+              toast.error(`😔 Wrong prediction. Better luck next time!`, {
+                position: "top-right",
+                autoClose: 5000,
+                toastId: `lose-${roundId}`, // Unique ID to prevent duplicates
+              });
+            }
+          }
+
+          // Refresh profile to get updated XP
+          refreshSessionAndProfile().then(() => {
+            console.log('✅ Profile refreshed after round completion');
+          }).catch((error) => {
+            console.error('❌ Failed to refresh profile:', error);
           });
+
+          // Auto-hide result card after 10 seconds
+          setTimeout(() => {
+            setRoundResults(prev => ({ ...prev, show: false }));
+          }, 10000);
         }
+      }
 
-        refreshSessionAndProfile().then(() => {
-          // Profile refreshed
-        }).catch((error) => {
-          // Silent fail
-        });
-
-        setTimeout(() => {
-          setRoundResults(prev => ({ ...prev, show: false }));
-        }, 10000);
+      // Clean up old processed rounds (keep only last 10)
+      if (processedRoundsRef.current.size > 10) {
+        const roundsArray = Array.from(processedRoundsRef.current);
+        const toKeep = roundsArray.slice(-5); // Keep last 5
+        processedRoundsRef.current = new Set(toKeep);
       }
     });
 
