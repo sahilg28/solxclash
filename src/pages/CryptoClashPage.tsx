@@ -368,17 +368,17 @@ const CryptoClashPage = () => {
               {connectionStatus === 'connected' ? (
                 <>
                   <Wifi className="w-5 h-5 text-green-400" />
-                  <span className="text-green-400 text-sm">Live Binance Data Connected</span>
+                  <span className="text-green-400 text-sm">Connected</span>
                 </>
               ) : connectionStatus === 'connecting' ? (
                 <>
                   <Activity className="w-5 h-5 text-yellow-400 animate-pulse" />
-                  <span className="text-yellow-400 text-sm">Connecting to Binance...</span>
+                  <span className="text-yellow-400 text-sm">Connecting...</span>
                 </>
               ) : (
                 <>
                   <WifiOff className="w-5 h-5 text-red-400" />
-                  <span className="text-red-400 text-sm">Using Demo Data</span>
+                  <span className="text-red-400 text-sm">Connecting with Internet...</span>
                 </>
               )}
             </div>
