@@ -569,10 +569,14 @@ async function completeRound(supabase: any, roundId: string) {
       throw new Error('Cannot complete round: missing price data')
     }
 
+    // FIXED: More precise price direction calculation
     const priceDifference = round.end_price - round.start_price
     let priceDirection: 'up' | 'down' | 'unchanged'
     
-    if (Math.abs(priceDifference) < 0.01) {
+    // Use a smaller threshold for "unchanged" - only if the difference is extremely small
+    const UNCHANGED_THRESHOLD = 0.0001 // Much smaller threshold
+    
+    if (Math.abs(priceDifference) < UNCHANGED_THRESHOLD) {
       priceDirection = 'unchanged'
     } else if (priceDifference > 0) {
       priceDirection = 'up'
@@ -595,18 +599,28 @@ async function completeRound(supabase: any, roundId: string) {
     for (const prediction of allPredictions) {
       let isCorrect = false
       
+      // FIXED: Use individual prediction price comparison for more accuracy
       if (prediction.predicted_price !== null && round.end_price !== null) {
         const individualPriceDifference = round.end_price - prediction.predicted_price
         
-        if (individualPriceDifference > 0 && prediction.prediction === 'up') {
+        // Use the same small threshold for individual predictions
+        if (Math.abs(individualPriceDifference) < UNCHANGED_THRESHOLD) {
+          // If price is essentially unchanged, no one wins
+          isCorrect = false
+        } else if (individualPriceDifference > 0 && prediction.prediction === 'up') {
           isCorrect = true
         } else if (individualPriceDifference < 0 && prediction.prediction === 'down') {
           isCorrect = true
-        } else if (individualPriceDifference === 0) {
+        } else {
           isCorrect = false
         }
       } else {
-        isCorrect = prediction.prediction === priceDirection
+        // Fallback to round-level comparison if individual price is missing
+        if (priceDirection === 'unchanged') {
+          isCorrect = false // No one wins if unchanged
+        } else {
+          isCorrect = prediction.prediction === priceDirection
+        }
       }
       
       if (isCorrect) correctPredictions++
