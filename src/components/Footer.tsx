@@ -37,7 +37,7 @@ const Footer = () => {
           <div className="grid lg:grid-cols-12 gap-8">
             {/* Brand Section */}
             <div className="lg:col-span-5">
-              <div className="flex items-center space-x-2 mb-4">
+              <div className="flex items-center space-x-1 mb-4">
                 <img 
                   src="/assets/solxclash_logo.svg" 
                   alt="SolxClash" 
