@@ -30,7 +30,6 @@ const RoadmapPreview = () => {
         'NFT-based trophies & rewards',
       ],
       icon: <Users className="w-8 h-8" />,
-      timeline: 'Q3 2024',
     },
     {
       phase: 'Phase 3',
@@ -45,7 +44,6 @@ const RoadmapPreview = () => {
         'Mobile-friendly & social features',
       ],
       icon: <Zap className="w-8 h-8" />,
-      timeline: 'Q4 2024',
     },
   ];
 
