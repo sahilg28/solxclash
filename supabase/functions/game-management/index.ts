@@ -569,14 +569,18 @@ async function completeRound(supabase: any, roundId: string) {
       throw new Error('Cannot complete round: missing price data')
     }
 
-    // FIXED: More precise price direction calculation
+    // IMPROVED: More accurate price direction calculation
     const priceDifference = round.end_price - round.start_price
     let priceDirection: 'up' | 'down' | 'unchanged'
     
-    // Use a smaller threshold for "unchanged" - only if the difference is extremely small
-    const UNCHANGED_THRESHOLD = 0.0001 // Much smaller threshold
+    // Calculate percentage change for more accurate direction determination
+    const percentageChange = Math.abs(priceDifference / round.start_price) * 100
     
-    if (Math.abs(priceDifference) < UNCHANGED_THRESHOLD) {
+    // Use a very small percentage threshold (0.01% = 0.0001) for "unchanged"
+    // This means price must move less than 0.01% to be considered unchanged
+    const UNCHANGED_THRESHOLD_PERCENT = 0.01
+    
+    if (percentageChange < UNCHANGED_THRESHOLD_PERCENT) {
       priceDirection = 'unchanged'
     } else if (priceDifference > 0) {
       priceDirection = 'up'
@@ -599,13 +603,14 @@ async function completeRound(supabase: any, roundId: string) {
     for (const prediction of allPredictions) {
       let isCorrect = false
       
-      // FIXED: Use individual prediction price comparison for more accuracy
+      // IMPROVED: Use individual prediction price comparison for maximum accuracy
       if (prediction.predicted_price !== null && round.end_price !== null) {
         const individualPriceDifference = round.end_price - prediction.predicted_price
+        const individualPercentageChange = Math.abs(individualPriceDifference / prediction.predicted_price) * 100
         
-        // Use the same small threshold for individual predictions
-        if (Math.abs(individualPriceDifference) < UNCHANGED_THRESHOLD) {
-          // If price is essentially unchanged, no one wins
+        // Apply the same percentage threshold for individual predictions
+        if (individualPercentageChange < UNCHANGED_THRESHOLD_PERCENT) {
+          // If price change is negligible, no one wins
           isCorrect = false
         } else if (individualPriceDifference > 0 && prediction.prediction === 'up') {
           isCorrect = true
