@@ -108,7 +108,7 @@ const CryptoClashPage = () => {
           // Show result card
           setRoundResults({
             show: true,
-            isCorrect: state.userPrediction.is_correct,
+            isCorrect: !!state.userPrediction.is_correct,
             priceDirection: state.currentRound.price_direction,
             predictedPrice: state.userPrediction.predicted_price || null,
             endPrice: state.currentRound.end_price,
@@ -535,11 +535,11 @@ const CryptoClashPage = () => {
                       </span>
                       <span>•</span>
                       <span className={phaseDisplay.color}>{phaseDisplay.title}</span>
-                      {gameState.currentRound.start_price && gameState.phase === 'predicting' && gameState.currentRound.selected_coin && (
+                      {gameState.phase === 'predicting' && gameState.currentRound.selected_coin && gameState.userPrediction?.predicted_price && (
                         <>
                           <span>•</span>
                           <span className="text-yellow-400">
-                            Start: {formatPrice(gameState.currentRound.start_price, gameState.currentRound.selected_coin)}
+                            Locked: {formatPrice(gameState.userPrediction.predicted_price, gameState.currentRound.selected_coin)}
                           </span>
                         </>
                       )}
