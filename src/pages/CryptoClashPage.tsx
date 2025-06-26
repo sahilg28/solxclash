@@ -44,6 +44,8 @@ const CryptoClashPage = () => {
     endPrice: null,
     xpEarned: 0
   });
+  const [showPredictionPopup, setShowPredictionPopup] = useState(false);
+  const [predictionPopupData, setPredictionPopupData] = useState<{ direction: 'up' | 'down', coin: CoinSymbol, price: number } | null>(null);
 
   // Track processed rounds to prevent duplicate notifications
   const processedRoundsRef = useRef<Set<string>>(new Set());
@@ -230,44 +232,38 @@ const CryptoClashPage = () => {
   }
 
   const makePrediction = async (direction: 'up' | 'down') => {
-    if (!gameState.currentRound || gameState.userPrediction) {
-      return;
-    }
-
+    if (!gameState.currentRound || gameState.userPrediction) return;
     if (gameState.currentRound.status !== 'waiting') {
       setError('Predictions can only be made during the lobby phase');
-      toast.error('Predictions can only be made during the lobby phase', {
-        position: "top-right",
-        autoClose: 3000,
-      });
+      toast.error('Predictions can only be made during the lobby phase', { position: "top-right", autoClose: 3000 });
       return;
     }
-
     try {
       setError(null);
       const result = await gameLogicService.makePrediction(direction, user.id, selectedCoin, selectedXpBet);
-      
+      // Show confirmation popup
+      setPredictionPopupData({
+        direction,
+        coin: selectedCoin,
+        price: getCurrentPrice(selectedCoin)
+      });
+      setShowPredictionPopup(true);
+      setTimeout(() => setShowPredictionPopup(false), 2500);
       toast.success(`Prediction "${direction.toUpperCase()}" locked in for ${selectedCoin}! ${selectedXpBet} XP invested.`, {
         position: "top-right",
         autoClose: 3000,
       });
-
       if (result && 'streakReward' in result && result.streakReward > 0) {
         toast.success(`🔥 Daily play streak! +${result.streakReward} XP bonus!`, {
           position: "top-right",
           autoClose: 5000,
         });
       }
-      
       await refreshSessionAndProfile();
-      
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to submit prediction';
       setError(errorMessage);
-      toast.error(errorMessage, {
-        position: "top-right",
-        autoClose: 5000,
-      });
+      toast.error(errorMessage, { position: "top-right", autoClose: 5000 });
     }
   };
 
@@ -453,6 +449,32 @@ const CryptoClashPage = () => {
             </div>
           )}
 
+          {showPredictionPopup && predictionPopupData && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+              <div className={`rounded-xl p-6 shadow-lg animate-in zoom-in-95 duration-300
+                ${predictionPopupData.direction === 'up'
+                  ? 'bg-gradient-to-br from-green-500/90 to-green-700/90 text-white'
+                  : 'bg-gradient-to-br from-red-500/90 to-red-700/90 text-white'}
+                max-w-sm w-full text-center`}>
+                <div className="text-3xl mb-2">
+                  {predictionPopupData.direction === 'up' ? '🚀' : '🔻'}
+                </div>
+                <h2 className="text-xl font-bold mb-2">
+                  Thank you for predicting {predictionPopupData.coin}!
+                </h2>
+                <div className="mb-2">
+                  <span className="font-semibold">Your prediction:</span> {predictionPopupData.direction.toUpperCase()}
+                </div>
+                <div className="mb-2">
+                  <span className="font-semibold">Locked price:</span> ${predictionPopupData.price}
+                </div>
+                <div className="mb-2">
+                  We hope your prediction is right and you win it! 🎉
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="bg-gradient-to-r from-gray-900/80 to-black/80 backdrop-blur-xl border border-yellow-400/20 rounded-xl p-4 mb-8">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-6">
@@ -596,11 +618,14 @@ const CryptoClashPage = () => {
                       <button
                         key={coin.symbol}
                         onClick={() => setSelectedCoin(coin.symbol)}
+                        disabled={!!gameState.userPrediction}
                         className={`px-4 py-2 rounded-lg font-semibold transition-all duration-200 ${
                           selectedCoin === coin.symbol
                             ? 'bg-yellow-400 text-black'
                             : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                        }`}
+                        } ${gameState.userPrediction ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        tabIndex={gameState.userPrediction ? -1 : 0}
+                        aria-label={`Select ${coin.name}`}
                       >
                         <span className={selectedCoin === coin.symbol ? 'text-black' : coin.color}>
                           {coin.symbol}
@@ -634,7 +659,7 @@ const CryptoClashPage = () => {
                     symbol={selectedCoinData?.tvSymbol || 'BINANCE:BTCUSDT'}
                     theme="dark"
                     interval="1"
-                    allowSymbolChange={false}
+                    allowSymbolChange={!gameState.userPrediction}
                     saveImage={false}
                     className="w-full h-full"
                   />
