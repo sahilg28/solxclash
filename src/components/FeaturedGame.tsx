@@ -1,17 +1,16 @@
 import React from 'react';
-import { Play, TrendingUp, Clock, Trophy } from 'lucide-react';
+import { TrendingUp, Clock, Trophy } from 'lucide-react';
 
 const FeaturedGame = () => {
   return (
     <section className="py-20 bg-black">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
+        <div className="text-center mb-10">
           <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
-            Featured Game: <span className="text-yellow-400">CryptoClash</span>
+            Featured Game : <span className="text-yellow-400">CryptoClash</span>
           </h2>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Test your market intuition in our flagship prediction game. 
-            Predict crypto price movements and climb the leaderboards.
+          Think you know crypto? Predict the next move and prove it.
           </p>
         </div>
 
@@ -28,13 +27,13 @@ const FeaturedGame = () => {
                   <div>
                     <div className="inline-flex items-center px-4 py-2 bg-green-500/20 border border-green-500/30 rounded-full mb-4">
                       <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse mr-2"></div>
-                      <span className="text-green-400 text-sm font-medium">Live Now</span>
+                      <span className="text-green-400 text-sm font-medium animate-pulse">Live Now</span>
                     </div>
                     
-                    <h3 className="text-3xl font-bold text-white mb-4">Real-Time Price Prediction</h3>
+                    <h3 className="text-3xl font-bold text-white mb-4">Can You Outpredict the Market?</h3>
                     <p className="text-gray-300 text-lg leading-relaxed">
-                      Predict whether Bitcoin, Ethereum, or Solana will go UP or DOWN in the next 60 seconds. 
-                      Win streaks multiply your rewards!
+                    Will Bitcoin, Ethereum, or Solana go UP or DOWN in the next 60 seconds?
+                    Make the right call. Stack your streak. Win more as your accuracy improves.
                     </p>
                   </div>
 
@@ -42,7 +41,7 @@ const FeaturedGame = () => {
                   <div className="space-y-4">
                     <div className="flex items-center space-x-3">
                       <TrendingUp className="w-5 h-5 text-yellow-400" />
-                      <span className="text-gray-300">Real-time crypto price feeds</span>
+                      <span className="text-gray-300">Live crypto charts, no delays</span>
                     </div>
                     <div className="flex items-center space-x-3">
                       <Clock className="w-5 h-5 text-yellow-400" />
@@ -50,12 +49,12 @@ const FeaturedGame = () => {
                     </div>
                     <div className="flex items-center space-x-3">
                       <Trophy className="w-5 h-5 text-yellow-400" />
-                      <span className="text-gray-300">Win streaks & multipliers</span>
+                      <span className="text-gray-300">Earn instantly on every right call</span>
                     </div>
                   </div>
-
-                  <button className="group bg-yellow-400 text-black px-8 py-4 rounded-lg font-semibold text-lg hover:bg-yellow-300 transition-colors duration-200 flex items-center space-x-2">
-                    <Play className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" />
+                  <button 
+                    className="group bg-yellow-400 text-black px-6 py-4 rounded-lg font-semibold text-lg hover:bg-yellow-300 transition-colors duration-200 flex items-center space-x-2"
+                    onClick={() => window.location.href='/cryptoclash'}>
                     <span>Play CryptoClash</span>
                   </button>
                 </div>

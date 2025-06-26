@@ -86,12 +86,12 @@ const LeaderboardPreview = () => {
   return (
     <section className="py-20 bg-gradient-to-b from-gray-900 to-black">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
+        <div className="text-center mb-10">
           <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
             Top <span className="text-yellow-400">Champions</span>
           </h2>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            See who's dominating the leaderboards. Climb the ranks and earn your place among the elite.
+          See who's dominating the game. Will you be next?
           </p>
         </div>
 

@@ -44,11 +44,10 @@ const WaitlistSection = () => {
           {/* Header */}
           <div className="mb-12">
             <h2 className="text-4xl lg:text-6xl font-bold text-white mb-6">
-              Join <span className="text-yellow-400">SolxClash</span>
+              Join <span className="text-yellow-400">Waitlist</span>
             </h2>
             <p className="text-xl text-gray-300 leading-relaxed max-w-3xl mx-auto">
-              Be part of the next-gen Web3 gaming revolution. Sign up for early access to new game modes,
-              on-chain features, and community perks.
+            Be part of the next wave of skill-based Web3 games. Sign up to unlock early access and help shape the future of play-to-earn gaming.
             </p>
           </div>
 
@@ -71,7 +70,7 @@ const WaitlistSection = () => {
                 <button
                   type="submit"
                   disabled={loading || success}
-                  className="bg-yellow-400 text-black px-8 py-4 rounded-lg font-semibold hover:bg-yellow-300 transition-colors duration-200 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                  className="bg-yellow-400 text-black px-6 py-4 rounded-lg font-semibold hover:bg-yellow-300 transition-colors duration-200 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                 >
                   {loading ? (
                     <>
@@ -84,7 +83,7 @@ const WaitlistSection = () => {
                       <span>Joined!</span>
                     </>
                   ) : (
-                    <span>Join Waitlist</span>
+                    <span>Get Early Access </span>
                   )}
                 </button>
               </div>
@@ -117,24 +116,24 @@ const WaitlistSection = () => {
               <div className="w-16 h-16 bg-yellow-400/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Gift className="w-8 h-8 text-yellow-400" />
               </div>
-              <h3 className="text-lg font-semibold text-white mb-2">Community Rewards</h3>
-              <p className="text-gray-400">Unlock early perks, bonus XP, and access to test new game modes.</p>
+              <h3 className="text-lg font-semibold text-white mb-2">Early Access</h3>
+              <p className="text-gray-400">Play new modes before public launch.</p>
             </div>
 
             <div className="text-center">
               <div className="w-16 h-16 bg-yellow-400/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Users className="w-8 h-8 text-yellow-400" />
               </div>
-              <h3 className="text-lg font-semibold text-white mb-2">Shape the Platform</h3>
-              <p className="text-gray-400">Your feedback helps drive feature development and direction.</p>
+              <h3 className="text-lg font-semibold text-white mb-2">Shape SolxClash</h3>
+              <p className="text-gray-400">Your feedback guides future features.</p>
             </div>
 
             <div className="text-center">
               <div className="w-16 h-16 bg-yellow-400/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Clock className="w-8 h-8 text-yellow-400" />
               </div>
-              <h3 className="text-lg font-semibold text-white mb-2">Get Early Access</h3>
-              <p className="text-gray-400">Try out SolxClash updates and game expansions before anyone else.</p>
+              <h3 className="text-lg font-semibold text-white mb-2">First Mover Edge</h3>
+              <p className="text-gray-400">Get in early. Compete before the rest.</p>
             </div>
           </div>
         </div>

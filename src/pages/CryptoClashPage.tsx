@@ -44,8 +44,6 @@ const CryptoClashPage = () => {
     endPrice: null,
     xpEarned: 0
   });
-  const [showPredictionPopup, setShowPredictionPopup] = useState(false);
-  const [predictionPopupData, setPredictionPopupData] = useState<{ direction: 'up' | 'down', coin: CoinSymbol, price: number } | null>(null);
 
   // Track processed rounds to prevent duplicate notifications
   const processedRoundsRef = useRef<Set<string>>(new Set());
@@ -69,16 +67,16 @@ const CryptoClashPage = () => {
     });
 
     const gameUnsubscribe = gameLogicService.subscribe((state: GameState) => {
-      console.log('🎮 Game state update:', {
-        roundId: state.currentRound?.id,
-        status: state.currentRound?.status,
-        phase: state.phase,
-        userPrediction: state.userPrediction ? {
-          id: state.userPrediction.id,
-          isCorrect: state.userPrediction.is_correct,
-          xpEarned: state.userPrediction.xp_earned
-        } : null
-      });
+      // console.log('🎮 Game state update:', {
+      //   roundId: state.currentRound?.id,
+      //   status: state.currentRound?.status,
+      //   phase: state.phase,
+      //   userPrediction: state.userPrediction ? {
+      //     id: state.userPrediction.id,
+      //     isCorrect: state.userPrediction.is_correct,
+      //     xpEarned: state.userPrediction.xp_earned
+      //   } : null
+      // });
 
       setGameState(state);
 
@@ -89,60 +87,48 @@ const CryptoClashPage = () => {
       }
 
       // Handle completed rounds with comprehensive duplicate prevention
-      if (state.currentRound?.status === 'completed' && state.userPrediction && state.currentRound.id) {
+      if (state.currentRound?.status === 'completed' && state.currentRound.id && user) {
         const roundId = state.currentRound.id;
         const toastId = `result-${roundId}`;
-        
-        console.log('🏁 Round completed:', {
-          roundId,
-          isCorrect: state.userPrediction.is_correct,
-          xpEarned: state.userPrediction.xp_earned,
-          priceDirection: state.currentRound.price_direction,
-          alreadyProcessed: processedRoundsRef.current.has(roundId),
-          toastAlreadyShown: toastShownRef.current.has(toastId)
-        });
-        
         // Check if we've already processed this round
         if (!processedRoundsRef.current.has(roundId)) {
-          // Mark this round as processed immediately
           processedRoundsRef.current.add(roundId);
-          
-          // Show result card
-          setRoundResults({
-            show: true,
-            isCorrect: !!state.userPrediction.is_correct,
-            priceDirection: state.currentRound.price_direction,
-            predictedPrice: state.userPrediction.predicted_price || null,
-            endPrice: state.currentRound.end_price,
-            xpEarned: state.userPrediction.xp_earned || 0
-          });
-
-          // Show toast notification only once per round with additional checks
-          if (!toastShownRef.current.has(toastId) && !toast.isActive(toastId)) {
-            toastShownRef.current.add(toastId);
-            
-            if (state.userPrediction.is_correct) {
-              toast.success(`🎉 Correct prediction! +${state.userPrediction.xp_earned} XP earned!`, {
-                position: "top-right",
-                autoClose: 5000,
-                toastId: toastId,
+          // Always fetch the latest prediction from backend before showing result
+          gameLogicService.getUserPrediction(roundId, user.id).then((latestPrediction) => {
+            if (latestPrediction && typeof latestPrediction.is_correct === 'boolean') {
+              setRoundResults({
+                show: true,
+                isCorrect: latestPrediction.is_correct,
+                priceDirection: state.currentRound.price_direction,
+                predictedPrice: latestPrediction.predicted_price || null,
+                endPrice: state.currentRound.end_price,
+                xpEarned: latestPrediction.xp_earned || 0
               });
-            } else {
-              toast.error(`😔 Wrong prediction. Better luck next time!`, {
-                position: "top-right",
-                autoClose: 5000,
-                toastId: toastId,
-              });
+              // Show toast notification only once per round with additional checks
+              if (!toastShownRef.current.has(toastId) && !toast.isActive(toastId)) {
+                toastShownRef.current.add(toastId);
+                if (latestPrediction.is_correct) {
+                  toast.success(`🎉 Correct prediction! +${latestPrediction.xp_earned} XP earned!`, {
+                    position: "top-right",
+                    autoClose: 5000,
+                    toastId: toastId,
+                  });
+                } else {
+                  toast.error(`😔 Wrong prediction. Better luck next time!`, {
+                    position: "top-right",
+                    autoClose: 5000,
+                    toastId: toastId,
+                  });
+                }
+              }
             }
-          }
-
+          });
           // Refresh profile to get updated XP
           refreshSessionAndProfile().then(() => {
-            console.log('✅ Profile refreshed after round completion');
+            // console.log('✅ Profile refreshed after round completion');
           }).catch((error) => {
-            console.error('❌ Failed to refresh profile:', error);
+            // console.error('❌ Failed to refresh profile:', error);
           });
-
           // Auto-hide result card after 10 seconds
           setTimeout(() => {
             setRoundResults(prev => ({ ...prev, show: false }));
@@ -181,7 +167,7 @@ const CryptoClashPage = () => {
   // CRITICAL FIX: Always fetch user prediction when round or user changes
   useEffect(() => {
     if (gameState.currentRound && user) {
-      console.log('🔍 Fetching user prediction for round:', gameState.currentRound.id);
+      // console.log('🔍 Fetching user prediction for round:', gameState.currentRound.id);
       gameLogicService.getUserPrediction(gameState.currentRound.id, user.id);
     }
   }, [gameState.currentRound, user]);
@@ -241,14 +227,6 @@ const CryptoClashPage = () => {
     try {
       setError(null);
       const result = await gameLogicService.makePrediction(direction, user.id, selectedCoin, selectedXpBet);
-      // Show confirmation popup
-      setPredictionPopupData({
-        direction,
-        coin: selectedCoin,
-        price: getCurrentPrice(selectedCoin)
-      });
-      setShowPredictionPopup(true);
-      setTimeout(() => setShowPredictionPopup(false), 2500);
       toast.success(`Prediction "${direction.toUpperCase()}" locked in for ${selectedCoin}! ${selectedXpBet} XP invested.`, {
         position: "top-right",
         autoClose: 3000,
@@ -445,32 +423,6 @@ const CryptoClashPage = () => {
                 >
                   Continue Playing
                 </button>
-              </div>
-            </div>
-          )}
-
-          {showPredictionPopup && predictionPopupData && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-              <div className={`rounded-xl p-6 shadow-lg animate-in zoom-in-95 duration-300
-                ${predictionPopupData.direction === 'up'
-                  ? 'bg-gradient-to-br from-green-500/90 to-green-700/90 text-white'
-                  : 'bg-gradient-to-br from-red-500/90 to-red-700/90 text-white'}
-                max-w-sm w-full text-center`}>
-                <div className="text-3xl mb-2">
-                  {predictionPopupData.direction === 'up' ? '🚀' : '🔻'}
-                </div>
-                <h2 className="text-xl font-bold mb-2">
-                  Thank you for predicting {predictionPopupData.coin}!
-                </h2>
-                <div className="mb-2">
-                  <span className="font-semibold">Your prediction:</span> {predictionPopupData.direction.toUpperCase()}
-                </div>
-                <div className="mb-2">
-                  <span className="font-semibold">Locked price:</span> ${predictionPopupData.price}
-                </div>
-                <div className="mb-2">
-                  We hope your prediction is right and you win it! 🎉
-                </div>
               </div>
             </div>
           )}

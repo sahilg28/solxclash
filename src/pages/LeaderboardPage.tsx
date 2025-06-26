@@ -141,11 +141,11 @@ const LeaderboardPage = () => {
       <div className="pt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center mb-12">
-            <h1 className="text-4xl lg:text-5xl font-bold text-white mb-6">
-              <span className="text-yellow-400">Live</span> Leaderboard
+            <h1 className="text-4xl lg:text-5xl font-bold text-yellow-400 mb-4">
+              <span className="text-white">Leader</span>board
             </h1>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              See who's dominating the rankings. Compete with the best players and climb your way to the top.
+              See who's dominating the game. Will you be next?
             </p>
           </div>
 

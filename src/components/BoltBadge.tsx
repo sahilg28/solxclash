@@ -12,7 +12,7 @@ const BoltBadge = () => {
         <img
           src="/white_circle_360x360.png"
           alt="Powered by Bolt.new"
-          className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full shadow-lg hover:shadow-xl transition-shadow duration-200"
+          className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full shadow-lg hover:shadow-xl transition-shadow duration-200"
         />
       </a>
     </div>

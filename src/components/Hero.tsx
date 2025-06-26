@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Gamepad2, Clock, Gift } from 'lucide-react';
+import { Gamepad2, Clock, Gift } from 'lucide-react';
 
 const Hero = () => {
   const scrollToWaitlist = () => {
@@ -18,22 +18,22 @@ const Hero = () => {
           <div className="space-y-8">
             <div className="space-y-4">
               <div className="inline-flex items-center px-4 py-2 bg-yellow-400/10 border border-yellow-400/20 rounded-full">
-                <span className="text-yellow-400 text-sm font-medium">
-                  🚀 Web3 Gaming Revolution
+                <span className="text-yellow-400 text-sm animate-pulse font-medium">
+                  🚀 Skill. Strategy. Crypto.
                 </span>
               </div>
 
               <h1 className="text-5xl lg:text-7xl font-bold leading-tight">
-                Predict.<br />
-                <span className="text-yellow-400">Win.</span><br />
+                Play.<br />
+                <span className="text-yellow-400">Compete.</span><br />
                 <span className="bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
-                  Dominate.
+                  Earn.
                 </span>
               </h1>
 
               <p className="text-xl text-gray-300 max-w-2xl leading-relaxed">
-                Join the ultimate Web3 gaming platform where skill meets blockchain. 
-                Predict crypto prices, climb leaderboards, and earn real rewards on Solana.
+              The Web3 gaming layer where skill meets crypto rewards.
+              Kick off with CryptoClash, ChessClash and more skill-based titles coming soon.
               </p>
             </div>
 
@@ -41,15 +41,14 @@ const Hero = () => {
             <div className="flex flex-col sm:flex-row gap-4">
               <Link
                 to="/cryptoclash"
-                className="group bg-yellow-400 text-black px-8 py-4 rounded-lg font-semibold text-lg hover:bg-yellow-300 transition-colors duration-200 flex items-center justify-center space-x-2"
+                className="group bg-yellow-400 text-black px-6 py-3 rounded-lg font-semibold text-lg hover:bg-yellow-300 transition-colors duration-200 flex items-center justify-center space-x-2"
               >
-                <span>Start Playing</span>
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-200" />
+                <span>Play Now</span>
               </Link>
 
               <button
                 onClick={scrollToWaitlist}
-                className="border border-yellow-400 text-yellow-400 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-yellow-400/10 transition-colors duration-200"
+                className="border border-yellow-400 text-yellow-400 px-6 py-3 rounded-lg font-semibold text-lg hover:bg-yellow-400/10 transition-colors duration-200"
               >
                 Join Waitlist
               </button>
@@ -75,7 +74,7 @@ const Hero = () => {
                 <div className="flex items-center justify-center w-12 h-12 bg-yellow-400/10 rounded-lg mb-3 mx-auto">
                   <Gift className="w-6 h-6 text-yellow-400" />
                 </div>
-                <div className="text-lg font-bold text-white">Earn XP & Perks</div>
+                <div className="text-lg font-bold text-white">Get Rewards</div>
               </div>
             </div>
           </div>

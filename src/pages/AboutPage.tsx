@@ -1,5 +1,4 @@
 import React from 'react';
-import { Code, Heart, Zap, Target, Users, Rocket } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
@@ -7,177 +6,88 @@ const AboutPage = () => {
   return (
     <div className="min-h-screen bg-black">
       <Header />
-      
       <div className="pt-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          {/* Hero Section */}
-          <div className="text-center mb-16">
-            <h1 className="text-4xl lg:text-6xl font-bold text-white mb-6">
-              About <span className="text-yellow-400">SolxClash</span>
-            </h1>
+          <div className="text-center mb-12">
+            <h1 className="text-4xl lg:text-5xl font-bold text-white mb-4">About <span className="text-yellow-400">SolxClash</span></h1>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-              The journey of building the ultimate Web3 gaming platform, one prediction at a time.
+              A Web3 Gaming Layer Built on Skill, Not Chance
             </p>
           </div>
-
-          {/* Story Section */}
-          <div className="bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-xl border border-yellow-400/20 rounded-2xl p-8 mb-12">
-            <div className="flex items-center space-x-3 mb-6">
-              <Heart className="w-8 h-8 text-red-400" />
-              <h2 className="text-3xl font-bold text-white">The Story</h2>
-            </div>
-            
-            <div className="space-y-6 text-gray-300 leading-relaxed">
-              <p>
-                SolxClash was born from a simple belief: gaming should reward skill, not just luck. 
-                As a solo developer passionate about both Web3 technology and competitive gaming, 
-                I set out to create something that bridges the gap between traditional gaming and 
-                the decentralized future.
-              </p>
-              
-              <p>
-                What started as a weekend project quickly evolved into a comprehensive platform 
-                where players can test their market intuition, compete with others worldwide, 
-                and earn real rewards for their skills. Every line of code, every design decision, 
-                and every feature has been crafted with one goal in mind: creating the most 
-                engaging and fair gaming experience possible.
-              </p>
-              
-              <p>
-                SolxClash isn't just another crypto game—it's a skill-based platform that respects 
-                your time, rewards your knowledge, and builds a community of like-minded players 
-                who believe in the power of decentralized gaming.
-              </p>
-            </div>
-          </div>
-
-          {/* Developer Section */}
-          <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-sm border border-gray-700 rounded-xl p-8 mb-12">
-            <div className="flex items-center space-x-3 mb-6">
-              <Code className="w-8 h-8 text-blue-400" />
-              <h2 className="text-3xl font-bold text-white">Solo Developer Journey</h2>
-            </div>
-            
-            <div className="space-y-6 text-gray-300 leading-relaxed">
-              <p>
-                Hi, I'm Sahil Gupta, the creator behind SolxClash. As a full-stack developer 
-                with a passion for blockchain technology, I've been working tirelessly to bring 
-                this vision to life. From the initial concept to the live platform you see today, 
-                every aspect has been designed and developed with meticulous attention to detail.
-              </p>
-              
-              <p>
-                Building SolxClash as a solo developer has been both challenging and incredibly 
-                rewarding. It's allowed me to maintain a clear vision while ensuring every feature 
-                serves the community's best interests. The platform leverages cutting-edge 
-                technologies including React, Supabase, and Solana blockchain to deliver a 
-                seamless gaming experience.
-              </p>
-              
-              <p>
-                Follow my journey and connect with me on{' '}
-                <a 
-                  href="https://x.com/sahilgupta_as" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-yellow-400 hover:text-yellow-300 transition-colors duration-200"
-                >
-                  X (Twitter)
-                </a>
-                {' '}where I share updates, insights, and the behind-the-scenes development process.
-              </p>
-            </div>
-          </div>
-
-          {/* What is SolxClash */}
-          <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-sm border border-gray-700 rounded-xl p-8 mb-12">
-            <div className="flex items-center space-x-3 mb-6">
-              <Zap className="w-8 h-8 text-yellow-400" />
-              <h2 className="text-3xl font-bold text-white">What is SolxClash?</h2>
-            </div>
-            
-            <div className="space-y-6 text-gray-300 leading-relaxed">
-              <p>
-                SolxClash is a skill-based Web3 gaming platform that combines the excitement 
-                of crypto market predictions with competitive gaming mechanics. Our flagship 
-                game, CryptoClash, challenges players to predict short-term price movements 
-                of major cryptocurrencies like Bitcoin, Ethereum, and Solana.
-              </p>
-              
-              <p>
-                Unlike traditional gambling platforms, SolxClash rewards knowledge, strategy, 
-                and market understanding. Players earn XP for correct predictions, climb 
-                leaderboards, and build daily play streaks that unlock bonus rewards. 
-                The platform is designed to be educational, engaging, and fair for all participants.
-              </p>
-              
-              <p>
-                Built on the Solana blockchain for its speed and low transaction costs, 
-                SolxClash represents the future of gaming where players truly own their 
-                achievements and can earn real value for their skills.
-              </p>
-            </div>
-          </div>
-
-          {/* Features Grid */}
-          <div className="grid md:grid-cols-2 gap-8 mb-12">
-            <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-sm border border-gray-700 rounded-xl p-6">
-              <div className="flex items-center space-x-3 mb-4">
-                <Target className="w-6 h-6 text-green-400" />
-                <h3 className="text-xl font-bold text-white">Skill-Based Gaming</h3>
+          <div className="bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-xl border border-yellow-400/20 rounded-2xl p-8 space-y-8">
+            {/* The Story */}
+            <section>
+              <h2 className="text-2xl font-bold text-white mb-4">The Story</h2>
+              <div className="text-gray-300 space-y-4">
+                <p>
+                  Hi, I'm Sahil Gupta, founder and solo developer behind SolxClash.
+                </p>
+                <p>
+                  I started this journey not with a team or funding — but with curiosity, a laptop, and the desire to build something meaningful in Web3.
+                  What began as a crypto prediction game at a hackathon quickly grew into something bigger: a platform that rewards players for what they know, not what they spend.
+                </p>
               </div>
-              <p className="text-gray-300">
-                Success depends on market knowledge and strategy, not luck. 
-                Analyze trends, make informed predictions, and climb the rankings.
-              </p>
-            </div>
-            
-            <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-sm border border-gray-700 rounded-xl p-6">
-              <div className="flex items-center space-x-3 mb-4">
-                <Users className="w-6 h-6 text-blue-400" />
-                <h3 className="text-xl font-bold text-white">Community Driven</h3>
+            </section>
+            {/* What is SolxClash? */}
+            <section>
+              <h2 className="text-2xl font-bold text-white mb-4">What is SolxClash?</h2>
+              <div className="text-gray-300 space-y-4">
+                <p>
+                  SolxClash is a Web3 platform where your skill is the currency — not luck, not how much you spend.
+                </p>
+                <p>
+                  Our flagship game, <span className="text-yellow-400 font-semibold">CryptoClash</span>, is live now. It challenges players to predict short-term crypto price moves and compete on leaderboards.
+                </p>
+                <p>
+                  <span className="font-semibold text-white">But we're not stopping there.</span> <span className="text-yellow-400 font-semibold">ChessClash</span> is coming soon — a Solana-powered PvP chess experience where players can go head-to-head in ranked or real-reward matches. It's the next step in expanding SolxClash into a competitive, multi-game ecosystem.
+                </p>
               </div>
-              <p className="text-gray-300">
-                Join a growing community of crypto enthusiasts and gamers. 
-                Compete, learn, and grow together in a supportive environment.
-              </p>
-            </div>
-            
-            <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-sm border border-gray-700 rounded-xl p-6">
-              <div className="flex items-center space-x-3 mb-4">
-                <Zap className="w-6 h-6 text-yellow-400" />
-                <h3 className="text-xl font-bold text-white">Real-Time Action</h3>
+            </section>
+            {/* Built for Players, Not Whales */}
+            <section>
+              <h2 className="text-2xl font-bold text-white mb-4">Built for Players, Not Whales</h2>
+              <div className="text-gray-300 space-y-4">
+                <p>Most Web3 games feel like casinos or token farms. SolxClash flips that:</p>
+                <ul className="list-disc list-inside space-y-2 ml-4">
+                  <li>No gambling</li>
+                  <li>No random luck mechanics</li>
+                  <li>No confusing tokenomics</li>
+                </ul>
+                <p>
+                  Here, you win because you read the market better, or played the board smarter — not because you spent more.
+                </p>
               </div>
-              <p className="text-gray-300">
-                Experience the thrill of live crypto price movements with 
-                60-second prediction rounds and instant results.
-              </p>
-            </div>
-            
-            <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-sm border border-gray-700 rounded-xl p-6">
-              <div className="flex items-center space-x-3 mb-4">
-                <Rocket className="w-6 h-6 text-purple-400" />
-                <h3 className="text-xl font-bold text-white">Web3 Future</h3>
+            </section>
+            {/* The Solo Journey */}
+            <section>
+              <h2 className="text-2xl font-bold text-white mb-4">The Solo Journey</h2>
+              <div className="text-gray-300 space-y-4">
+                <p>
+                  As a solo builder, I've been hands-on with every part of SolxClash — designing game loops, integrating with Solana, and optimizing performance.
+                </p>
+                <p>
+                  This solo approach keeps things lean, focused, and user-first. Every update is tested, every game loop thought through, and every piece built with real players in mind.
+                </p>
               </div>
-              <p className="text-gray-300">
-                Built for the decentralized future with Solana integration, 
-                true ownership, and transparent, fair gameplay mechanics.
-              </p>
-            </div>
-          </div>
-
-          {/* Vision Section */}
-          <div className="bg-gradient-to-br from-yellow-400/10 to-yellow-600/10 border border-yellow-400/20 rounded-2xl p-8 text-center">
-            <h2 className="text-3xl font-bold text-white mb-6">Our Vision</h2>
-            <p className="text-xl text-gray-300 leading-relaxed max-w-3xl mx-auto">
-              To create the most engaging and fair Web3 gaming ecosystem where skill is rewarded, 
-              community thrives, and every player has the opportunity to learn, compete, and earn 
-              in the decentralized future of gaming.
-            </p>
+            </section>
+            {/* Where We're Headed */}
+            <section>
+              <h2 className="text-2xl font-bold text-white mb-4">Where We're Headed</h2>
+              <div className="text-gray-300 space-y-4">
+                <p>
+                  SolxClash is evolving into a full Web3 skill-based arcade, starting with CryptoClash and ChessClash — but with more competitive game modes coming next.
+                </p>
+                <p>
+                  The mission? To create a fair, fun, and community-first gaming platform where your skill earns you more than just bragging rights.
+                </p>
+                <p className="text-yellow-400 font-semibold">
+                  If you're reading this early — you're already part of that story.
+                </p>
+              </div>
+            </section>
           </div>
         </div>
       </div>
-      
       <Footer />
     </div>
   );

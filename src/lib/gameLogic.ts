@@ -512,7 +512,7 @@ class GameLogicService {
 
   public async getUserPrediction(roundId: string, userId: string) {
     try {
-      console.log('🔍 Fetching user prediction:', { roundId, userId });
+      // console.log('🔍 Fetching user prediction:', { roundId, userId });
       
       const { data, error } = await supabase
         .from('predictions')
@@ -522,22 +522,22 @@ class GameLogicService {
         .single();
 
       if (error && error.code !== 'PGRST116') {
-        console.error('❌ Error fetching user prediction:', error);
+        // console.error('❌ Error fetching user prediction:', error);
         throw error;
       }
 
-      console.log('📊 User prediction result:', data ? {
-        id: data.id,
-        prediction: data.prediction,
-        isCorrect: data.is_correct,
-        xpEarned: data.xp_earned
-      } : 'No prediction found');
+      // console.log('📊 User prediction result:', data ? {
+      //   id: data.id,
+      //   prediction: data.prediction,
+      //   isCorrect: data.is_correct,
+      //   xpEarned: data.xp_earned
+      // } : 'No prediction found');
 
       this.currentGameState.userPrediction = data;
       this.notifySubscribers();
       return data;
     } catch (error) {
-      console.error('❌ getUserPrediction error:', error);
+      // console.error('❌ getUserPrediction error:', error);
       return null;
     }
   }

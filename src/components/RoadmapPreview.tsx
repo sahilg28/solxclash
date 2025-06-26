@@ -2,53 +2,53 @@ import React from 'react';
 import { Rocket, Users, Zap, ArrowRight, CheckCircle, Clock } from 'lucide-react';
 
 const RoadmapPreview = () => {
- const phases = [
-  {
-    phase: 'Phase 1',
-    title: 'CryptoClash Launch (MVP)',
-    status: 'current',
-    description:
-      'A real-time price prediction game built to onboard new users, blending crypto volatility with gaming thrills.',
-    features: [
-      'Live price prediction gameplay',
-      'XP-based ranking system',
-      'Leaderboards & streak rewards',
-      'Web2 authentication with Web3 readiness'
-    ],
-    icon: <Rocket className="w-8 h-8" />,
-  },
-  {
-    phase: 'Phase 2',
-    title: 'ChessClash & PvP Engine',
-    status: 'upcoming',
-    description:
-      'Launching Solana-based 1v1 competitive chess, blending skill-based gameplay with play-to-earn logic and real rewards.',
-    features: [
-      'Play vs Bot & PvP matches',
-      'Solana wallet integration',
-      'XP-to-token bridge & reward logic',
-      'Match fee & prize pool mechanics',
-    ],
-    icon: <Users className="w-8 h-8" />,
-    timeline: 'Coming Soon',
-  },
-  {
-    phase: 'Phase 3',
-    title: 'SolxClash as Web3 Gaming Layer',
-    status: 'planned',
-    description:
-      'Evolving SolxClash into a multi-game, on-chain gaming layer where communities compete, earn, and connect.',
-    features: [
-      'Multiple skill-based games',
-      'Smart contract-based leaderboards',
-      'Mobile-first experience',
-      'Tournaments, analytics & creator tools',
-      'More coming soon & in development',
-    ],
-    icon: <Zap className="w-8 h-8" />,
-    timeline: 'In Development',
-  }
-];
+  const phases = [
+    {
+      phase: 'Phase 0',
+      title: 'Prototype Foundation',
+      status: 'current',
+      description:
+        'The foundational version of SolxClash — built to validate gameplay, product flow, and user experience.',
+      features: [
+        'CryptoClash demo (free-to-play)',
+        'Landing page with waitlist',
+        'Web2 login with Web3-ready backend',
+        'Initial flow and design system'
+      ],
+      icon: <Rocket className="w-8 h-8" />,
+      timeline: 'Ongoing',
+    },
+    {
+      phase: 'Phase 1',
+      title: 'MVP Launch – Real Gameplay',
+      status: 'upcoming',
+      description:
+        'Real-money gameplay across two skill-based games — CryptoClash and ChessClash — where your wins matter.',
+      features: [
+        '1v1 matches in CryptoClash & ChessClash',
+        'Wallet & social login system',
+        'USDT-based match entry and prize logic',
+        'Leaderboards and free & paid formats',
+      ],
+      icon: <Users className="w-8 h-8" />,
+      timeline: 'Coming Soon',
+    },
+    {
+      phase: 'Phase 2',
+      title: 'Platform Expansion',
+      status: 'planned',
+      description:
+        'SolxClash becomes a full-scale, creator-powered gaming platform where communities compete and grow.',
+      features: [
+        'Multiple skill-based games',
+        'Optimized mobile-first gameplay',
+        'Smart contract–powered leaderboard system',
+        'Creator tools and community competitions',
+      ],
+      icon: <Zap className="w-8 h-8" />,
+      timeline: 'Planned',
+    }
+  ];
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -80,8 +80,7 @@ const RoadmapPreview = () => {
             What's <span className="text-yellow-400">Coming</span>
           </h2>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Our roadmap to building the ultimate Web3 gaming platform.
-            Each phase unlocks new games, features, and competitive rewards.
+            Our roadmap to building the ultimate Web3 gaming platform. Each phase brings new ways to play, compete, and earn.
           </p>
         </div>
 
@@ -109,7 +108,7 @@ const RoadmapPreview = () => {
 
               {/* Features */}
               <div className="mb-6">
-                <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Key Features</h4>
+                <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Highlights</h4>
                 <ul className="space-y-2">
                   {phase.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-center space-x-2">

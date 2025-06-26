@@ -34,7 +34,7 @@ export const useAuth = () => {
     initializeAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('🔄 Auth state change:', event, session?.user?.id);
+      // console.log('🔄 Auth state change:', event, session?.user?.id);
       setUser(session?.user ?? null);
       
       setTimeout(async () => {
@@ -59,7 +59,7 @@ export const useAuth = () => {
 
   const fetchOrCreateProfile = async (user: User) => {
     try {
-      console.log('🔍 Fetching profile for user:', user.id);
+      // console.log('🔍 Fetching profile for user:', user.id);
       
       // First, try to fetch existing profile
       const { data: existingProfile, error: fetchError } = await supabase
@@ -69,7 +69,7 @@ export const useAuth = () => {
         .single();
 
       if (existingProfile) {
-        console.log('✅ Found existing profile:', existingProfile.username);
+        // console.log('✅ Found existing profile:', existingProfile.username);
         setProfile(existingProfile);
         setLoading(false);
         return;
@@ -77,7 +77,7 @@ export const useAuth = () => {
 
       // If no profile found (PGRST116 = no rows returned), create one
       if (fetchError && fetchError.code === 'PGRST116') {
-        console.log('📝 Creating new profile for user:', user.id);
+        // console.log('📝 Creating new profile for user:', user.id);
         
         const fullName = user.user_metadata?.full_name || user.user_metadata?.name || null;
         const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture || null;
@@ -116,7 +116,7 @@ export const useAuth = () => {
         let counter = 1;
 
         while (counter <= 10) {
-          console.log('🔍 Checking username availability:', username);
+          // console.log('🔍 Checking username availability:', username);
           
           const { data: existingUser } = await supabase
             .from('profiles')
@@ -125,11 +125,11 @@ export const useAuth = () => {
             .single();
 
           if (!existingUser) {
-            console.log('✅ Username available:', username);
+            // console.log('✅ Username available:', username);
             break;
           }
           
-          console.log('❌ Username taken, trying next:', username);
+          // console.log('❌ Username taken, trying next:', username);
           const suffix = `_${counter}`;
           const maxBaseLength = 30 - suffix.length;
           username = `${baseUsername.slice(0, maxBaseLength)}${suffix}`;
@@ -148,7 +148,7 @@ export const useAuth = () => {
           streak: 0,
         };
 
-        console.log('📝 Creating profile with data:', newProfile);
+        // console.log('📝 Creating profile with data:', newProfile);
 
         const { data: createdProfile, error: createError } = await supabase
           .from('profiles')
@@ -161,7 +161,7 @@ export const useAuth = () => {
           
           // If creation fails due to unique constraint violation, try to fetch again
           if (createError.code === '23505') {
-            console.log('🔄 Unique constraint violation, fetching existing profile...');
+            // console.log('🔄 Unique constraint violation, fetching existing profile...');
             const { data: retryProfile, error: retryError } = await supabase
               .from('profiles')
               .select('*')
@@ -169,7 +169,7 @@ export const useAuth = () => {
               .single();
             
             if (retryProfile) {
-              console.log('✅ Found profile on retry:', retryProfile.username);
+              // console.log('✅ Found profile on retry:', retryProfile.username);
               setProfile(retryProfile);
               setLoading(false);
               return;
@@ -197,13 +197,13 @@ export const useAuth = () => {
             twitter_username: null,
           };
           
-          console.log('⚠️ Using fallback profile');
+          // console.log('⚠️ Using fallback profile');
           setProfile(fallbackProfile);
           setLoading(false);
           return;
         }
 
-        console.log('✅ Profile created successfully:', createdProfile.username);
+        // console.log('✅ Profile created successfully:', createdProfile.username);
         setProfile(createdProfile);
         setLoading(false);
       } else {
@@ -265,7 +265,7 @@ export const useAuth = () => {
   const refreshSessionAndProfile = async () => {
     setLoading(true);
     try {
-      console.log('🔄 Refreshing session and profile...');
+      // console.log('🔄 Refreshing session and profile...');
       
       const { data: { session }, error } = await supabase.auth.getSession();
       
@@ -290,7 +290,7 @@ export const useAuth = () => {
 
   const fetchProfile = async (userId: string) => {
     try {
-      console.log('🔍 Fetching profile for userId:', userId);
+      // console.log('🔍 Fetching profile for userId:', userId);
       
       const { data, error } = await supabase
         .from('profiles')
@@ -304,7 +304,7 @@ export const useAuth = () => {
       }
 
       if (data) {
-        console.log('✅ Profile fetched:', data.username);
+        // console.log('✅ Profile fetched:', data.username);
         setProfile(data);
       }
     } catch (error) {
@@ -314,7 +314,7 @@ export const useAuth = () => {
 
   const signOut = async () => {
     try {
-      console.log('🚪 Signing out...');
+      // console.log('🚪 Signing out...');
       
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
@@ -323,7 +323,7 @@ export const useAuth = () => {
       setProfile(null);
       setLoading(false);
       
-      console.log('✅ Signed out successfully');
+      // console.log('✅ Signed out successfully');
     } catch (error) {
       console.error('❌ Sign out error:', error);
       throw error;
