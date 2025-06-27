@@ -13,8 +13,8 @@ const Header = () => {
 
   const navLinks = [
     { name: 'CryptoClash', href: '/cryptoclash', isRoute: true },
+    { name: 'ChessClash', href: '/chessclash', isRoute: true },
     { name: 'Leaderboard', href: '/leaderboard', isRoute: true },
-    { name: 'Roadmap', href: '#roadmap', isRoute: false },
     { name: 'About', href: '/about', isRoute: true },
   ];
 
