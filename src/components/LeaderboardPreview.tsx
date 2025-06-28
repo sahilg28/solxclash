@@ -287,38 +287,6 @@ const LeaderboardPreview = () => {
             </div>
           </div>
 
-          {/* Play-to-Earn Highlights */}
-          <div className="grid md:grid-cols-3 gap-6 mt-8 animate-slide-in-left">
-            <div className="bg-gradient-to-br from-purple-900/60 to-black/60 backdrop-blur-sm border border-purple-700 rounded-xl p-6 text-center card-hover">
-              <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Coins className="w-6 h-6 text-green-400" />
-              </div>
-              <div className="text-2xl font-bold text-green-400 mb-2">100%</div>
-              <div className="text-gray-300 font-medium mb-1">Players Earn</div>
-              <div className="text-sm text-gray-400">Every game rewards participation</div>
-            </div>
-            
-            <div className="bg-gradient-to-br from-purple-900/60 to-black/60 backdrop-blur-sm border border-purple-700 rounded-xl p-6 text-center card-hover">
-              <div className="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Star className="w-6 h-6 text-yellow-400" />
-              </div>
-              <div className="text-2xl font-bold text-yellow-400 mb-2">2x</div>
-              <div className="text-gray-300 font-medium mb-1">Skill Multiplier</div>
-              <div className="text-sm text-gray-400">Better skills = bigger rewards</div>
-            </div>
-            
-            <div className="bg-gradient-to-br from-purple-900/60 to-black/60 backdrop-blur-sm border border-purple-700 rounded-xl p-6 text-center card-hover">
-              <div className="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <TrendingUp className="w-6 h-6 text-yellow-400" />
-              </div>
-              <div className="text-2xl font-bold text-yellow-400 mb-2">
-                {topPlayers.length > 0 ? Math.round(topPlayers.reduce((sum, player) => sum + player.winRate, 0) / topPlayers.length) : 0}%
-              </div>
-              <div className="text-gray-300 font-medium mb-1">Avg Success Rate</div>
-              <div className="text-sm text-gray-400">Community performance</div>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
   );
