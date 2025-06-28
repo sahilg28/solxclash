@@ -182,33 +182,7 @@ const FeaturedGame = () => {
           </div>
         </div>
 
-        {/* Bottom CTA Section */}
-        <div className="text-center mt-16 animate-fade-in-up">
-          <div className="bg-gradient-to-r from-purple-400/10 to-yellow-400/10 border border-purple-400/20 rounded-2xl p-8 max-w-4xl mx-auto">
-            <h3 className="text-2xl font-bold text-white mb-4">
-              Two Games, One Earning Ecosystem
-            </h3>
-            <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
-              Whether you're a market analyst or strategic mastermind, SolxClash rewards your unique skills. 
-              Start earning today and shape the future of skill-based gaming.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button 
-                onClick={() => window.location.href = '/cryptoclash'}
-                className="btn-primary"
-              >
-                Start Earning Now
-              </button>
-              <button 
-                onClick={() => {
-                  const section = document.getElementById('waitlist');
-                  if (section) section.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className="btn-secondary"
-              >
-                Join the Revolution
-              </button>
-            </div>
+        
           </div>
         </div>
       </div>
