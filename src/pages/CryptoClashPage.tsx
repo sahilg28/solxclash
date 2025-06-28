@@ -686,9 +686,9 @@ const CryptoClashPage = () => {
                         <div className="flex items-center justify-center space-x-2 text-yellow-400 text-sm mb-2">
                           <span>XP Invested : {selectedXpBet}</span>
                         </div>
-                        <span className=" text-gray-400">
+                        <div className=" text-gray-400">
                           Correct Prediction Get : {selectedXpBet * 2} XP
-                        </span>
+                        </div>
                       </div>
                       <div className="grid grid-cols-5 gap-2">
                         {xpBetOptions.map((amount) => (
