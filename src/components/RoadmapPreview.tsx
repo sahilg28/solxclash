@@ -169,10 +169,10 @@ const RoadmapPreview = () => {
           <div className="bg-gradient-to-r from-purple-400/10 to-yellow-400/10 border border-purple-400/20 rounded-2xl p-8 max-w-3xl mx-auto">
             <h3 className="text-2xl font-bold text-white mb-4 flex items-center justify-center space-x-2">
               <Gamepad2 className="w-6 h-6 text-yellow-400" />
-              <span>Ready to Start Earning?</span>
+              <span> Ready to Play?</span>
             </h3>
             <p className="text-gray-300 mb-6">
-              Join the play-to-earn revolution where your gaming skills translate to real rewards. Start earning today and grow your income through strategic gameplay.
+  Join the next evolution of gaming where your skills and strategy unlock new challenges, rewards, and experiences. Start competing today and rise through the ranks with every game.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button 
