@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Gamepad2, Clock, Gift, Zap, Target, TrendingUp, Trophy, Users, Coins } from 'lucide-react';
+import { Gamepad2 } from 'lucide-react';
 
 const Hero = () => {
   const scrollToWaitlist = () => {
@@ -23,13 +23,6 @@ const Hero = () => {
           {/* Main Content - Minimal */}
           <div className="space-y-8 animate-fade-in-up">
             <div className="space-y-6">
-              <div className="inline-flex items-center px-4 py-2 bg-yellow-400/10 border border-yellow-400/20 rounded-full animate-scale-in">
-                <Coins className="w-4 h-4 text-yellow-400 mr-2" />
-                <span className="text-yellow-400 text-sm font-medium">
-                  🎮 Play-to-Earn Gaming Revolution
-                </span>
-              </div>
-
               <h1 className="text-5xl lg:text-7xl font-bold leading-tight">
                 <span className="text-yellow-400">Play.</span> <span className="text-white">Compete.</span> <span className="text-yellow-400">Earn.</span><br />
                 <span className="bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
