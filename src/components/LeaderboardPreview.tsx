@@ -283,7 +283,7 @@ const LeaderboardPreview = () => {
                 {topPlayers.length > 0 ? topPlayers.reduce((sum, player) => sum + player.xp, 0).toLocaleString() : '0'}
               </div>
               <div className="text-gray-300 font-medium mb-1">Total XP Earned</div>
-              <div className="text-sm text-gray-400">Combined XP from top players</div>
+              <div className="text-sm text-gray-400">Combined XP from players</div>
             </div>
           </div>
         </div>
