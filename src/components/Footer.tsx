@@ -47,7 +47,7 @@ const Footer = () => {
               </div>
               
               <p className="text-gray-300 leading-relaxed mb-6 max-w-md">
-               The ultimate Web3 skill-based gaming platform. Test your market knowledge, compete globally, and unlock new achievements.
+               The ultimate Web3 gaming platform. Test your intuition, compete globally, and unlock achievements.
               </p>
 
               {/* Social Links */}
