@@ -230,7 +230,7 @@ const ChessClashPage = () => {
                             <span className="font-semibold text-white text-lg">{difficulty.label}</span>
                           </div>
                           <div className="text-right">
-                            <div className="text-sm text-gray-400">Cost</div>
+                            <div className="text-sm text-gray-400">Cos</div>
                             <div className="text-yellow-400 font-bold">{difficulty.xpCost} XP</div>
                           </div>
                         </div>
