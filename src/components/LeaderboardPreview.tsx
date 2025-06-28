@@ -57,16 +57,29 @@ const LeaderboardPreview = () => {
     }
   };
 
+  const getRankBadge = (rank: number) => {
+    if (rank <= 3) {
+      return (
+        <div className={`absolute -top-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center ${
+          rank === 1 ? 'bg-yellow-400' : rank === 2 ? 'bg-gray-300' : 'bg-yellow-600'
+        }`}>
+          <Star className="w-4 h-4 text-black" />
+        </div>
+      );
+    }
+    return null;
+  };
+
   const getRowStyle = (rank: number) => {
     if (rank === 1) return 'bg-gradient-to-r from-yellow-400/10 to-yellow-600/10 border-yellow-400/30 animate-glow';
     if (rank === 2) return 'bg-gradient-to-r from-gray-300/10 to-gray-500/10 border-gray-300/30';
     if (rank === 3) return 'bg-gradient-to-r from-yellow-600/10 to-yellow-800/10 border-yellow-600/30';
-    return 'hover:bg-gray-800/50';
+    return 'hover:bg-purple-800/50';
   };
 
   if (loading) {
     return (
-      <section className="py-20 bg-gradient-to-b from-gray-900 via-yellow-900/20 to-black">
+      <section className="py-20 bg-gradient-to-b from-purple-900/30 via-purple-900/10 to-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
@@ -78,7 +91,7 @@ const LeaderboardPreview = () => {
           </div>
 
           <div className="max-w-4xl mx-auto">
-            <div className="bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-xl border border-yellow-400/20 rounded-2xl p-8">
+            <div className="bg-gradient-to-br from-purple-900/40 to-black/80 backdrop-blur-xl border border-purple-400/20 rounded-2xl p-8">
               <div className="text-center">
                 <div className="w-12 h-12 border-4 border-yellow-400/20 border-t-yellow-400 rounded-full animate-spin mx-auto mb-4"></div>
                 <p className="text-gray-400">Loading top earners...</p>
@@ -91,18 +104,18 @@ const LeaderboardPreview = () => {
   }
 
   return (
-    <section className="py-20 bg-gradient-to-b from-gray-900 via-yellow-900/20 to-black relative overflow-hidden">
+    <section className="py-20 bg-gradient-to-b from-purple-900/30 via-purple-900/10 to-black relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/3 left-1/3 w-64 h-64 bg-yellow-400/5 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-1/3 left-1/3 w-64 h-64 bg-purple-400/5 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-1/3 right-1/3 w-96 h-96 bg-yellow-400/3 rounded-full blur-3xl animate-pulse delay-1000"></div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-16 animate-fade-in-up">
-          <div className="inline-flex items-center px-6 py-3 bg-yellow-400/10 border border-yellow-400/20 rounded-full mb-6">
-            <Coins className="w-5 h-5 text-yellow-400 mr-2" />
-            <span className="text-yellow-400 font-semibold">Play-to-Earn Rankings</span>
+          <div className="inline-flex items-center px-6 py-3 bg-purple-400/10 border border-purple-400/20 rounded-full mb-6">
+            <Coins className="w-5 h-5 text-purple-400 mr-2" />
+            <span className="text-purple-400 font-semibold">Play-to-Earn Rankings</span>
           </div>
           <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
             Top <span className="text-yellow-400">Earners</span>
@@ -114,11 +127,11 @@ const LeaderboardPreview = () => {
         </div>
 
         <div className="max-w-5xl mx-auto">
-          <div className="bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-xl border border-yellow-400/20 rounded-2xl overflow-hidden shadow-2xl animate-scale-in">
+          <div className="bg-gradient-to-br from-purple-900/40 to-black/80 backdrop-blur-xl border border-purple-400/20 rounded-2xl overflow-hidden shadow-2xl animate-scale-in">
             
             {/* Header with Stats */}
-            <div className="bg-yellow-400/10 border-b border-yellow-400/20 px-6 py-6">
-              <div className="grid grid-cols-12 gap-4 items-center text-sm font-semibold text-yellow-400 uppercase tracking-wider mb-4">
+            <div className="bg-purple-400/10 border-b border-purple-400/20 px-6 py-6">
+              <div className="grid grid-cols-12 gap-4 items-center text-sm font-semibold text-purple-400 uppercase tracking-wider mb-4">
                 <div className="col-span-1">Rank</div>
                 <div className="col-span-4">Top Earner</div>
                 <div className="col-span-2">Level</div>
@@ -127,7 +140,7 @@ const LeaderboardPreview = () => {
               </div>
               
               {/* Live Stats */}
-              <div className="grid grid-cols-3 gap-4 text-center pt-4 border-t border-yellow-400/10">
+              <div className="grid grid-cols-3 gap-4 text-center pt-4 border-t border-purple-400/10">
                 <div>
                   <div className="text-2xl font-bold text-yellow-400">{topPlayers.length}</div>
                   <div className="text-sm text-gray-400">Active Earners</div>
@@ -147,7 +160,7 @@ const LeaderboardPreview = () => {
               </div>
             </div>
 
-            <div className="divide-y divide-gray-800">
+            <div className="divide-y divide-purple-800">
               {topPlayers.length === 0 ? (
                 <div className="text-center py-12">
                   <Coins className="w-16 h-16 text-gray-600 mx-auto mb-4" />
@@ -164,9 +177,7 @@ const LeaderboardPreview = () => {
                     <div className="grid grid-cols-12 gap-4 items-center">
                       <div className="col-span-1 flex items-center justify-center relative">
                         {getRankIcon(player.rank)}
-                        {player.rank <= 3 && (
-                          <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-pulse"></div>
-                        )}
+                        {getRankBadge(player.rank)}
                       </div>
 
                       <div className="col-span-4 flex items-center space-x-3">
@@ -240,7 +251,7 @@ const LeaderboardPreview = () => {
               )}
             </div>
 
-            <div className="bg-gray-900/50 px-6 py-6 text-center border-t border-gray-800">
+            <div className="bg-purple-900/50 px-6 py-6 text-center border-t border-purple-800">
               <Link
                 to="/leaderboard"
                 className="group inline-flex items-center space-x-2 text-yellow-400 hover:text-yellow-300 font-semibold transition-colors duration-200 btn-secondary"
@@ -254,7 +265,7 @@ const LeaderboardPreview = () => {
 
           {/* Play-to-Earn Highlights */}
           <div className="grid md:grid-cols-3 gap-6 mt-12 animate-slide-in-left">
-            <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-sm border border-gray-700 rounded-xl p-6 text-center card-hover">
+            <div className="bg-gradient-to-br from-purple-900/60 to-black/60 backdrop-blur-sm border border-purple-700 rounded-xl p-6 text-center card-hover">
               <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Coins className="w-6 h-6 text-green-400" />
               </div>
@@ -263,7 +274,7 @@ const LeaderboardPreview = () => {
               <div className="text-sm text-gray-400">Every game rewards participation</div>
             </div>
             
-            <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-sm border border-gray-700 rounded-xl p-6 text-center card-hover">
+            <div className="bg-gradient-to-br from-purple-900/60 to-black/60 backdrop-blur-sm border border-purple-700 rounded-xl p-6 text-center card-hover">
               <div className="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Star className="w-6 h-6 text-yellow-400" />
               </div>
@@ -272,7 +283,7 @@ const LeaderboardPreview = () => {
               <div className="text-sm text-gray-400">Better skills = bigger rewards</div>
             </div>
             
-            <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-sm border border-gray-700 rounded-xl p-6 text-center card-hover">
+            <div className="bg-gradient-to-br from-purple-900/60 to-black/60 backdrop-blur-sm border border-purple-700 rounded-xl p-6 text-center card-hover">
               <div className="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <TrendingUp className="w-6 h-6 text-yellow-400" />
               </div>

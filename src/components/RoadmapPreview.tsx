@@ -90,18 +90,18 @@ const RoadmapPreview = () => {
   };
 
   return (
-    <section id="roadmap" className="py-20 bg-gradient-to-b from-gray-900 via-yellow-900/20 to-black relative overflow-hidden">
+    <section id="roadmap" className="py-20 bg-gradient-to-b from-purple-900/30 via-purple-900/10 to-black relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 right-1/4 w-64 h-64 bg-yellow-400/5 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-1/4 right-1/4 w-64 h-64 bg-purple-400/5 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-yellow-400/3 rounded-full blur-3xl animate-pulse delay-1000"></div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-16 animate-fade-in-up">
-          <div className="inline-flex items-center px-6 py-3 bg-yellow-400/10 border border-yellow-400/20 rounded-full mb-6">
-            <Rocket className="w-5 h-5 text-yellow-400 mr-2" />
-            <span className="text-yellow-400 font-semibold">The Earning Journey</span>
+          <div className="inline-flex items-center px-6 py-3 bg-purple-400/10 border border-purple-400/20 rounded-full mb-6">
+            <Rocket className="w-5 h-5 text-purple-400 mr-2" />
+            <span className="text-purple-400 font-semibold">The Earning Journey</span>
           </div>
           <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
             Building the Future of <span className="text-yellow-400">Play-to-Earn Gaming</span>
@@ -116,7 +116,7 @@ const RoadmapPreview = () => {
           {phases.map((phase, index) => (
             <div
               key={phase.phase}
-              className={`relative bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-xl border rounded-2xl p-8 transition-all duration-300 hover:scale-105 ${getStatusColor(phase.status)} animate-scale-in`}
+              className={`relative bg-gradient-to-br from-purple-900/40 to-black/80 backdrop-blur-xl border rounded-2xl p-8 transition-all duration-300 hover:scale-105 ${getStatusColor(phase.status)} animate-scale-in`}
               style={{ animationDelay: `${index * 0.2}s` }}
             >
               {/* Status Badge */}
@@ -127,10 +127,10 @@ const RoadmapPreview = () => {
 
               {/* Phase Header */}
               <div className="mb-6">
-                <div className="w-16 h-16 bg-yellow-400/10 rounded-2xl flex items-center justify-center mb-4 text-yellow-400 group-hover:bg-yellow-400/20 transition-colors duration-300">
+                <div className="w-16 h-16 bg-purple-400/10 rounded-2xl flex items-center justify-center mb-4 text-purple-400 group-hover:bg-purple-400/20 transition-colors duration-300">
                   {phase.icon}
                 </div>
-                <div className="text-sm font-semibold text-yellow-400 mb-2">{phase.phase}</div>
+                <div className="text-sm font-semibold text-purple-400 mb-2">{phase.phase}</div>
                 <h3 className="text-2xl font-bold text-white mb-3">{phase.title}</h3>
                 <p className="text-gray-300 leading-relaxed mb-4">{phase.description}</p>
                 
@@ -166,14 +166,14 @@ const RoadmapPreview = () => {
 
               {/* Connection Line */}
               {index < phases.length - 1 && (
-                <div className="hidden lg:block absolute top-1/2 -right-4 w-8 h-0.5 bg-gradient-to-r from-yellow-400/50 to-transparent"></div>
+                <div className="hidden lg:block absolute top-1/2 -right-4 w-8 h-0.5 bg-gradient-to-r from-purple-400/50 to-transparent"></div>
               )}
             </div>
           ))}
         </div>
 
         {/* Play-to-Earn Principles */}
-        <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-sm border border-gray-700 rounded-2xl p-8 mb-12 animate-fade-in-up">
+        <div className="bg-gradient-to-br from-purple-900/40 to-black/60 backdrop-blur-sm border border-purple-700 rounded-2xl p-8 mb-12 animate-fade-in-up">
           <h3 className="text-2xl font-bold text-white mb-6 text-center">
             Our Play-to-Earn Principles
           </h3>
@@ -211,7 +211,7 @@ const RoadmapPreview = () => {
 
         {/* CTA Section */}
         <div className="text-center animate-slide-in-left">
-          <div className="bg-gradient-to-r from-yellow-400/10 to-yellow-600/10 border border-yellow-400/20 rounded-2xl p-8 max-w-3xl mx-auto">
+          <div className="bg-gradient-to-r from-purple-400/10 to-yellow-400/10 border border-purple-400/20 rounded-2xl p-8 max-w-3xl mx-auto">
             <h3 className="text-2xl font-bold text-white mb-4 flex items-center justify-center space-x-2">
               <Gamepad2 className="w-6 h-6 text-yellow-400" />
               <span>Ready to Start Earning?</span>
