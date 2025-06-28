@@ -100,7 +100,7 @@ const RoadmapPreview = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-16 animate-fade-in-up">
           <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
-            Building the Future of <span className="text-yellow-400">Play-to-Earn Gaming</span>
+            What's <span className="text-yellow-400">Coming Next!</span>
           </h2>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
             Our roadmap to revolutionizing Web3 gaming through fair earning mechanics, transparent rewards, and skill-based multipliers. 
