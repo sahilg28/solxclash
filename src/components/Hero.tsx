@@ -36,9 +36,7 @@ const Hero = () => {
             <div className="flex flex-col sm:flex-row gap-4 animate-slide-in-left justify-center">
               <Link
                 to="/cryptoclash"
-                className="group btn-primary flex items-center justify-center space-x-2"
-              >
-                <Gamepad2 className="w-5 h-5" />
+                className="group btn-primary flex items-center justify-center space-x-2">
                 <span>Play Now</span>
               </Link>
 
