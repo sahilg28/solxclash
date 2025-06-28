@@ -685,10 +685,10 @@ const CryptoClashPage = () => {
                       <div className="text-center mb-3">
                         <div className="flex items-center justify-center space-x-2 text-yellow-400 text-sm mb-2">
                           <Coins className="w-4 h-4 " />
-                          <span>XP Investment: {selectedXpBet}</span>
+                          <span>XP Invested : {selectedXpBet}</span>
                         </div>
                         <div className=" text-gray-400">
-                          Correct prediction returns {selectedXpBet * 2} XP
+                          Correct Prediction Get : {selectedXpBet * 2} XP
                         </div>
                       </div>
                       <div className="grid grid-cols-5 gap-2">
