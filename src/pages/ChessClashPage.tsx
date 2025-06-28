@@ -196,7 +196,6 @@ const ChessClashPage = () => {
                     <User className="w-8 h-8 text-green-400 mx-auto mb-3" />
                     <h3 className="text-lg font-semibold text-white mb-2">User Side</h3>
                     <p className="text-green-400 font-bold">White</p>
-                    <p className="text-gray-400 text-sm">You move first</p>
                   </div>
                   
                   <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 text-center">
