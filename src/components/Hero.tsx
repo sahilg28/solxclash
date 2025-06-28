@@ -31,7 +31,7 @@ const Hero = () => {
               </h1>
 
               <p className="text-xl text-gray-300 max-w-2xl leading-relaxed mx-auto">
-                The ultimate Web3 play-to-earn gaming platform where <span className="text-yellow-400 font-semibold">your skills unlock bigger rewards</span>. 
+                The ultimate Web3 play-to-earn gaming platform where <span className="text-yellow-400 font-semibold">your gaming skills unlock bigger rewards</span>. 
                 Compete in real-time games, climb leaderboards, and earn through strategic gameplay.
               </p>
             </div>
