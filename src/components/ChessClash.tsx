@@ -495,21 +495,23 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
 
             {/* Game Controls - Desktop */}
             <div className="space-y-3">
-              <button
-                onClick={handleResign}
-                className="w-full bg-red-500 text-white px-4 py-3 rounded-lg font-semibold hover:bg-red-400 transition-colors duration-200 flex items-center justify-center space-x-2"
-              >
-                <Flag className="w-5 h-5" />
-                <span>Resign</span>
-              </button>
-              
-              <button
-                onClick={onBackToSetup}
-                className="w-full bg-gray-800 text-yellow-400 px-4 py-3 rounded-lg font-semibold hover:bg-yellow-400 hover:text-black transition-colors duration-200 flex items-center justify-center space-x-2"
-              >
-                <ArrowLeft className="w-5 h-5" />
-                <span>New Game</span>
-              </button>
+              {isGameActive ? (
+                <button
+                  onClick={handleResign}
+                  className="w-full bg-red-500 text-white px-4 py-3 rounded-lg font-semibold hover:bg-red-400 transition-colors duration-200 flex items-center justify-center space-x-2"
+                >
+                  <Flag className="w-5 h-5" />
+                  <span>Resign</span>
+                </button>
+              ) : (
+                <button
+                  onClick={onBackToSetup}
+                  className="w-full bg-yellow-400 text-black px-4 py-3 rounded-lg font-semibold hover:bg-yellow-300 transition-colors duration-200 flex items-center justify-center space-x-2"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                  <span>Back to Setup</span>
+                </button>
+              )}
             </div>
           </div>
 
@@ -726,24 +728,26 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
 
               {/* Game Controls */}
               <div className="space-y-3">
-                <button
-                  onClick={handleResign}
-                  className="w-full bg-red-500 text-white px-4 py-3 rounded-lg font-semibold hover:bg-red-400 transition-colors duration-200 flex items-center justify-center space-x-2"
-                >
-                  <Flag className="w-5 h-5" />
-                  <span>Resign Game</span>
-                </button>
-                
-                <button
-                  onClick={() => {
-                    setIsSidebarOpen(false);
-                    onBackToSetup();
-                  }}
-                  className="w-full bg-yellow-400 text-black px-4 py-3 rounded-lg font-semibold hover:bg-yellow-300 transition-colors duration-200 flex items-center justify-center space-x-2"
-                >
-                  <ArrowLeft className="w-5 h-5" />
-                  <span>New Game</span>
-                </button>
+                {isGameActive ? (
+                  <button
+                    onClick={handleResign}
+                    className="w-full bg-red-500 text-white px-4 py-3 rounded-lg font-semibold hover:bg-red-400 transition-colors duration-200 flex items-center justify-center space-x-2"
+                  >
+                    <Flag className="w-5 h-5" />
+                    <span>Resign Game</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setIsSidebarOpen(false);
+                      onBackToSetup();
+                    }}
+                    className="w-full bg-yellow-400 text-black px-4 py-3 rounded-lg font-semibold hover:bg-yellow-300 transition-colors duration-200 flex items-center justify-center space-x-2"
+                  >
+                    <ArrowLeft className="w-5 h-5" />
+                    <span>Back to Setup</span>
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -754,6 +758,14 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
       {result && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-gradient-to-br from-gray-900/80 to-black/80 border border-yellow-400/20 rounded-2xl p-8 w-full max-w-md text-center shadow-2xl relative">
+            {/* Close button in top-right corner */}
+            <button
+              onClick={() => setResult(null)}
+              className="absolute top-4 right-4 p-2 rounded-lg text-gray-400 hover:text-yellow-400 hover:bg-gray-800 transition-colors"
+            >
+              <CloseIcon className="w-5 h-5" />
+            </button>
+
             <div className="flex items-center justify-center mb-4">
               {result.type === 'win' && <CheckCircle className="w-12 h-12 text-green-400" />}
               {result.type === 'lose' && <AlertCircle className="w-12 h-12 text-red-400" />}
@@ -790,7 +802,7 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
                 onClick={onBackToSetup} 
                 className="w-full bg-yellow-400 text-black px-6 py-3 rounded-lg font-semibold hover:bg-yellow-300 transition-colors duration-200"
               >
-                Play Again
+                Play New Game
               </button>
               <button 
                 onClick={() => navigate('/')} 
