@@ -271,7 +271,7 @@ const LeaderboardPreview = () => {
               <div className="text-3xl font-bold text-green-400 mb-2">
                 {topPlayers.reduce((sum, player) => sum + player.games_played, 0)}
               </div>
-              <div className="text-gray-300 font-medium mb-1">Total Games</div>
+              <div className="text-gray-300 font-medium mb-1">Total Games Played</div>
               <div className="text-sm text-gray-400">Games played by top earners</div>
             </div>
             
