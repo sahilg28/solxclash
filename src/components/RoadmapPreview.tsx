@@ -103,7 +103,7 @@ const RoadmapPreview = () => {
             What's <span className="text-yellow-400">Coming Next!</span>
           </h2>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Our roadmap to revolutionizing Web3 gaming through fair earning mechanics, transparent rewards, and skill-based multipliers. 
+            Our roadmap to revolutionizing Web3 gaming through fair earning mechanics, transparent rewards. 
             Each phase brings new ways to earn and grow your gaming income.
           </p>
         </div>
