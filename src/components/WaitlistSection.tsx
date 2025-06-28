@@ -42,7 +42,6 @@ const WaitlistSection = () => {
       {/* Subtle bottom glow effect */}
       <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-purple-900/30 to-transparent pointer-events-none"></div>
       
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
         <div className="text-center">
           {/* Header */}
           <div className="mb-8">
