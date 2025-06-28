@@ -140,7 +140,7 @@ const GameLeaderboard = () => {
             <div className="text-sm text-gray-400">Total Games</div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-blue-400">
+            <div className="text-2xl font-bold text-yellow-400">
               {leaderboard.reduce((sum, player) => sum + player.xp, 0).toLocaleString()}
             </div>
             <div className="text-sm text-gray-400">Total XP</div>

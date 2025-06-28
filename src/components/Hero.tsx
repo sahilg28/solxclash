@@ -53,8 +53,7 @@ const Hero = () => {
             </h1>
 
             <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-              The ultimate Web3 gaming platform where your skills unlock bigger rewards. 
-              Compete in real-time games and earn through strategic gameplay.
+              The ultimate Web3 gaming platform where your gaming skills unlock bigger rewards.
             </p>
           </div>
 
@@ -64,7 +63,6 @@ const Hero = () => {
               to="/cryptoclash"
               className="group bg-gradient-to-r from-yellow-400 to-yellow-500 text-black px-8 py-4 rounded-lg font-bold text-lg hover:from-yellow-300 hover:to-yellow-400 transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2 shadow-lg hover:shadow-yellow-400/25"
             >
-              <Gamepad2 className="w-6 h-6" />
               <span>Start Playing</span>
             </Link>
 
@@ -72,8 +70,7 @@ const Hero = () => {
               onClick={scrollToWaitlist}
               className="group border-2 border-yellow-400/30 text-yellow-400 px-8 py-4 rounded-lg font-bold text-lg hover:bg-yellow-400/10 hover:border-yellow-400 transition-all duration-300 flex items-center justify-center space-x-2"
             >
-              <span>Learn More</span>
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-200" />
+              <span>Join Waitlist</span>
             </button>
           </div>
 
@@ -86,24 +83,6 @@ const Hero = () => {
                 <div className="text-3xl md:text-4xl font-bold text-yellow-400 mb-2">500+</div>
                 <div className="text-gray-400 text-sm">Active Players</div>
               </div>
-
-              {/* Partner/Technology logos */}
-              <div className="flex items-center space-x-8 opacity-60">
-                <div className="flex items-center space-x-2">
-                  <img 
-                    src="/assets/solanaLogo.png" 
-                    alt="Solana" 
-                    className="h-6 w-auto"
-                  />
-                  <span className="text-gray-400 text-sm font-medium">Powered by Solana</span>
-                </div>
-                
-                <div className="flex items-center space-x-2">
-                  <div className="w-6 h-6 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center">
-                    <span className="text-black text-xs font-bold">W3</span>
-                  </div>
-                  <span className="text-gray-400 text-sm font-medium">Web3 Gaming</span>
-                </div>
               </div>
 
               {/* Games available */}

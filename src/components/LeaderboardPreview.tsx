@@ -139,7 +139,7 @@ const LeaderboardPreview = () => {
                   <div className="text-sm text-gray-400">Earning Games</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-blue-400">
+                  <div className="text-2xl font-bold text-yellow-400">
                     {topPlayers.length > 0 ? Math.round(topPlayers.reduce((sum, player) => sum + player.winRate, 0) / topPlayers.length) : 0}%
                   </div>
                   <div className="text-sm text-gray-400">Avg Success Rate</div>
@@ -273,10 +273,10 @@ const LeaderboardPreview = () => {
             </div>
             
             <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-sm border border-gray-700 rounded-xl p-6 text-center card-hover">
-              <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <TrendingUp className="w-6 h-6 text-blue-400" />
+              <div className="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <TrendingUp className="w-6 h-6 text-yellow-400" />
               </div>
-              <div className="text-2xl font-bold text-blue-400 mb-2">
+              <div className="text-2xl font-bold text-yellow-400 mb-2">
                 {topPlayers.length > 0 ? topPlayers.reduce((sum, player) => sum + player.xp, 0).toLocaleString() : '0'}
               </div>
               <div className="text-gray-300 font-medium mb-1">Total Earned</div>

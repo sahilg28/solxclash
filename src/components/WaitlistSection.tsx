@@ -163,11 +163,11 @@ const WaitlistSection = () => {
                 <div className="text-sm text-gray-400">Earning Games</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-blue-400 mb-1">100%</div>
+                <div className="text-2xl font-bold text-yellow-400 mb-1">100%</div>
                 <div className="text-sm text-gray-400">Players Earn</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-purple-400 mb-1">2x</div>
+                <div className="text-2xl font-bold text-yellow-400 mb-1">2x</div>
                 <div className="text-sm text-gray-400">Skill Multiplier</div>
               </div>
             </div>
