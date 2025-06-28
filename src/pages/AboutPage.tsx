@@ -13,9 +13,6 @@ const AboutPage = () => {
             <h1 className="text-4xl lg:text-5xl font-bold text-white mb-4">
               About <span className="text-yellow-400">SolxClash</span>
             </h1>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-              A Web3 Play-to-Earn Gaming Revolution Built on Fair Competition and Skill-Based Rewards
-            </p>
           </div>
 
           <div className="bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-xl border border-yellow-400/20 rounded-2xl p-8 space-y-8 animate-scale-in">
