@@ -39,16 +39,16 @@ const RoadmapPreview = () => {
     },
     {
       phase: 'Phase 2',
-      title: 'Web3 Earning Revolution',
+      title: 'Web3 Gaming Revolution',
       status: 'planned',
       description:
         'Full Web3 integration with blockchain-powered rewards, community governance, and creator economy features for maximum earning potential.',
       features: [
-        'On-chain reward verification and distribution',
+        'On-chain reward verification and distributi',
         'Community-created earning opportunities',
         'Creator tools for custom game modes',
         'Decentralized tournament prize pools',
-        'Cross-platform earning verification'
+        'App Development & SolxClash Token'
       ],
       icon: <Zap className="w-8 h-8" />,
       timeline: 'Q2-Q3 2025',
