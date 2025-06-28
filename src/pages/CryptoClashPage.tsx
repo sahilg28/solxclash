@@ -428,8 +428,8 @@ const CryptoClashPage = () => {
           )}
 
           <div className="bg-gradient-to-r from-gray-900/80 to-black/80 backdrop-blur-xl border border-yellow-400/20 rounded-xl p-4 mb-8">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-6">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-6 w-full lg:w-auto">
                 <div className="flex items-center space-x-2">
                   {profile.avatar_url ? (
                     <img
@@ -450,7 +450,7 @@ const CryptoClashPage = () => {
                   </div>
                 </div>
                 
-                <div className="flex items-center space-x-6 text-sm">
+                <div className="flex flex-wrap justify-center sm:justify-start gap-x-4 gap-y-2 text-sm w-full sm:w-auto">
                   <div className="flex items-center space-x-1">
                     <Zap className="w-4 h-4 text-yellow-400" />
                     <span className="text-white font-semibold">{profile.xp}</span>
@@ -476,7 +476,7 @@ const CryptoClashPage = () => {
                 </div>
               </div>
               
-              <div className="text-right">
+              <div className="text-center lg:text-right w-full lg:w-auto">
                 <div className="text-sm text-gray-400">Win Rate</div>
                 <div className="text-lg font-bold text-green-400">
                   {profile.games_played > 0 ? Math.round((profile.wins / profile.games_played) * 100) : 0}%
@@ -495,23 +495,23 @@ const CryptoClashPage = () => {
                   <p className="text-gray-300">{cancelledRoundDisplayMessage}</p>
                 </div>
               ) : (
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
                   <div>
                     <h3 className="text-xl font-bold text-white mb-2">
                       Round #{gameState.currentRound.round_number}
                     </h3>
-                    <div className="flex items-center space-x-4 text-sm text-gray-300">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-300">
                       <span>
                         Round Coin: <span className="text-yellow-400 font-semibold">{displayedRoundCoin}</span>
                         {!isRoundCoinLocked && displayedRoundCoin === 'Select Coin' && (
                           <span className="text-gray-500 text-xs ml-1">(choose below)</span>
                         )}
                       </span>
-                      <span>•</span>
+                      <span className="hidden sm:inline">•</span>
                       <span className={phaseDisplay.color}>{phaseDisplay.title}</span>
                       {gameState.phase === 'predicting' && gameState.currentRound.selected_coin && gameState.userPrediction?.predicted_price && (
                         <>
-                          <span>•</span>
+                          <span className="hidden sm:inline">•</span>
                           <span className="text-yellow-400">
                             Locked: {formatPrice(gameState.userPrediction.predicted_price, gameState.currentRound.selected_coin)}
                           </span>
@@ -519,7 +519,7 @@ const CryptoClashPage = () => {
                       )}
                     </div>
                   </div>
-                  <div className="text-right">
+                  <div className="text-center lg:text-right w-full lg:w-auto">
                     <div className="text-3xl font-bold text-white mb-1">
                       {formatTimeLeft(gameState.timeLeft)}
                     </div>
@@ -690,7 +690,7 @@ const CryptoClashPage = () => {
                           Correct Prediction Get : {selectedXpBet * 2} XP
                         </div>
                       </div> 
-                      <div className="grid grid-cols-5 gap-2">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
                         {xpBetOptions.map((amount) => (
                           <button
                             key={amount}
@@ -723,7 +723,7 @@ const CryptoClashPage = () => {
                           className="py-4 rounded-lg font-semibold text-lg transition-all duration-200 flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-500 text-white hover:scale-105 transform"
                         >
                           <TrendingUp className="w-5 h-5" />
-                          <span>UP</span>
+                          <span>RISE</span>
                         </button>
                         
                         <button
@@ -731,7 +731,7 @@ const CryptoClashPage = () => {
                           className="py-4 rounded-lg font-semibold text-lg transition-all duration-200 flex items-center justify-center space-x-2 bg-red-600 hover:bg-red-500 text-white hover:scale-105 transform"
                         >
                           <TrendingUp className="w-5 h-5 rotate-180" />
-                          <span>DOWN</span>
+                          <span>FALL</span>
                         </button>
                       </div>
                     )}
@@ -746,7 +746,7 @@ const CryptoClashPage = () => {
                         gameState.userPrediction.prediction === 'up' ? 'text-green-400' : 'text-red-400'
                       }`}>
                         <TrendingUp className={`w-5 h-5 ${gameState.userPrediction.prediction === 'down' ? 'rotate-180' : ''}`} />
-                        <span>Price will go {gameState.userPrediction.prediction.toUpperCase()}</span>
+                        <span>Price will {gameState.userPrediction.prediction === 'up' ? 'RISE' : 'FALL'}</span>
                       </div>
                       {gameState.userPrediction.predicted_price && (
                         <div className="text-xs text-gray-500 mt-1">
