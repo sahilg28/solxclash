@@ -86,7 +86,7 @@ const LeaderboardPreview = () => {
               Top <span className="text-yellow-400">Champions</span>
             </h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              See who's earning the most through skilled gameplay. Will you be next?
+              See who's winning the most through our games. Will you be next?
             </p>
           </div>
 
