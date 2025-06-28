@@ -173,7 +173,7 @@ const FeaturedGame = () => {
               </div>
 
               <button 
-                className="w-full group bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2"
+                className="w-full group bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 transform flex items-center justify-center space-x-2"
                 onClick={() => window.location.href='/chessclash'}>
                 <Crown className="w-5 h-5" />
                 <span>Play ChessClash</span>
