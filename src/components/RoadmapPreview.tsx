@@ -17,7 +17,6 @@ const RoadmapPreview = () => {
         'Positioning & Community Messaging'
       ],
       icon: <Coins className="w-8 h-8" />,
-      timeline: 'Live Now',
       highlight: 'Everyone earns, skills multiply'
     },
     {
@@ -34,7 +33,6 @@ const RoadmapPreview = () => {
         'Tournament system with prize pools'
       ],
       icon: <Users className="w-8 h-8" />,
-      timeline: 'Q1 2025',
       highlight: 'Multiple earning streams'
     },
     {
@@ -51,7 +49,6 @@ const RoadmapPreview = () => {
         'App Development & SolxClash Token'
       ],
       icon: <Zap className="w-8 h-8" />,
-      timeline: 'Q2-Q3 2025',
       highlight: 'Decentralized earning ecosystem'
     }
   ];
