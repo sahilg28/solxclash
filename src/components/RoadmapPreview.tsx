@@ -167,42 +167,7 @@ const RoadmapPreview = () => {
           ))}
         </div>
 
-        {/* Play-to-Earn Principles */}
-        <div className="bg-gradient-to-br from-purple-900/40 to-black/60 backdrop-blur-sm border border-purple-700 rounded-2xl p-8 mb-12 animate-fade-in-up">
-          <h3 className="text-2xl font-bold text-white mb-6 text-center">
-            Our Play-to-Earn Principles
-          </h3>
-          <div className="grid md:grid-cols-4 gap-6">
-            <div className="text-center">
-              <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Coins className="w-6 h-6 text-green-400" />
-              </div>
-              <h4 className="font-semibold text-white mb-2">Everyone Earns</h4>
-              <p className="text-sm text-gray-400">Every player gets rewarded for participation</p>
-            </div>
-            <div className="text-center">
-              <div className="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Target className="w-6 h-6 text-yellow-400" />
-              </div>
-              <h4 className="font-semibold text-white mb-2">Skills Multiply</h4>
-              <p className="text-sm text-gray-400">Better skills lead to exponentially higher earnings</p>
-            </div>
-            <div className="text-center">
-              <div className="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Shield className="w-6 h-6 text-yellow-400" />
-              </div>
-              <h4 className="font-semibold text-white mb-2">Fair Mechanics</h4>
-              <p className="text-sm text-gray-400">Transparent earning systems with no hidden advantages</p>
-            </div>
-            <div className="text-center">
-              <div className="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Trophy className="w-6 h-6 text-yellow-400" />
-              </div>
-              <h4 className="font-semibold text-white mb-2">Sustainable Growth</h4>
-              <p className="text-sm text-gray-400">Long-term earning potential through skill development</p>
-            </div>
-          </div>
-        </div>
+      
 
         {/* CTA Section */}
         <div className="text-center animate-slide-in-left">
