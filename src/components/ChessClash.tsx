@@ -110,10 +110,14 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const pendingTransition = useRef(null);
 
+  // Determine player and bot colors
+  const playerColor = gameConfig.playerColor === 'white' ? 'w' : 'b';
+  const botColor = gameConfig.playerColor === 'white' ? 'b' : 'w';
+
   // Initialize game based on player color
   useEffect(() => {
     if (gameConfig.playerColor === 'black') {
-      // If player is black, bot makes the first move
+      // If player is black, bot (white) makes the first move
       setTimeout(() => {
         makeBotMove();
       }, 500);
@@ -170,11 +174,13 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
       let message = 'Draw! Your XP is refunded.';
       
       if (game.isCheckmate()) {
-        const playerColor = gameConfig.playerColor === 'white' ? 'w' : 'b';
+        // Check if the player won or lost
         if (game.turn() !== playerColor) {
+          // If it's not the player's turn and the game is over, the player won
           type = 'win';
           message = 'Checkmate! You win!';
         } else {
+          // If it's the player's turn and the game is over, the player lost
           type = 'lose';
           message = 'Checkmate! You lose.';
         }
@@ -188,7 +194,7 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
       clearInterval(intervalId);
       handleGameEnd(type);
     }
-  }, [fen, isGameActive]);
+  }, [fen, isGameActive, playerColor]);
 
   // Handle game end: update XP, wins, games_played in DB
   const handleGameEnd = async (type) => {
@@ -228,9 +234,12 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
     setIsProcessing(false);
   };
 
-  // Bot move logic - instant moves, no thinking delay
+  // Bot move logic - fixed to check correct turn
   const makeBotMove = () => {
     if (game.isGameOver()) return;
+    
+    // Only make bot move if it's the bot's turn
+    if (game.turn() !== botColor) return;
     
     // Instant bot move with minimal delay
     setTimeout(() => {
@@ -257,8 +266,8 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
   const handleSquareClick = (square) => {
     if (!isGameActive) return;
     
-    const playerColor = gameConfig.playerColor === 'white' ? 'w' : 'b';
-    if (game.turn() !== playerColor) return; // Only allow moves on player's turn
+    // Only allow moves on player's turn
+    if (game.turn() !== playerColor) return;
     
     if (selectedSquare && legalMoves.includes(square)) {
       const moveObj = game.move({ from: selectedSquare, to: square, promotion: 'q' });
@@ -277,7 +286,7 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
         }
         
         // Trigger bot move after player move
-        setTimeout(makeBotMove, 100);
+        setTimeout(makeBotMove, 200);
       }
       return;
     }
@@ -320,7 +329,7 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
       };
       legalMoves.forEach((sq) => {
         styles[sq] = {
-          background: 'radial-gradient(circle, #facc15 20%, transparent 25%)',
+          background: 'radial-gradient(circle, #facc15 15%, transparent 20%)',
           borderRadius: '0%',
         };
       });
@@ -337,25 +346,20 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
       };
     }
 
-    // King in check animation
+    // King in check animation - fixed to show for correct player
     if (game.isCheck()) {
-      const kingSquare = game.board().flat().find(piece => 
-        piece && piece.type === 'k' && piece.color === game.turn()
-      );
-      if (kingSquare) {
-        const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
-        const ranks = ['8', '7', '6', '5', '4', '3', '2', '1'];
-        for (let rank = 0; rank < 8; rank++) {
-          for (let file = 0; file < 8; file++) {
-            const square = files[file] + ranks[rank];
-            const piece = game.get(square);
-            if (piece && piece.type === 'k' && piece.color === game.turn()) {
-              styles[square] = {
-                ...styles[square],
-                animation: 'king-in-check-pulse 1s infinite',
-                boxShadow: '0 0 0 3px #ef4444',
-              };
-            }
+      const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+      const ranks = ['8', '7', '6', '5', '4', '3', '2', '1'];
+      for (let rank = 0; rank < 8; rank++) {
+        for (let file = 0; file < 8; file++) {
+          const square = files[file] + ranks[rank];
+          const piece = game.get(square);
+          if (piece && piece.type === 'k' && piece.color === game.turn()) {
+            styles[square] = {
+              ...styles[square],
+              animation: 'king-in-check-pulse 1s infinite',
+              boxShadow: '0 0 0 3px #ef4444',
+            };
           }
         }
       }
@@ -449,7 +453,7 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
             <div className="space-y-4">
               {/* Bot Card */}
               <div className={`bg-gradient-to-br from-gray-800/80 to-black/60 rounded-xl p-4 border-2 transition-all duration-300 ${
-                game.turn() === (gameConfig.playerColor === 'white' ? 'b' : 'w') ? 'border-yellow-400 bg-yellow-400/10' : 'border-gray-600'
+                game.turn() === botColor ? 'border-yellow-400 bg-yellow-400/10' : 'border-gray-600'
               }`}>
                 <div className="flex items-center space-x-3">
                   <div className="relative">
@@ -462,7 +466,7 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
                         {gameConfig.difficulty}
                       </span>
                     </div>
-                    {game.turn() === (gameConfig.playerColor === 'white' ? 'b' : 'w') && (
+                    {game.turn() === botColor && (
                       <div className="flex items-center space-x-1 text-yellow-400 text-xs">
                         <Brain className="w-3 h-3" />
                         <span>Bot's turn</span>
@@ -474,13 +478,13 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
 
               {/* User Card */}
               <div className={`bg-gradient-to-br from-yellow-400/10 to-black/30 rounded-xl p-4 border-2 transition-all duration-300 ${
-                game.turn() === (gameConfig.playerColor === 'white' ? 'w' : 'b') ? 'border-green-400 bg-green-400/10' : 'border-gray-600'
+                game.turn() === playerColor ? 'border-green-400 bg-green-400/10' : 'border-gray-600'
               }`}>
                 <div className="flex items-center space-x-3">
                   <img src={profile.avatar_url || '/assets/solxclash_logo.svg'} alt="User" className="w-12 h-12 rounded-full" />
                   <div className="flex-1">
                     <span className="text-white font-semibold block">{profile.username}</span>
-                    {game.turn() === (gameConfig.playerColor === 'white' ? 'w' : 'b') && (
+                    {game.turn() === playerColor && (
                       <span className="text-green-400 text-xs">Your turn</span>
                     )}
                   </div>
@@ -515,7 +519,7 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
               <div className="bg-gradient-to-r from-gray-800/80 to-black/60 rounded-lg p-3 border border-yellow-400/20">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
-                    {game.turn() === (gameConfig.playerColor === 'white' ? 'w' : 'b') ? (
+                    {game.turn() === playerColor ? (
                       <>
                         <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
                         <span className="text-green-400 font-semibold">Your Turn</span>
