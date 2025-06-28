@@ -113,8 +113,6 @@ const LeaderboardPreview = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-16 animate-fade-in-up">
-          <div className="inline-flex items-center px-6 py-3 bg-purple-400/10 border border-purple-400/20 rounded-full mb-6">
-          </div>
           <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
             Top <span className="text-yellow-400">Earners</span>
           </h2>
