@@ -8,7 +8,7 @@ const RoadmapPreview = () => {
       title: 'SolxClash Prototype',
       status: 'current',
       description:
-        'Establishing the core pl mechanics where every player earns from participation, and skilled players earn exponentially more through strategic gameplay.',
+        'The current prototype of SolxClash was built solo by the founder to bring the idea into action and validate the core mechanics. It includes:',
       features: [
         'CryptoClash live with instant XP rewards',
         'Skill-based earning multipliers and streaks',
