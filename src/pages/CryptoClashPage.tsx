@@ -51,11 +51,11 @@ const CryptoClashPage = () => {
   const toastShownRef = useRef<Set<string>>(new Set());
 
   const cryptoOptions = [
-    { symbol: 'BTC' as CoinSymbol, name: 'Bitcoin', tvSymbol: 'BINANCE:BTCUSDT', color: 'text-orange-400' },
-    { symbol: 'ETH' as CoinSymbol, name: 'Ethereum', tvSymbol: 'BINANCE:ETHUSDT', color: 'text-blue-400' },
-    { symbol: 'SOL' as CoinSymbol, name: 'Solana', tvSymbol: 'BINANCE:SOLUSDT', color: 'text-purple-400' },
-    { symbol: 'BNB' as CoinSymbol, name: 'BNB', tvSymbol: 'BINANCE:BNBUSDT', color: 'text-yellow-500' },
-    { symbol: 'POL' as CoinSymbol, name: 'Polygon', tvSymbol: 'BINANCE:POLUSDT', color: 'text-purple-500' }
+    { symbol: 'BTC' as CoinSymbol, name: 'Bitcoin', tvSymbol: 'BINANCE:BTCUSDT', color: 'text-orange-400', icon: '/assets/BTC.svg' },
+    { symbol: 'ETH' as CoinSymbol, name: 'Ethereum', tvSymbol: 'BINANCE:ETHUSDT', color: 'text-blue-400', icon: '/assets/ETH.svg' },
+    { symbol: 'SOL' as CoinSymbol, name: 'Solana', tvSymbol: 'BINANCE:SOLUSDT', color: 'text-purple-400', icon: '/assets/SOL.svg' },
+    { symbol: 'BNB' as CoinSymbol, name: 'BNB', tvSymbol: 'BINANCE:BNBUSDT', color: 'text-yellow-500', icon: '/assets/BNB.svg' },
+    { symbol: 'POL' as CoinSymbol, name: 'Polygon', tvSymbol: 'BINANCE:POLUSDT', color: 'text-purple-500', icon: '/assets/Poly.svg' }
   ];
 
   const xpBetOptions = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
@@ -571,7 +571,7 @@ const CryptoClashPage = () => {
                         key={coin.symbol}
                         onClick={() => setSelectedCoin(coin.symbol)}
                         disabled={!!gameState.userPrediction}
-                        className={`px-4 py-2 rounded-lg font-semibold transition-all duration-200 ${
+                        className={`px-4 py-3 rounded-lg font-semibold transition-all duration-200 flex items-center space-x-2 ${
                           selectedCoin === coin.symbol
                             ? 'bg-yellow-400 text-black'
                             : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
@@ -579,7 +579,12 @@ const CryptoClashPage = () => {
                         tabIndex={gameState.userPrediction ? -1 : 0}
                         aria-label={`Select ${coin.name}`}
                       >
-                        <span className={selectedCoin === coin.symbol ? 'text-black' : coin.color}>
+                        <img 
+                          src={coin.icon} 
+                          alt={coin.name}
+                          className="w-6 h-6"
+                        />
+                        <span className={selectedCoin === coin.symbol ? 'text-black font-bold' : 'text-white'}>
                           {coin.symbol}
                         </span>
                       </button>
