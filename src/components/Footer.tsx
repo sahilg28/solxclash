@@ -30,7 +30,7 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-gradient-to-t from-black to-gray-900 border-t border-gray-800">
+    <footer className="bg-gradient-to-t from-purple-900/40 via-purple-900/20 to-black border-t border-purple-800/30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Main Footer Content - Reduced padding */}
         <div className="py-12">
@@ -57,7 +57,7 @@ const Footer = () => {
                   href="https://x.com/sahilgupta_as"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-12 h-12 bg-gray-800 hover:bg-yellow-400/20 border border-gray-700 hover:border-yellow-400/30 rounded-lg flex items-center justify-center transition-all duration-200"
+                  className="w-12 h-12 bg-purple-800/50 hover:bg-yellow-400/20 border border-purple-700 hover:border-yellow-400/30 rounded-lg flex items-center justify-center transition-all duration-200"
                 >
                   <img 
                     src="/assets/icons8-twitter-100.png" 
@@ -112,7 +112,7 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar - Reduced padding */}
-        <div className="py-4 border-t border-gray-800">
+        <div className="py-4 border-t border-purple-800/30">
           <div className="flex flex-col md:flex-row items-center justify-between gap-3">
             <div className="text-gray-400 text-sm">
               © 2025 SolxClash. All rights reserved.
