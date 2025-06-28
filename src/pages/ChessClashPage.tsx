@@ -130,7 +130,7 @@ const ChessClashPage = () => {
             <h1 className="text-4xl lg:text-5xl font-bold text-white mb-6">
               <span className="text-yellow-400">Chess</span>Clash
             </h1>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-4">
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8 ">
               Play against our AI, sharpen your strategy, win XPs and climb the ranks.
             </p>
             
