@@ -1,5 +1,5 @@
 import React from 'react';
-import { TrendingUp, Clock, Trophy, Target, Zap, Shield, Users } from 'lucide-react';
+import { TrendingUp, Clock, Trophy, Target, Zap, Shield, Users, Gamepad2, X, Check } from 'lucide-react';
 
 const FeaturedGame = () => {
   return (
