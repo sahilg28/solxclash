@@ -50,7 +50,7 @@ const WaitlistSection = () => {
               Good things come<br />
               to those <span className="italic text-yellow-400">who wait.</span>
             </h2>
-            <p className="text-xl text-gray-400 max-w-3xl  leading-relaxed">
+            <p className="text-xl text-gray-400 max-w-5xl mx-auto leading-relaxed">
               Be among the first to experience the next generation of Web3 games where your skills unlock bigger rewards. Join our exclusive community and get early access.
             </p>
           </div>
