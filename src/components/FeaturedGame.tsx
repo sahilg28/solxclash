@@ -72,7 +72,7 @@ const FeaturedGame = () => {
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div className="flex items-center space-x-2">
                     <Target className="w-4 h-4 text-green-400" />
-                    <span className="text-gray-300">Real-time predictions</span>
+                    <span className="text-gray-300">P2E & Onchain Gaming Soon</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Trophy className="w-4 h-4 text-yellow-400" />
