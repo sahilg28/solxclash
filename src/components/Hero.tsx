@@ -39,7 +39,7 @@ const Hero = () => {
                 className="group btn-primary flex items-center justify-center space-x-2"
               >
                 <Gamepad2 className="w-5 h-5" />
-                <span>Start Earning Now</span>
+                <span>Play Now</span>
               </Link>
 
               <button
