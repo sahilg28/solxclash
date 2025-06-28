@@ -179,7 +179,7 @@ const RoadmapPreview = () => {
                 onClick={() => window.location.href = '/cryptoclash'}
                 className="btn-primary"
               >
-                Start Earning Now
+                Start Now
               </button>
               <button 
                 onClick={() => {
