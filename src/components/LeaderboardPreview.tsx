@@ -66,7 +66,7 @@ const LeaderboardPreview = () => {
 
   if (loading) {
     return (
-      <section className="py-20 bg-gradient-to-b from-gray-900 to-black">
+      <section className="py-20 bg-gradient-to-b from-gray-900 via-yellow-900/20 to-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
@@ -91,7 +91,7 @@ const LeaderboardPreview = () => {
   }
 
   return (
-    <section className="py-20 bg-gradient-to-b from-gray-900 to-black relative overflow-hidden">
+    <section className="py-20 bg-gradient-to-b from-gray-900 via-yellow-900/20 to-black relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/3 left-1/3 w-64 h-64 bg-yellow-400/5 rounded-full blur-3xl animate-pulse"></div>

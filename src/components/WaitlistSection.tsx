@@ -38,7 +38,7 @@ const WaitlistSection = () => {
   };
 
   return (
-    <section id="waitlist" className="py-20 bg-gradient-to-b from-black to-gray-900 relative overflow-hidden">
+    <section id="waitlist" className="py-20 bg-gradient-to-b from-gray-900 via-yellow-900/20 to-black relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/3 left-1/3 w-64 h-64 bg-yellow-400/5 rounded-full blur-3xl animate-pulse"></div>

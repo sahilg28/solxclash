@@ -3,7 +3,7 @@ import { TrendingUp, Clock, Trophy, Target, Zap, Shield, Users, Gamepad2, X, Che
 
 const FeaturedGame = () => {
   return (
-    <section className="py-20 bg-black">
+    <section className="py-20 bg-gradient-to-b from-gray-900 via-yellow-900/20 to-black">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16 animate-fade-in-up">
           <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
