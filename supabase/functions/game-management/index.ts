@@ -15,7 +15,7 @@ interface Database {
           id: string
           round_number: number
           status: 'waiting' | 'predicting' | 'resolving' | 'completed' | 'cancelled'
-          selected_coin: 'BTC' | 'ETH' | 'SOL' | 'BNB' | 'XRP' | null
+          selected_coin: 'BTC' | 'ETH' | 'SOL' | 'BNB' | 'POL' | null
           start_time: string | null
           prediction_end_time: string | null
           end_time: string | null
@@ -28,7 +28,7 @@ interface Database {
         Insert: {
           round_number: number
           status?: 'waiting' | 'predicting' | 'resolving' | 'completed' | 'cancelled'
-          selected_coin?: 'BTC' | 'ETH' | 'SOL' | 'BNB' | 'XRP' | null
+          selected_coin?: 'BTC' | 'ETH' | 'SOL' | 'BNB' | 'POL' | null
           start_time?: string | null
           prediction_end_time?: string | null
           end_time?: string | null
@@ -38,7 +38,7 @@ interface Database {
         }
         Update: {
           status?: 'waiting' | 'predicting' | 'resolving' | 'completed' | 'cancelled'
-          selected_coin?: 'BTC' | 'ETH' | 'SOL' | 'BNB' | 'XRP' | null
+          selected_coin?: 'BTC' | 'ETH' | 'SOL' | 'BNB' | 'POL' | null
           start_price?: number | null
           end_price?: number | null
           price_direction?: 'up' | 'down' | 'unchanged' | null
@@ -349,7 +349,7 @@ async function updateDailyPlayStreak(supabase: any, userId: string, profile: any
   }
 }
 
-async function makePrediction(supabase: any, roundId: string, userId: string, prediction: 'up' | 'down', chosenCoin: 'BTC' | 'ETH' | 'SOL' | 'BNB' | 'XRP', predictedPrice: number, xpBet: number) {
+async function makePrediction(supabase: any, roundId: string, userId: string, prediction: 'up' | 'down', chosenCoin: 'BTC' | 'ETH' | 'SOL' | 'BNB' | 'POL', predictedPrice: number, xpBet: number) {
   try {
     // console.log('🎯 Making prediction:', {
     //   roundId,
@@ -567,7 +567,7 @@ async function startPredictionPhase(supabase: any, roundId: string, startPrice?:
         ETH: 3456.78,
         SOL: 145.23,
         BNB: 312.45,
-        XRP: 0.6234
+        POL: 0.4523
       }
       finalStartPrice = fallbackPrices[coinToUse]
     }

@@ -3,7 +3,7 @@ export const BINANCE_SYMBOLS = {
   ETH: 'ethusdt', 
   SOL: 'solusdt',
   BNB: 'bnbusdt',
-  XRP: 'xrpusdt'
+  POL: 'polusdt'
 } as const;
 
 export type CoinSymbol = keyof typeof BINANCE_SYMBOLS;
@@ -124,7 +124,7 @@ class BinancePriceService {
       ETH: 3456.78,
       SOL: 145.23,
       BNB: 312.45,
-      XRP: 0.6234
+      POL: 0.4523
     };
 
     Object.entries(basePrices).forEach(([symbol, price]) => {
@@ -240,13 +240,13 @@ class BinancePriceService {
   }
 
   private startFallbackPriceService() {
-    const symbols: CoinSymbol[] = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP'];
+    const symbols: CoinSymbol[] = ['BTC', 'ETH', 'SOL', 'BNB', 'POL'];
     const basePrices = {
       BTC: 67234.50,
       ETH: 3456.78,
       SOL: 145.23,
       BNB: 312.45,
-      XRP: 0.6234
+      POL: 0.4523
     };
 
     symbols.forEach(symbol => {
@@ -372,7 +372,7 @@ class BinancePriceService {
 export const binancePriceService = new BinancePriceService();
 
 export const formatPrice = (price: number, symbol: CoinSymbol): string => {
-  const decimals = symbol === 'XRP' ? 4 : 2;
+  const decimals = symbol === 'POL' ? 4 : 2;
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',

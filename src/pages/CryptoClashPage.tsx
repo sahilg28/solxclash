@@ -55,7 +55,7 @@ const CryptoClashPage = () => {
     { symbol: 'ETH' as CoinSymbol, name: 'Ethereum', tvSymbol: 'BINANCE:ETHUSDT', color: 'text-blue-400' },
     { symbol: 'SOL' as CoinSymbol, name: 'Solana', tvSymbol: 'BINANCE:SOLUSDT', color: 'text-purple-400' },
     { symbol: 'BNB' as CoinSymbol, name: 'BNB', tvSymbol: 'BINANCE:BNBUSDT', color: 'text-yellow-500' },
-    { symbol: 'XRP' as CoinSymbol, name: 'XRP', tvSymbol: 'BINANCE:XRPUSDT', color: 'text-blue-500' }
+    { symbol: 'POL' as CoinSymbol, name: 'Polygon', tvSymbol: 'BINANCE:POLUSDT', color: 'text-purple-500' }
   ];
 
   const xpBetOptions = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
