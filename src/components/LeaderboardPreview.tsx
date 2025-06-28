@@ -66,7 +66,7 @@ const LeaderboardPreview = () => {
 
   if (loading) {
     return (
-      <section className="py-20 bg-gradient-to-b from-gray-900 via-yellow-900/20 to-black">
+      <section className="py-20 bg-gradient-to-b from-gray-900 to-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
@@ -91,7 +91,7 @@ const LeaderboardPreview = () => {
   }
 
   return (
-    <section className="py-20 bg-gradient-to-b from-gray-900 via-yellow-900/20 to-black relative overflow-hidden">
+    <section className="py-20 bg-gradient-to-b from-gray-900 to-black relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/3 left-1/3 w-64 h-64 bg-yellow-400/5 rounded-full blur-3xl animate-pulse"></div>
@@ -139,7 +139,7 @@ const LeaderboardPreview = () => {
                   <div className="text-sm text-gray-400">Earning Games</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-yellow-400">
+                  <div className="text-2xl font-bold text-blue-400">
                     {topPlayers.length > 0 ? Math.round(topPlayers.reduce((sum, player) => sum + player.winRate, 0) / topPlayers.length) : 0}%
                   </div>
                   <div className="text-sm text-gray-400">Avg Success Rate</div>
@@ -273,10 +273,10 @@ const LeaderboardPreview = () => {
             </div>
             
             <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-sm border border-gray-700 rounded-xl p-6 text-center card-hover">
-              <div className="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <TrendingUp className="w-6 h-6 text-yellow-400" />
+              <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <TrendingUp className="w-6 h-6 text-blue-400" />
               </div>
-              <div className="text-2xl font-bold text-yellow-400 mb-2">
+              <div className="text-2xl font-bold text-blue-400 mb-2">
                 {topPlayers.length > 0 ? topPlayers.reduce((sum, player) => sum + player.xp, 0).toLocaleString() : '0'}
               </div>
               <div className="text-gray-300 font-medium mb-1">Total Earned</div>

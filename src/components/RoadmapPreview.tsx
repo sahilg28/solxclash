@@ -63,7 +63,7 @@ const RoadmapPreview = () => {
       case 'upcoming':
         return <Clock className="w-5 h-5 text-yellow-400" />;
       default:
-        return <Target className="w-5 h-5 text-yellow-400" />;
+        return <Target className="w-5 h-5 text-blue-400" />;
     }
   };
 
@@ -74,7 +74,7 @@ const RoadmapPreview = () => {
       case 'upcoming':
         return 'border-yellow-400/30 bg-yellow-400/10';
       default:
-        return 'border-yellow-400/30 bg-yellow-400/10';
+        return 'border-blue-400/30 bg-blue-400/10';
     }
   };
 
@@ -90,11 +90,11 @@ const RoadmapPreview = () => {
   };
 
   return (
-    <section id="roadmap" className="py-20 bg-gradient-to-b from-gray-900 via-yellow-900/20 to-black relative overflow-hidden">
+    <section id="roadmap" className="py-20 bg-black relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 right-1/4 w-64 h-64 bg-yellow-400/5 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-yellow-400/3 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-blue-400/3 rounded-full blur-3xl animate-pulse delay-1000"></div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -186,15 +186,15 @@ const RoadmapPreview = () => {
               <p className="text-sm text-gray-400">Every player gets rewarded for participation</p>
             </div>
             <div className="text-center">
-              <div className="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Target className="w-6 h-6 text-yellow-400" />
+              <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Target className="w-6 h-6 text-blue-400" />
               </div>
               <h4 className="font-semibold text-white mb-2">Skills Multiply</h4>
               <p className="text-sm text-gray-400">Better skills lead to exponentially higher earnings</p>
             </div>
             <div className="text-center">
-              <div className="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Shield className="w-6 h-6 text-yellow-400" />
+              <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Shield className="w-6 h-6 text-purple-400" />
               </div>
               <h4 className="font-semibold text-white mb-2">Fair Mechanics</h4>
               <p className="text-sm text-gray-400">Transparent earning systems with no hidden advantages</p>
