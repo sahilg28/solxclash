@@ -132,43 +132,12 @@ const LeaderboardPreview = () => {
             {/* Redesigned Header with Better Layout */}
             <div className="bg-purple-400/10 border-b border-purple-400/20 px-6 py-8">
               {/* Table Headers */}
-              <div className="hidden md:grid grid-cols-12 gap-4 items-center text-sm font-bold text-purple-300 uppercase tracking-wider mb-6">
+              <div className="hidden md:grid grid-cols-12 gap-4 items-center text-sm font-bold text-purple-300 uppercase tracking-wider">
                 <div className="col-span-1 text-center">Rank</div>
                 <div className="col-span-4">Top Earner</div>
                 <div className="col-span-2 text-center">Level</div>
                 <div className="col-span-2 text-center">XP Earned</div>
                 <div className="col-span-3 text-center">Success Rate</div>
-              </div>
-              
-              {/* Stats Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-purple-900/30 border border-purple-400/30 rounded-xl p-4 text-center">
-                  <div className="flex items-center justify-center mb-2">
-                    <Trophy className="w-6 h-6 text-yellow-400 mr-2" />
-                    <span className="text-2xl font-bold text-yellow-400">{topPlayers.length}</span>
-                  </div>
-                  <div className="text-sm text-gray-300 font-medium">Active Earners</div>
-                </div>
-                
-                <div className="bg-purple-900/30 border border-purple-400/30 rounded-xl p-4 text-center">
-                  <div className="flex items-center justify-center mb-2">
-                    <Target className="w-6 h-6 text-green-400 mr-2" />
-                    <span className="text-2xl font-bold text-green-400">
-                      {topPlayers.reduce((sum, player) => sum + player.games_played, 0)}
-                    </span>
-                  </div>
-                  <div className="text-sm text-gray-300 font-medium">Total Games</div>
-                </div>
-                
-                <div className="bg-purple-900/30 border border-purple-400/30 rounded-xl p-4 text-center">
-                  <div className="flex items-center justify-center mb-2">
-                    <Zap className="w-6 h-6 text-yellow-400 mr-2" />
-                    <span className="text-2xl font-bold text-yellow-400">
-                      {topPlayers.length > 0 ? topPlayers.reduce((sum, player) => sum + player.xp, 0).toLocaleString() : '0'}
-                    </span>
-                  </div>
-                  <div className="text-sm text-gray-300 font-medium">Total XP Earned</div>
-                </div>
               </div>
             </div>
 
@@ -284,8 +253,42 @@ const LeaderboardPreview = () => {
             </div>
           </div>
 
+          {/* Stats Cards - Moved Outside the Leaderboard Table */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8 animate-slide-in-left">
+            <div className="bg-gradient-to-br from-purple-900/60 to-black/60 backdrop-blur-sm border border-purple-700 rounded-xl p-6 text-center card-hover">
+              <div className="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Trophy className="w-6 h-6 text-yellow-400" />
+              </div>
+              <div className="text-3xl font-bold text-yellow-400 mb-2">{topPlayers.length}</div>
+              <div className="text-gray-300 font-medium mb-1">Active Earners</div>
+              <div className="text-sm text-gray-400">Players currently earning XP</div>
+            </div>
+            
+            <div className="bg-gradient-to-br from-purple-900/60 to-black/60 backdrop-blur-sm border border-purple-700 rounded-xl p-6 text-center card-hover">
+              <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Target className="w-6 h-6 text-green-400" />
+              </div>
+              <div className="text-3xl font-bold text-green-400 mb-2">
+                {topPlayers.reduce((sum, player) => sum + player.games_played, 0)}
+              </div>
+              <div className="text-gray-300 font-medium mb-1">Total Games</div>
+              <div className="text-sm text-gray-400">Games played by top earners</div>
+            </div>
+            
+            <div className="bg-gradient-to-br from-purple-900/60 to-black/60 backdrop-blur-sm border border-purple-700 rounded-xl p-6 text-center card-hover">
+              <div className="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Zap className="w-6 h-6 text-yellow-400" />
+              </div>
+              <div className="text-3xl font-bold text-yellow-400 mb-2">
+                {topPlayers.length > 0 ? topPlayers.reduce((sum, player) => sum + player.xp, 0).toLocaleString() : '0'}
+              </div>
+              <div className="text-gray-300 font-medium mb-1">Total XP Earned</div>
+              <div className="text-sm text-gray-400">Combined XP from top players</div>
+            </div>
+          </div>
+
           {/* Play-to-Earn Highlights */}
-          <div className="grid md:grid-cols-3 gap-6 mt-12 animate-slide-in-left">
+          <div className="grid md:grid-cols-3 gap-6 mt-8 animate-slide-in-left">
             <div className="bg-gradient-to-br from-purple-900/60 to-black/60 backdrop-blur-sm border border-purple-700 rounded-xl p-6 text-center card-hover">
               <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Coins className="w-6 h-6 text-green-400" />
