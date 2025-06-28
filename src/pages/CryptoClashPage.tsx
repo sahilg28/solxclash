@@ -25,7 +25,7 @@ const CryptoClashPage = () => {
   });
   const [priceData, setPriceData] = useState<Map<CoinSymbol, PriceUpdate>>(new Map());
   const [selectedCoin, setSelectedCoin] = useState<CoinSymbol>('BTC');
-  const [selectedXpBet, setSelectedXpBet] = useState<number>(10);
+  const [selectedXpBet, setSelectedXpBet] = useState<number>(20);
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'connecting' | 'disconnected'>('connecting');
   const [error, setError] = useState<string | null>(null);
   const [cancelledRoundDisplayMessage, setCancelledRoundDisplayMessage] = useState<string | null>(null);
@@ -57,8 +57,6 @@ const CryptoClashPage = () => {
     { symbol: 'BNB' as CoinSymbol, name: 'BNB', tvSymbol: 'BINANCE:BNBUSDT', color: 'text-yellow-500', icon: '/assets/BNB.svg' },
     { symbol: 'POL' as CoinSymbol, name: 'Polygon', tvSymbol: 'BINANCE:POLUSDT', color: 'text-purple-500', icon: '/assets/Poly.svg' }
   ];
-
-  const xpBetOptions = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 
   useEffect(() => {
     const priceSubscriptionId = binancePriceService.subscribe((update: PriceUpdate) => {
@@ -689,24 +687,32 @@ const CryptoClashPage = () => {
                         <div className="text-xs font-semibold text-gray-400">
                           Correct Prediction Get : {selectedXpBet * 2} XP
                         </div>
-                      </div> 
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
-                        {xpBetOptions.map((amount) => (
-                          <button
-                            key={amount}
-                            onClick={() => setSelectedXpBet(amount)}
-                            disabled={profile.xp < amount}
-                            className={`py-2 px-3 rounded-lg text-sm font-semibold transition-all duration-200 ${
-                              selectedXpBet === amount
-                                ? 'bg-yellow-400 text-black'
-                                : profile.xp >= amount
-                                ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                                : 'bg-gray-800 text-gray-500 cursor-not-allowed opacity-50'
-                            }`}
-                          >
-                            {amount}
-                          </button>
-                        ))}
+                      </div>
+                      
+                      {/* XP Betting Slider */}
+                      <div className="mb-4">
+                        <div className="relative">
+                          <input
+                            type="range"
+                            min="20"
+                            max="100"
+                            step="20"
+                            value={selectedXpBet}
+                            onChange={(e) => setSelectedXpBet(parseInt(e.target.value))}
+                            disabled={!!gameState.userPrediction}
+                            className="w-full h-3 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
+                            style={{
+                              background: `linear-gradient(to right, #facc15 0%, #facc15 ${((selectedXpBet - 20) / 80) * 100}%, #374151 ${((selectedXpBet - 20) / 80) * 100}%, #374151 100%)`
+                            }}
+                          />
+                          <div className="flex justify-between text-xs text-gray-400 mt-2">
+                            <span>20</span>
+                            <span>40</span>
+                            <span>60</span>
+                            <span>80</span>
+                            <span>100</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                     
