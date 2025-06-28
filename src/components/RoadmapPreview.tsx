@@ -99,10 +99,6 @@ const RoadmapPreview = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-16 animate-fade-in-up">
-          <div className="inline-flex items-center px-6 py-3 bg-purple-400/10 border border-purple-400/20 rounded-full mb-6">
-            <Rocket className="w-5 h-5 text-purple-400 mr-2" />
-            <span className="text-purple-400 font-semibold">The Earning Journey</span>
-          </div>
           <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
             Building the Future of <span className="text-yellow-400">Play-to-Earn Gaming</span>
           </h2>
