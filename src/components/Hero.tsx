@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Gamepad2, Clock, Gift, Zap, Target, TrendingUp } from 'lucide-react';
+import { Gamepad2, Clock, Gift, Zap, Target, TrendingUp, Trophy, Users, Coins } from 'lucide-react';
 
 const Hero = () => {
   const scrollToWaitlist = () => {
@@ -24,37 +24,36 @@ const Hero = () => {
           <div className="space-y-8 animate-fade-in-up">
             <div className="space-y-6">
               <div className="inline-flex items-center px-4 py-2 bg-yellow-400/10 border border-yellow-400/20 rounded-full animate-scale-in">
-                <Zap className="w-4 h-4 text-yellow-400 mr-2" />
+                <Coins className="w-4 h-4 text-yellow-400 mr-2" />
                 <span className="text-yellow-400 text-sm font-medium">
-                  🚀 Skill-Based Web3 Gaming Revolution
+                  🎮 Play-to-Earn Gaming Revolution
                 </span>
               </div>
 
               <h1 className="text-5xl lg:text-7xl font-bold leading-tight">
-                Master the Market.<br />
-                <span className="text-yellow-400">Outsmart the Board.</span><br />
+                <span className="text-yellow-400">Play.</span> <span className="text-white">Compete.</span> <span className="text-yellow-400">Earn.</span><br />
                 <span className="bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
-                  Earn Real Rewards.
+                  Where Skills Matter.
                 </span>
               </h1>
 
               <p className="text-xl text-gray-300 max-w-2xl leading-relaxed mx-auto">
-                The first Web3 gaming platform where <span className="text-yellow-400 font-semibold">your skill determines your success</span>, not luck or how much you spend. 
-                Compete in skill-based games, climb leaderboards, and earn through knowledge and strategy.
+                The ultimate Web3 play-to-earn gaming platform where <span className="text-yellow-400 font-semibold">your skills unlock bigger rewards</span>. 
+                Compete in real-time games, climb leaderboards, and earn through strategic gameplay.
               </p>
 
-              {/* USP Highlights */}
+              {/* Value Propositions */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 max-w-2xl mx-auto">
                 <div className="flex items-center justify-center space-x-2 text-sm">
-                  <Target className="w-4 h-4 text-green-400" />
-                  <span className="text-gray-300">100% Skill-Based</span>
+                  <Gamepad2 className="w-4 h-4 text-green-400" />
+                  <span className="text-gray-300">Play & Earn</span>
                 </div>
                 <div className="flex items-center justify-center space-x-2 text-sm">
-                  <TrendingUp className="w-4 h-4 text-blue-400" />
-                  <span className="text-gray-300">No Pay-to-Win</span>
+                  <Target className="w-4 h-4 text-blue-400" />
+                  <span className="text-gray-300">Skills = Rewards</span>
                 </div>
                 <div className="flex items-center justify-center space-x-2 text-sm">
-                  <Zap className="w-4 h-4 text-yellow-400" />
+                  <Trophy className="w-4 h-4 text-yellow-400" />
                   <span className="text-gray-300">Fair Competition</span>
                 </div>
               </div>
@@ -67,7 +66,7 @@ const Hero = () => {
                 className="group btn-primary flex items-center justify-center space-x-2"
               >
                 <Gamepad2 className="w-5 h-5" />
-                <span>Start Playing Now</span>
+                <span>Start Earning Now</span>
               </Link>
 
               <button
@@ -78,30 +77,56 @@ const Hero = () => {
               </button>
             </div>
 
-            {/* Highlights */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 pt-8 border-t border-gray-800 animate-slide-in-left max-w-3xl mx-auto">
+            {/* Enhanced Highlights */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 pt-8 border-t border-gray-800 animate-slide-in-left max-w-4xl mx-auto">
               <div className="text-center group">
                 <div className="flex items-center justify-center w-12 h-12 bg-yellow-400/10 rounded-lg mb-3 mx-auto group-hover:bg-yellow-400/20 transition-colors duration-300">
-                  <Gamepad2 className="w-6 h-6 text-yellow-400" />
+                  <Coins className="w-6 h-6 text-yellow-400" />
                 </div>
-                <div className="text-lg font-bold text-white">Skill Rewarded</div>
-                <div className="text-sm text-gray-400">Knowledge pays off</div>
+                <div className="text-lg font-bold text-white">Play to Earn</div>
+                <div className="text-sm text-gray-400">Every game rewards you</div>
               </div>
 
               <div className="text-center group">
                 <div className="flex items-center justify-center w-12 h-12 bg-yellow-400/10 rounded-lg mb-3 mx-auto group-hover:bg-yellow-400/20 transition-colors duration-300">
-                  <Clock className="w-6 h-6 text-yellow-400" />
+                  <Target className="w-6 h-6 text-yellow-400" />
                 </div>
-                <div className="text-lg font-bold text-white">Live Competition</div>
-                <div className="text-sm text-gray-400">Real-time gameplay</div>
+                <div className="text-lg font-bold text-white">Skills Amplify</div>
+                <div className="text-sm text-gray-400">Better skills = bigger rewards</div>
               </div>
 
               <div className="text-center group">
                 <div className="flex items-center justify-center w-12 h-12 bg-yellow-400/10 rounded-lg mb-3 mx-auto group-hover:bg-yellow-400/20 transition-colors duration-300">
-                  <Gift className="w-6 h-6 text-yellow-400" />
+                  <Users className="w-6 h-6 text-yellow-400" />
                 </div>
-                <div className="text-lg font-bold text-white">Transparent Rewards</div>
-                <div className="text-sm text-gray-400">Provably fair</div>
+                <div className="text-lg font-bold text-white">Global Competition</div>
+                <div className="text-sm text-gray-400">Compete worldwide</div>
+              </div>
+            </div>
+
+            {/* Earning Potential Showcase */}
+            <div className="bg-gradient-to-r from-yellow-400/10 to-yellow-600/10 border border-yellow-400/20 rounded-xl p-6 max-w-3xl mx-auto">
+              <h3 className="text-xl font-bold text-white mb-4 flex items-center justify-center space-x-2">
+                <Zap className="w-5 h-5 text-yellow-400" />
+                <span>Start Earning Today</span>
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                <div>
+                  <div className="text-2xl font-bold text-yellow-400">100</div>
+                  <div className="text-xs text-gray-400">Starting XP</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-green-400">2x</div>
+                  <div className="text-xs text-gray-400">Win Multiplier</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-blue-400">300</div>
+                  <div className="text-xs text-gray-400">Streak Bonus</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-purple-400">∞</div>
+                  <div className="text-xs text-gray-400">Earning Potential</div>
+                </div>
               </div>
             </div>
           </div>

@@ -1,58 +1,58 @@
 import React from 'react';
-import { Rocket, Users, Zap, ArrowRight, CheckCircle, Clock, Target, Shield, Trophy, Gamepad2 } from 'lucide-react';
+import { Rocket, Users, Zap, ArrowRight, CheckCircle, Clock, Target, Shield, Trophy, Gamepad2, Coins, Star } from 'lucide-react';
 
 const RoadmapPreview = () => {
   const phases = [
     {
       phase: 'Phase 0',
-      title: 'Foundation & Validation',
+      title: 'Play-to-Earn Foundation',
       status: 'current',
       description:
-        'Building the core platform to validate skill-based gameplay mechanics and establish the foundation for fair, competitive Web3 gaming.',
+        'Establishing the core play-to-earn mechanics where every player earns from participation, and skilled players earn exponentially more through strategic gameplay.',
       features: [
-        'CryptoClash live with real-time predictions',
-        'Skill-based XP and leaderboard system',
-        'Web2/Web3 hybrid authentication',
-        'Community feedback integration',
-        'Fair play mechanics validation'
+        'CryptoClash live with instant XP rewards',
+        'Skill-based earning multipliers and streaks',
+        'Fair play mechanics with guaranteed rewards',
+        'Community-driven feedback integration',
+        'Progressive earning system validation'
       ],
-      icon: <Rocket className="w-8 h-8" />,
+      icon: <Coins className="w-8 h-8" />,
       timeline: 'Live Now',
-      highlight: 'Proving skill beats luck'
+      highlight: 'Everyone earns, skills multiply'
     },
     {
       phase: 'Phase 1',
-      title: 'Multi-Game Ecosystem',
+      title: 'Multi-Game Earning Ecosystem',
       status: 'upcoming',
       description:
-        'Expanding into a comprehensive skill-based gaming platform with multiple competitive formats and real-value rewards.',
+        'Expanding into a comprehensive play-to-earn platform with multiple game formats, real-money options, and enhanced earning opportunities.',
       features: [
-        'ChessClash: Strategic PvP competitions',
-        'Tournament system with brackets',
-        'Enhanced leaderboards and rankings',
-        'Real-money match options (USDT)',
-        'Advanced player statistics and analytics'
+        'ChessClash: Strategic PvP with USDT rewards',
+        'Tournament system with prize pools',
+        'Enhanced earning mechanics and bonuses',
+        'Real-money match options for skilled players',
+        'Advanced analytics and earning optimization'
       ],
       icon: <Users className="w-8 h-8" />,
       timeline: 'Q1 2025',
-      highlight: 'Where strategy meets rewards'
+      highlight: 'Multiple earning streams'
     },
     {
       phase: 'Phase 2',
-      title: 'Web3 Gaming Revolution',
+      title: 'Web3 Earning Revolution',
       status: 'planned',
       description:
-        'Full Web3 integration with blockchain-powered transparency, community governance, and creator economy features.',
+        'Full Web3 integration with blockchain-powered rewards, community governance, and creator economy features for maximum earning potential.',
       features: [
-        'On-chain game results and verification',
-        'Community-created tournaments',
+        'On-chain reward verification and distribution',
+        'Community-created earning opportunities',
         'Creator tools for custom game modes',
-        'Decentralized leaderboards',
-        'Cross-platform skill verification'
+        'Decentralized tournament prize pools',
+        'Cross-platform earning verification'
       ],
       icon: <Zap className="w-8 h-8" />,
       timeline: 'Q2-Q3 2025',
-      highlight: 'Decentralized skill verification'
+      highlight: 'Decentralized earning ecosystem'
     }
   ];
 
@@ -81,7 +81,7 @@ const RoadmapPreview = () => {
   const getStatusText = (status: string) => {
     switch (status) {
       case 'current':
-        return 'Live & Active';
+        return 'Live & Earning';
       case 'upcoming':
         return 'In Development';
       default:
@@ -101,14 +101,14 @@ const RoadmapPreview = () => {
         <div className="text-center mb-16 animate-fade-in-up">
           <div className="inline-flex items-center px-6 py-3 bg-yellow-400/10 border border-yellow-400/20 rounded-full mb-6">
             <Rocket className="w-5 h-5 text-yellow-400 mr-2" />
-            <span className="text-yellow-400 font-semibold">The Journey Ahead</span>
+            <span className="text-yellow-400 font-semibold">The Earning Journey</span>
           </div>
           <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
-            Building the Future of <span className="text-yellow-400">Skill-Based Gaming</span>
+            Building the Future of <span className="text-yellow-400">Play-to-Earn Gaming</span>
           </h2>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Our roadmap to revolutionizing Web3 gaming through fair competition, transparent mechanics, and skill-based rewards. 
-            Each phase brings us closer to a gaming ecosystem where talent triumphs over spending.
+            Our roadmap to revolutionizing Web3 gaming through fair earning mechanics, transparent rewards, and skill-based multipliers. 
+            Each phase brings new ways to earn and grow your gaming income.
           </p>
         </div>
 
@@ -137,7 +137,7 @@ const RoadmapPreview = () => {
                 {/* Highlight */}
                 <div className="bg-yellow-400/10 border border-yellow-400/20 rounded-lg p-3 mb-4">
                   <div className="flex items-center space-x-2">
-                    <Shield className="w-4 h-4 text-yellow-400" />
+                    <Star className="w-4 h-4 text-yellow-400" />
                     <span className="text-yellow-400 font-semibold text-sm">{phase.highlight}</span>
                   </div>
                 </div>
@@ -172,39 +172,39 @@ const RoadmapPreview = () => {
           ))}
         </div>
 
-        {/* Web3 Gaming Principles */}
+        {/* Play-to-Earn Principles */}
         <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-sm border border-gray-700 rounded-2xl p-8 mb-12 animate-fade-in-up">
           <h3 className="text-2xl font-bold text-white mb-6 text-center">
-            Our Web3 Gaming Principles
+            Our Play-to-Earn Principles
           </h3>
           <div className="grid md:grid-cols-4 gap-6">
             <div className="text-center">
               <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Shield className="w-6 h-6 text-green-400" />
+                <Coins className="w-6 h-6 text-green-400" />
               </div>
-              <h4 className="font-semibold text-white mb-2">Transparency</h4>
-              <p className="text-sm text-gray-400">All game mechanics and outcomes are verifiable and fair</p>
+              <h4 className="font-semibold text-white mb-2">Everyone Earns</h4>
+              <p className="text-sm text-gray-400">Every player gets rewarded for participation</p>
             </div>
             <div className="text-center">
               <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
                 <Target className="w-6 h-6 text-blue-400" />
               </div>
-              <h4 className="font-semibold text-white mb-2">Skill-Based</h4>
-              <p className="text-sm text-gray-400">Success determined by knowledge and strategy, not spending</p>
+              <h4 className="font-semibold text-white mb-2">Skills Multiply</h4>
+              <p className="text-sm text-gray-400">Better skills lead to exponentially higher earnings</p>
             </div>
             <div className="text-center">
               <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Users className="w-6 h-6 text-purple-400" />
+                <Shield className="w-6 h-6 text-purple-400" />
               </div>
-              <h4 className="font-semibold text-white mb-2">Community-Driven</h4>
-              <p className="text-sm text-gray-400">Player feedback shapes platform development and features</p>
+              <h4 className="font-semibold text-white mb-2">Fair Mechanics</h4>
+              <p className="text-sm text-gray-400">Transparent earning systems with no hidden advantages</p>
             </div>
             <div className="text-center">
               <div className="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
                 <Trophy className="w-6 h-6 text-yellow-400" />
               </div>
-              <h4 className="font-semibold text-white mb-2">Fair Competition</h4>
-              <p className="text-sm text-gray-400">Equal opportunities for all players regardless of wallet size</p>
+              <h4 className="font-semibold text-white mb-2">Sustainable Growth</h4>
+              <p className="text-sm text-gray-400">Long-term earning potential through skill development</p>
             </div>
           </div>
         </div>
@@ -214,17 +214,17 @@ const RoadmapPreview = () => {
           <div className="bg-gradient-to-r from-yellow-400/10 to-yellow-600/10 border border-yellow-400/20 rounded-2xl p-8 max-w-3xl mx-auto">
             <h3 className="text-2xl font-bold text-white mb-4 flex items-center justify-center space-x-2">
               <Gamepad2 className="w-6 h-6 text-yellow-400" />
-              <span>Ready to Shape the Future?</span>
+              <span>Ready to Start Earning?</span>
             </h3>
             <p className="text-gray-300 mb-6">
-              Join the skill-based gaming revolution. Your feedback and participation help build the platform where talent truly matters.
+              Join the play-to-earn revolution where your gaming skills translate to real rewards. Start earning today and grow your income through strategic gameplay.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button 
                 onClick={() => window.location.href = '/cryptoclash'}
                 className="btn-primary"
               >
-                Start Playing Now
+                Start Earning Now
               </button>
               <button 
                 onClick={() => {

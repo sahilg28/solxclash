@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Gift, Users, Clock, Check, AlertCircle, Zap, Target, Trophy } from 'lucide-react';
+import { Mail, Gift, Users, Clock, Check, AlertCircle, Zap, Target, Trophy, Coins, Star } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 const WaitlistSection = () => {
@@ -50,15 +50,16 @@ const WaitlistSection = () => {
           {/* Header */}
           <div className="mb-12 animate-fade-in-up">
             <div className="inline-flex items-center px-6 py-3 bg-yellow-400/10 border border-yellow-400/20 rounded-full mb-6">
-              <Zap className="w-5 h-5 text-yellow-400 mr-2" />
-              <span className="text-yellow-400 font-semibold">Join the Revolution</span>
+              <Coins className="w-5 h-5 text-yellow-400 mr-2" />
+              <span className="text-yellow-400 font-semibold">Join the Earning Revolution</span>
             </div>
             <h2 className="text-4xl lg:text-6xl font-bold text-white mb-6">
-              Shape the Future of <span className="text-yellow-400">Skill-Based Gaming</span>
+              Shape the Future of <span className="text-yellow-400">Play-to-Earn Gaming</span>
             </h2>
             <p className="text-xl text-gray-300 leading-relaxed max-w-3xl mx-auto">
               Be among the first to experience the next generation of Web3 games where 
-              <span className="text-yellow-400 font-semibold"> your knowledge and skills determine your success</span>. 
+              <span className="text-yellow-400 font-semibold"> everyone earns from playing</span> and 
+              <span className="text-green-400 font-semibold"> skilled players earn exponentially more</span>. 
               Join our exclusive community and help shape the platform.
             </p>
           </div>
@@ -105,7 +106,7 @@ const WaitlistSection = () => {
                 <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-4 animate-fade-in-up">
                   <div className="flex items-center justify-center space-x-2 text-green-400">
                     <Check className="w-5 h-5" />
-                    <span>🎉 Welcome to the revolution! We'll reach out with exclusive updates soon.</span>
+                    <span>🎉 Welcome to the earning revolution! We'll reach out with exclusive updates soon.</span>
                   </div>
                 </div>
               )}
@@ -129,45 +130,45 @@ const WaitlistSection = () => {
                 <Gift className="w-10 h-10 text-yellow-400" />
               </div>
               <h3 className="text-lg font-semibold text-white mb-2">Exclusive Early Access</h3>
-              <p className="text-gray-400">Be the first to play new game modes and features before public launch. Get a competitive edge from day one.</p>
+              <p className="text-gray-400">Be the first to play new earning games and features before public launch. Get a head start on building your earnings.</p>
             </div>
 
             <div className="text-center group">
               <div className="w-20 h-20 bg-yellow-400/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-yellow-400/20 transition-colors duration-300 card-hover">
                 <Users className="w-10 h-10 text-yellow-400" />
               </div>
-              <h3 className="text-lg font-semibold text-white mb-2">Shape the Platform</h3>
-              <p className="text-gray-400">Your feedback directly influences game mechanics, features, and the overall direction of SolxClash.</p>
+              <h3 className="text-lg font-semibold text-white mb-2">Shape Earning Mechanics</h3>
+              <p className="text-gray-400">Your feedback directly influences reward systems, earning rates, and the overall direction of SolxClash's play-to-earn features.</p>
             </div>
 
             <div className="text-center group">
               <div className="w-20 h-20 bg-yellow-400/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-yellow-400/20 transition-colors duration-300 card-hover">
-                <Trophy className="w-10 h-10 text-yellow-400" />
+                <Star className="w-10 h-10 text-yellow-400" />
               </div>
-              <h3 className="text-lg font-semibold text-white mb-3">Founder Benefits</h3>
-              <p className="text-gray-400">Special recognition, exclusive tournaments, and potential rewards for early community members.</p>
+              <h3 className="text-lg font-semibold text-white mb-3">Founder Earning Benefits</h3>
+              <p className="text-gray-400">Special earning bonuses, exclusive tournaments with higher rewards, and potential early access to premium earning features.</p>
             </div>
           </div>
 
           {/* Community Stats Preview */}
           <div className="mt-16 bg-gradient-to-r from-gray-900/60 to-black/60 backdrop-blur-sm border border-gray-700 rounded-xl p-8 animate-fade-in-up">
-            <h3 className="text-xl font-bold text-white mb-6">Join a Growing Community of Skilled Players</h3>
+            <h3 className="text-xl font-bold text-white mb-6">Join a Growing Community of Earning Players</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <div className="text-center">
                 <div className="text-2xl font-bold text-yellow-400 mb-1">500+</div>
-                <div className="text-sm text-gray-400">Early Adopters</div>
+                <div className="text-sm text-gray-400">Early Earners</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-green-400 mb-1">2</div>
-                <div className="text-sm text-gray-400">Skill-Based Games</div>
+                <div className="text-sm text-gray-400">Earning Games</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-blue-400 mb-1">100%</div>
-                <div className="text-sm text-gray-400">Fair Play</div>
+                <div className="text-sm text-gray-400">Players Earn</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-purple-400 mb-1">0</div>
-                <div className="text-sm text-gray-400">Pay-to-Win</div>
+                <div className="text-2xl font-bold text-purple-400 mb-1">2x</div>
+                <div className="text-sm text-gray-400">Skill Multiplier</div>
               </div>
             </div>
           </div>

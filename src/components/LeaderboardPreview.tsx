@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Trophy, Medal, Award, ArrowRight, Target, Zap, TrendingUp } from 'lucide-react';
+import { Trophy, Medal, Award, ArrowRight, Target, Zap, TrendingUp, Coins, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase, Profile } from '../lib/supabase';
 
@@ -70,10 +70,10 @@ const LeaderboardPreview = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
-              Top <span className="text-yellow-400">Champions</span>
+              Top <span className="text-yellow-400">Earners</span>
             </h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              See who's dominating through pure skill. Will you be next?
+              See who's earning the most through skilled gameplay. Will you be next?
             </p>
           </div>
 
@@ -81,7 +81,7 @@ const LeaderboardPreview = () => {
             <div className="bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-xl border border-yellow-400/20 rounded-2xl p-8">
               <div className="text-center">
                 <div className="w-12 h-12 border-4 border-yellow-400/20 border-t-yellow-400 rounded-full animate-spin mx-auto mb-4"></div>
-                <p className="text-gray-400">Loading champions...</p>
+                <p className="text-gray-400">Loading top earners...</p>
               </div>
             </div>
           </div>
@@ -101,15 +101,15 @@ const LeaderboardPreview = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-16 animate-fade-in-up">
           <div className="inline-flex items-center px-6 py-3 bg-yellow-400/10 border border-yellow-400/20 rounded-full mb-6">
-            <Trophy className="w-5 h-5 text-yellow-400 mr-2" />
-            <span className="text-yellow-400 font-semibold">Skill-Based Rankings</span>
+            <Coins className="w-5 h-5 text-yellow-400 mr-2" />
+            <span className="text-yellow-400 font-semibold">Play-to-Earn Rankings</span>
           </div>
           <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
-            Top <span className="text-yellow-400">Champions</span>
+            Top <span className="text-yellow-400">Earners</span>
           </h2>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Meet the players who've mastered the art of skill-based gaming. 
-            <span className="text-yellow-400 font-semibold"> No luck, no pay-to-win</span> — just pure talent and strategy.
+            Meet the players earning the most through skilled gameplay. 
+            <span className="text-yellow-400 font-semibold"> Every game rewards, but skills multiply earnings</span> exponentially.
           </p>
         </div>
 
@@ -120,29 +120,29 @@ const LeaderboardPreview = () => {
             <div className="bg-yellow-400/10 border-b border-yellow-400/20 px-6 py-6">
               <div className="grid grid-cols-12 gap-4 items-center text-sm font-semibold text-yellow-400 uppercase tracking-wider mb-4">
                 <div className="col-span-1">Rank</div>
-                <div className="col-span-4">Champion</div>
-                <div className="col-span-2">Skill Level</div>
+                <div className="col-span-4">Top Earner</div>
+                <div className="col-span-2">Level</div>
                 <div className="col-span-2">XP Earned</div>
-                <div className="col-span-3">Performance</div>
+                <div className="col-span-3">Earning Rate</div>
               </div>
               
               {/* Live Stats */}
               <div className="grid grid-cols-3 gap-4 text-center pt-4 border-t border-yellow-400/10">
                 <div>
                   <div className="text-2xl font-bold text-yellow-400">{topPlayers.length}</div>
-                  <div className="text-sm text-gray-400">Active Champions</div>
+                  <div className="text-sm text-gray-400">Active Earners</div>
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-green-400">
                     {topPlayers.reduce((sum, player) => sum + player.games_played, 0)}
                   </div>
-                  <div className="text-sm text-gray-400">Skill Battles</div>
+                  <div className="text-sm text-gray-400">Earning Games</div>
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-blue-400">
                     {topPlayers.length > 0 ? Math.round(topPlayers.reduce((sum, player) => sum + player.winRate, 0) / topPlayers.length) : 0}%
                   </div>
-                  <div className="text-sm text-gray-400">Avg Win Rate</div>
+                  <div className="text-sm text-gray-400">Avg Success Rate</div>
                 </div>
               </div>
             </div>
@@ -150,9 +150,9 @@ const LeaderboardPreview = () => {
             <div className="divide-y divide-gray-800">
               {topPlayers.length === 0 ? (
                 <div className="text-center py-12">
-                  <Trophy className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                  <p className="text-gray-400 mb-2">No champions yet</p>
-                  <p className="text-sm text-gray-500">Be the first to claim the throne!</p>
+                  <Coins className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+                  <p className="text-gray-400 mb-2">No earners yet</p>
+                  <p className="text-sm text-gray-500">Be the first to start earning!</p>
                 </div>
               ) : (
                 topPlayers.map((player, index) => (
@@ -193,7 +193,7 @@ const LeaderboardPreview = () => {
                         <div className="min-w-0 flex-1">
                           <div className="font-semibold text-white truncate flex items-center space-x-2">
                             <span>{player.full_name || player.username}</span>
-                            {player.rank <= 3 && <span className="text-yellow-400">👑</span>}
+                            {player.rank <= 3 && <span className="text-yellow-400">💰</span>}
                           </div>
                           <div className="text-sm text-gray-400 truncate">
                             @{player.username}
@@ -215,7 +215,7 @@ const LeaderboardPreview = () => {
 
                       <div className="col-span-2">
                         <div className="font-bold text-yellow-400">{player.xp.toLocaleString()}</div>
-                        <div className="text-sm text-gray-400">{player.games_played} battles</div>
+                        <div className="text-sm text-gray-400">{player.games_played} games</div>
                       </div>
 
                       <div className="col-span-3">
@@ -226,10 +226,10 @@ const LeaderboardPreview = () => {
                               player.winRate >= 70 ? 'text-green-400' : 
                               player.winRate >= 50 ? 'text-yellow-400' : 'text-red-400'
                             }`}>
-                              {player.winRate}% Win Rate
+                              {player.winRate}% Success
                             </div>
                             <div className="text-xs text-gray-400">
-                              {player.wins} victories
+                              {player.games_played > 0 ? Math.round(player.xp / player.games_played) : 0} XP/game
                             </div>
                           </div>
                         </div>
@@ -246,32 +246,30 @@ const LeaderboardPreview = () => {
                 className="group inline-flex items-center space-x-2 text-yellow-400 hover:text-yellow-300 font-semibold transition-colors duration-200 btn-secondary"
               >
                 <TrendingUp className="w-4 h-4" />
-                <span>View Full Rankings</span>
+                <span>View All Earners</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
               </Link>
             </div>
           </div>
 
-          {/* Skill-Based Gaming Highlights */}
+          {/* Play-to-Earn Highlights */}
           <div className="grid md:grid-cols-3 gap-6 mt-12 animate-slide-in-left">
             <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-sm border border-gray-700 rounded-xl p-6 text-center card-hover">
               <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Target className="w-6 h-6 text-green-400" />
+                <Coins className="w-6 h-6 text-green-400" />
               </div>
               <div className="text-2xl font-bold text-green-400 mb-2">100%</div>
-              <div className="text-gray-300 font-medium mb-1">Skill-Based</div>
-              <div className="text-sm text-gray-400">No luck, no pay-to-win</div>
+              <div className="text-gray-300 font-medium mb-1">Players Earn</div>
+              <div className="text-sm text-gray-400">Every game rewards participation</div>
             </div>
             
             <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-sm border border-gray-700 rounded-xl p-6 text-center card-hover">
               <div className="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Trophy className="w-6 h-6 text-yellow-400" />
+                <Star className="w-6 h-6 text-yellow-400" />
               </div>
-              <div className="text-2xl font-bold text-yellow-400 mb-2">
-                {topPlayers.length > 0 ? topPlayers.reduce((sum, player) => sum + player.xp, 0).toLocaleString() : '0'}
-              </div>
-              <div className="text-gray-300 font-medium mb-1">XP Earned</div>
-              <div className="text-sm text-gray-400">Through skill & strategy</div>
+              <div className="text-2xl font-bold text-yellow-400 mb-2">2x</div>
+              <div className="text-gray-300 font-medium mb-1">Skill Multiplier</div>
+              <div className="text-sm text-gray-400">Better skills = bigger rewards</div>
             </div>
             
             <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-sm border border-gray-700 rounded-xl p-6 text-center card-hover">
@@ -279,10 +277,10 @@ const LeaderboardPreview = () => {
                 <TrendingUp className="w-6 h-6 text-blue-400" />
               </div>
               <div className="text-2xl font-bold text-blue-400 mb-2">
-                {topPlayers.length > 0 ? topPlayers.reduce((sum, player) => sum + player.games_played, 0) : 0}
+                {topPlayers.length > 0 ? topPlayers.reduce((sum, player) => sum + player.xp, 0).toLocaleString() : '0'}
               </div>
-              <div className="text-gray-300 font-medium mb-1">Fair Battles</div>
-              <div className="text-sm text-gray-400">Equal opportunity gaming</div>
+              <div className="text-gray-300 font-medium mb-1">Total Earned</div>
+              <div className="text-sm text-gray-400">Through skilled gameplay</div>
             </div>
           </div>
         </div>

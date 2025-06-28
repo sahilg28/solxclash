@@ -1,5 +1,5 @@
 import React from 'react';
-import { Code, Target, Users, Zap, Shield, TrendingUp, Trophy, Heart } from 'lucide-react';
+import { Code, Target, Users, Zap, Shield, TrendingUp, Trophy, Heart, Coins, Star } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
@@ -14,7 +14,7 @@ const AboutPage = () => {
               About <span className="text-yellow-400">SolxClash</span>
             </h1>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-              A Web3 Gaming Revolution Built on Skill, Transparency, and Fair Competition
+              A Web3 Play-to-Earn Gaming Revolution Built on Fair Competition and Skill-Based Rewards
             </p>
           </div>
 
@@ -23,15 +23,15 @@ const AboutPage = () => {
             {/* Mission Statement */}
             <section className="text-center mb-12">
               <div className="inline-flex items-center px-6 py-3 bg-yellow-400/10 border border-yellow-400/20 rounded-full mb-6">
-                <Target className="w-5 h-5 text-yellow-400 mr-2" />
+                <Coins className="w-5 h-5 text-yellow-400 mr-2" />
                 <span className="text-yellow-400 font-semibold">Our Mission</span>
               </div>
               <h2 className="text-2xl font-bold text-white mb-4">
-                Revolutionizing Web3 Gaming Through Skill-Based Competition
+                Revolutionizing Web3 Gaming Through Play-to-Earn Excellence
               </h2>
               <p className="text-gray-300 text-lg leading-relaxed max-w-3xl mx-auto">
-                SolxClash is pioneering a new era of Web3 gaming where <span className="text-yellow-400 font-semibold">your knowledge and skills determine your success</span>, 
-                not your wallet size or random chance. We're building a platform that rewards intelligence, strategy, and dedication.
+                SolxClash is pioneering a new era of Web3 gaming where <span className="text-yellow-400 font-semibold">everyone earns from playing</span> and 
+                <span className="text-green-400 font-semibold"> skilled players earn exponentially more</span>. We're building a platform that rewards participation while amplifying the value of knowledge, strategy, and dedication.
               </p>
             </section>
 
@@ -47,11 +47,11 @@ const AboutPage = () => {
                 </p>
                 <p>
                   I started this journey not with a team or funding — but with <span className="text-yellow-400 font-semibold">curiosity, passion, and the desire to build something meaningful</span> in Web3.
-                  What began as a crypto prediction game at a hackathon quickly evolved into something bigger: a platform that rewards players for what they know, not what they spend.
+                  What began as a crypto prediction game at a hackathon quickly evolved into something bigger: a platform that rewards players for participation while multiplying rewards for skill.
                 </p>
                 <p>
-                  As a solo builder, I've been hands-on with every aspect of SolxClash — from designing game mechanics to integrating with blockchain technology. 
-                  This approach keeps the platform <span className="text-yellow-400 font-semibold">lean, focused, and genuinely user-first</span>.
+                  As a solo builder, I've been hands-on with every aspect of SolxClash — from designing earning mechanics to integrating with blockchain technology. 
+                  This approach keeps the platform <span className="text-yellow-400 font-semibold">lean, focused, and genuinely player-first</span>.
                 </p>
               </div>
             </section>
@@ -64,13 +64,14 @@ const AboutPage = () => {
               </div>
               <div className="text-gray-300 space-y-4">
                 <p>
-                  SolxClash is a Web3 platform where <span className="text-yellow-400 font-semibold">skill is the only currency that matters</span> — not luck, not how much you spend, not expensive NFTs.
+                  SolxClash is a Web3 play-to-earn platform where <span className="text-yellow-400 font-semibold">every player earns from participation</span>, but 
+                  <span className="text-green-400 font-semibold"> skilled players earn exponentially more</span> through strategic gameplay and market knowledge.
                 </p>
                 <p>
-                  Our flagship game, <span className="text-yellow-400 font-semibold">CryptoClash</span>, is live now. It challenges players to predict short-term crypto price movements using market analysis and intuition, competing on global leaderboards for XP and recognition.
+                  Our flagship game, <span className="text-yellow-400 font-semibold">CryptoClash</span>, is live now. Players earn XP from every prediction, with 2x multipliers for correct calls and bonus streaks for consistent performance. It's designed so everyone wins, but knowledge pays off big.
                 </p>
                 <p>
-                  <span className="font-semibold text-white">But we're just getting started.</span> <span className="text-yellow-400 font-semibold">ChessClash</span> is coming soon — a blockchain-powered PvP chess experience where players can compete in ranked matches and tournaments. It represents the next evolution of SolxClash into a comprehensive, multi-game competitive ecosystem.
+                  <span className="font-semibold text-white">But we're just getting started.</span> <span className="text-yellow-400 font-semibold">ChessClash</span> is coming soon — a blockchain-powered PvP chess experience with real USDT rewards for skilled players. It represents the next evolution of SolxClash into a comprehensive, multi-game earning ecosystem.
                 </p>
               </div>
             </section>
@@ -79,7 +80,7 @@ const AboutPage = () => {
             <section>
               <div className="flex items-center mb-6">
                 <Shield className="w-6 h-6 text-yellow-400 mr-3" />
-                <h2 className="text-2xl font-bold text-white">Built for Players, Not Whales</h2>
+                <h2 className="text-2xl font-bold text-white">Built for Earners, Not Whales</h2>
               </div>
               <div className="text-gray-300 space-y-4">
                 <p>Most Web3 games feel like casinos or expensive NFT showcases. SolxClash is different:</p>
@@ -90,26 +91,26 @@ const AboutPage = () => {
                     <ul className="text-sm space-y-1">
                       <li>• Pay-to-win mechanics</li>
                       <li>• Expensive NFT requirements</li>
-                      <li>• Random luck-based outcomes</li>
+                      <li>• Zero-sum gambling systems</li>
                       <li>• Complex tokenomics</li>
-                      <li>• Gambling disguised as gaming</li>
+                      <li>• Whale-dominated economies</li>
                     </ul>
                   </div>
                   
                   <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4">
                     <h4 className="text-green-400 font-semibold mb-2">✅ What We Champion</h4>
                     <ul className="text-sm space-y-1">
-                      <li>• Pure skill-based competition</li>
-                      <li>• Equal starting opportunities</li>
-                      <li>• Transparent game mechanics</li>
-                      <li>• Knowledge-based rewards</li>
-                      <li>• Fair play for everyone</li>
+                      <li>• Everyone earns from playing</li>
+                      <li>• Skills multiply earning potential</li>
+                      <li>• Free to start, earn to upgrade</li>
+                      <li>• Transparent earning mechanics</li>
+                      <li>• Fair competition for all</li>
                     </ul>
                   </div>
                 </div>
 
                 <p>
-                  Here, you win because you <span className="text-yellow-400 font-semibold">read the market better, strategize smarter, or outplay your opponents</span> — not because you spent more money.
+                  Here, you earn more because you <span className="text-yellow-400 font-semibold">read the market better, strategize smarter, or outplay your opponents</span> — not because you spent more money.
                 </p>
               </div>
             </section>
@@ -118,32 +119,32 @@ const AboutPage = () => {
             <section>
               <div className="flex items-center mb-6">
                 <TrendingUp className="w-6 h-6 text-yellow-400 mr-3" />
-                <h2 className="text-2xl font-bold text-white">Why Web3 Matters</h2>
+                <h2 className="text-2xl font-bold text-white">Why Web3 Matters for Earning</h2>
               </div>
               <div className="text-gray-300 space-y-4">
                 <p>
-                  We chose Web3 not for hype, but for its core principles that align with fair gaming:
+                  We chose Web3 not for hype, but for its core principles that align with fair earning:
                 </p>
                 <div className="grid md:grid-cols-3 gap-4 my-6">
                   <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4 text-center">
                     <Shield className="w-8 h-8 text-blue-400 mx-auto mb-2" />
                     <h4 className="text-blue-400 font-semibold mb-2">Transparency</h4>
-                    <p className="text-sm">All game outcomes are verifiable and fair</p>
+                    <p className="text-sm">All earning mechanics and payouts are verifiable</p>
                   </div>
                   <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-4 text-center">
-                    <Users className="w-8 h-8 text-purple-400 mx-auto mb-2" />
-                    <h4 className="text-purple-400 font-semibold mb-2">Ownership</h4>
-                    <p className="text-sm">Players truly own their progress and achievements</p>
+                    <Coins className="w-8 h-8 text-purple-400 mx-auto mb-2" />
+                    <h4 className="text-purple-400 font-semibold mb-2">True Ownership</h4>
+                    <p className="text-sm">Players truly own their earnings and achievements</p>
                   </div>
                   <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4 text-center">
                     <Target className="w-8 h-8 text-green-400 mx-auto mb-2" />
-                    <h4 className="text-green-400 font-semibold mb-2">Decentralization</h4>
-                    <p className="text-sm">No single entity controls the game outcomes</p>
+                    <h4 className="text-green-400 font-semibold mb-2">Fair Distribution</h4>
+                    <p className="text-sm">No single entity controls earning outcomes</p>
                   </div>
                 </div>
                 <p>
-                  Blockchain technology ensures that game results are <span className="text-yellow-400 font-semibold">provably fair and transparent</span>, 
-                  giving players confidence that skill, not manipulation, determines success.
+                  Blockchain technology ensures that earning systems are <span className="text-yellow-400 font-semibold">provably fair and transparent</span>, 
+                  giving players confidence that skill and participation, not manipulation, determine rewards.
                 </p>
               </div>
             </section>
@@ -162,24 +163,24 @@ const AboutPage = () => {
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
                       <h4 className="text-yellow-400 font-semibold mb-3">🎯 Focused Vision</h4>
-                      <p className="text-sm">Every feature serves the core mission of skill-based gaming</p>
+                      <p className="text-sm">Every feature serves the core mission of fair earning</p>
                     </div>
                     <div>
                       <h4 className="text-yellow-400 font-semibold mb-3">⚡ Rapid Innovation</h4>
-                      <p className="text-sm">Quick iteration and response to player feedback</p>
+                      <p className="text-sm">Quick iteration and response to player earning feedback</p>
                     </div>
                     <div>
                       <h4 className="text-yellow-400 font-semibold mb-3">💝 Player-First</h4>
-                      <p className="text-sm">No investor pressure to prioritize profits over player experience</p>
+                      <p className="text-sm">No investor pressure to prioritize profits over player earnings</p>
                     </div>
                     <div>
                       <h4 className="text-yellow-400 font-semibold mb-3">🔧 Quality Control</h4>
-                      <p className="text-sm">Every line of code is tested and optimized for the best experience</p>
+                      <p className="text-sm">Every earning mechanism is tested and optimized</p>
                     </div>
                   </div>
                 </div>
                 <p>
-                  This solo approach keeps SolxClash <span className="text-yellow-400 font-semibold">lean, authentic, and genuinely focused on what players want</span> — 
+                  This solo approach keeps SolxClash <span className="text-yellow-400 font-semibold">lean, authentic, and genuinely focused on maximizing player earnings</span> — 
                   fair competition and skill-based rewards.
                 </p>
               </div>
@@ -189,51 +190,51 @@ const AboutPage = () => {
             <section>
               <div className="flex items-center mb-6">
                 <Trophy className="w-6 h-6 text-yellow-400 mr-3" />
-                <h2 className="text-2xl font-bold text-white">The Future of Skill-Based Gaming</h2>
+                <h2 className="text-2xl font-bold text-white">The Future of Play-to-Earn Gaming</h2>
               </div>
               <div className="text-gray-300 space-y-4">
                 <p>
-                  SolxClash is evolving into the premier Web3 skill-based gaming platform:
+                  SolxClash is evolving into the premier Web3 play-to-earn gaming platform:
                 </p>
                 <div className="space-y-3">
                   <div className="flex items-start space-x-3">
                     <div className="w-2 h-2 bg-yellow-400 rounded-full mt-2"></div>
-                    <p><span className="text-yellow-400 font-semibold">Phase 1:</span> CryptoClash and ChessClash establishing the skill-based foundation</p>
+                    <p><span className="text-yellow-400 font-semibold">Phase 1:</span> CryptoClash and ChessClash establishing the earning foundation</p>
                   </div>
                   <div className="flex items-start space-x-3">
                     <div className="w-2 h-2 bg-yellow-400 rounded-full mt-2"></div>
-                    <p><span className="text-yellow-400 font-semibold">Phase 2:</span> Expanding to multiple competitive game formats and tournaments</p>
+                    <p><span className="text-yellow-400 font-semibold">Phase 2:</span> Multiple earning streams and real-money tournaments</p>
                   </div>
                   <div className="flex items-start space-x-3">
                     <div className="w-2 h-2 bg-yellow-400 rounded-full mt-2"></div>
-                    <p><span className="text-yellow-400 font-semibold">Phase 3:</span> Community-driven features and creator tools for custom competitions</p>
+                    <p><span className="text-yellow-400 font-semibold">Phase 3:</span> Community-driven earning opportunities and creator tools</p>
                   </div>
                 </div>
                 <p className="text-yellow-400 font-semibold text-lg">
-                  The mission? To create a fair, fun, and community-first gaming platform where your skill earns you more than just bragging rights.
+                  The mission? To create a fair, fun, and community-first gaming platform where your skills translate to real earnings.
                 </p>
                 <p className="text-lg">
-                  If you're reading this early — <span className="text-yellow-400 font-semibold">you're already part of this revolution</span>. 
-                  Join us in building the future of skill-based Web3 gaming.
+                  If you're reading this early — <span className="text-yellow-400 font-semibold">you're already part of this earning revolution</span>. 
+                  Join us in building the future of play-to-earn Web3 gaming.
                 </p>
               </div>
             </section>
 
             {/* Call to Action */}
             <section className="text-center pt-8 border-t border-gray-700">
-              <h3 className="text-xl font-bold text-white mb-4">Ready to Test Your Skills?</h3>
+              <h3 className="text-xl font-bold text-white mb-4">Ready to Start Earning?</h3>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button 
                   onClick={() => window.location.href = '/cryptoclash'}
                   className="btn-primary"
                 >
-                  Play CryptoClash Now
+                  Start Earning Now
                 </button>
                 <button 
                   onClick={() => window.location.href = '/leaderboard'}
                   className="btn-secondary"
                 >
-                  View Leaderboards
+                  View Top Earners
                 </button>
               </div>
             </section>
