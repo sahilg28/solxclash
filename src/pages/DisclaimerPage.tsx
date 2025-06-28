@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, AlertTriangle, Target, Users, Zap, TrendingUp, Coins } from 'lucide-react';
+import { Shield, AlertTriangle, Target, Users, Zap, TrendingUp } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
@@ -16,7 +16,7 @@ const DisclaimerPage = () => {
             </div>
             <h1 className="text-4xl lg:text-5xl font-bold text-white mb-4">General Disclaimer</h1>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Understanding SolxClash: A play-to-earn Web3 gaming platform built on transparency and fair competition
+              Understanding SolxClash: A skill-based Web3 gaming platform built on transparency and fair competition
             </p>
           </div>
 
@@ -25,13 +25,13 @@ const DisclaimerPage = () => {
             {/* Platform Overview */}
             <section>
               <div className="flex items-center mb-6">
-                <Coins className="w-6 h-6 text-yellow-400 mr-3" />
+                <Target className="w-6 h-6 text-yellow-400 mr-3" />
                 <h2 className="text-2xl font-bold text-white">What is SolxClash?</h2>
               </div>
               <div className="text-gray-300 space-y-4">
                 <p>
-                  SolxClash is a <span className="text-yellow-400 font-semibold">play-to-earn Web3 gaming platform</span> designed for entertainment and competitive gaming. 
-                  The platform rewards players for participation while providing enhanced earning opportunities for strategic gameplay and knowledge.
+                  SolxClash is a <span className="text-yellow-400 font-semibold">skill-based Web3 gaming platform</span> designed for entertainment and competitive gaming. 
+                  The platform rewards players for their knowledge, strategy, and gaming skills — not luck or spending power.
                 </p>
                 <p>
                   While we strive to ensure accuracy and reliability in all our services, we make no guarantees regarding completeness, 
@@ -44,8 +44,8 @@ const DisclaimerPage = () => {
                     <div>
                       <h4 className="text-blue-400 font-semibold mb-2">Our Core Principle</h4>
                       <p className="text-gray-300 text-sm">
-                        SolxClash operates on the principle that <span className="text-yellow-400 font-semibold">everyone should earn from playing</span>, 
-                        while <span className="text-green-400 font-semibold">strategic players earn exponentially more</span> through knowledge and fair competition.
+                        SolxClash operates on the principle that <span className="text-yellow-400 font-semibold">skill should determine success</span>, 
+                        not wallet size or random chance. All our games are designed to reward knowledge, strategy, and fair competition.
                       </p>
                     </div>
                   </div>
@@ -63,7 +63,7 @@ const DisclaimerPage = () => {
                 <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4">
                   <p className="font-semibold text-red-400 mb-2">Important: SolxClash does not offer financial, trading, or investment advice.</p>
                   <p className="text-gray-300 text-sm">
-                    Any in-game price prediction or virtual outcome is for <span className="text-yellow-400 font-semibold">entertainment and competitive gaming purposes only</span> 
+                    Any in-game price prediction or virtual outcome is for <span className="text-yellow-400 font-semibold">entertainment and skill-testing purposes only</span> 
                     and should not be interpreted as real-world financial guidance.
                   </p>
                 </div>
@@ -82,10 +82,10 @@ const DisclaimerPage = () => {
                   <div className="bg-gray-800/50 rounded-lg p-4">
                     <h4 className="text-white font-semibold mb-2">✅ We ARE:</h4>
                     <ul className="text-sm space-y-1">
-                      <li>• A play-to-earn gaming platform</li>
+                      <li>• A skill-based gaming platform</li>
                       <li>• An entertainment service</li>
                       <li>• A competitive gaming community</li>
-                      <li>• A fair earning environment</li>
+                      <li>• A fair play environment</li>
                     </ul>
                   </div>
                 </div>
@@ -108,7 +108,7 @@ const DisclaimerPage = () => {
                 <div className="grid md:grid-cols-3 gap-4">
                   <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-4 text-center">
                     <Target className="w-8 h-8 text-green-400 mx-auto mb-2" />
-                    <h4 className="text-green-400 font-semibold mb-2">Test Knowledge</h4>
+                    <h4 className="text-green-400 font-semibold mb-2">Test Skills</h4>
                     <p className="text-sm">Challenge your market knowledge and strategic thinking</p>
                   </div>
                   <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 text-center">
@@ -136,7 +136,7 @@ const DisclaimerPage = () => {
                 <h2 className="text-2xl font-bold text-white">Risk Awareness</h2>
               </div>
               <div className="text-gray-300 space-y-4">
-                <p>While SolxClash emphasizes play-to-earn gaming, risks include but are not limited to:</p>
+                <p>While SolxClash emphasizes skill-based gaming, risks include but are not limited to:</p>
                 <div className="bg-yellow-400/10 border border-yellow-400/20 rounded-lg p-4">
                   <ul className="grid md:grid-cols-2 gap-2 text-sm">
                     <li className="flex items-start space-x-2">
