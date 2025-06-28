@@ -677,7 +677,7 @@ const CryptoClashPage = () => {
                   <div className="space-y-4">
                     <div className="text-center mb-4">
                       <p className="text-gray-300 text-sm mb-2">
-                        Will <span className="text-yellow-400 font-semibold">{selectedCoin}</span> price go UP or DOWN?
+                        Will <span className="text-yellow-400 font-semibold">{selectedCoin}</span> price RISE or FALL?
                       </p>
                     </div>
 
