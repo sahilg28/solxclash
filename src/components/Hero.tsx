@@ -46,7 +46,7 @@ const Hero = () => {
                 onClick={scrollToWaitlist}
                 className="btn-secondary"
               >
-                Join the Revolution
+                Join Waitlist
               </button>
             </div>
           </div>
