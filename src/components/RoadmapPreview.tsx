@@ -176,7 +176,7 @@ const RoadmapPreview = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button 
-                onClick={() => window.location.href = '/cryptoclash'}
+                onClick={() => window.location.href = '/chessclash'}
                 className="btn-primary"
               >
                 Start Now
