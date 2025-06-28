@@ -4,13 +4,12 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import AuthButtons from '../components/AuthButtons';
 import ChessClash from '../components/ChessClash';
-import { Zap, Crown, Target, Clock, Cpu, User, Shuffle, Trophy, Brain } from 'lucide-react';
+import { Zap, Crown, Target, Clock, Cpu, User, Trophy, Brain } from 'lucide-react';
 
 const ChessClashPage = () => {
   const { user, profile, loading } = useAuthContext();
   const [gameConfig, setGameConfig] = useState(null);
   const [selectedDifficulty, setSelectedDifficulty] = useState('medium');
-  const [selectedColor, setSelectedColor] = useState('random');
 
   const difficulties = [
     { 
@@ -42,35 +41,11 @@ const ChessClashPage = () => {
     }
   ];
 
-  const colorOptions = [
-    { 
-      value: 'white', 
-      label: 'White', 
-      description: 'Play as white pieces (first move)',
-      icon: <User className="w-5 h-5" />,
-      color: 'text-white'
-    },
-    { 
-      value: 'black', 
-      label: 'Black', 
-      description: 'Play as black pieces (second move)',
-      icon: <User className="w-5 h-5" />,
-      color: 'text-gray-400'
-    },
-    { 
-      value: 'random', 
-      label: 'Random', 
-      description: 'Randomly assigned color',
-      icon: <Shuffle className="w-5 h-5" />,
-      color: 'text-yellow-400'
-    }
-  ];
-
   const handleStartGame = () => {
-    const finalColor = selectedColor === 'random' ? (Math.random() > 0.5 ? 'white' : 'black') : selectedColor;
+    // Always set player to white and bot to black
     setGameConfig({
       difficulty: selectedDifficulty,
-      playerColor: finalColor,
+      playerColor: 'white',
       xpCost: difficulties.find(d => d.value === selectedDifficulty)?.xpCost || 30
     });
   };
@@ -156,7 +131,7 @@ const ChessClashPage = () => {
               <span className="text-yellow-400">Chess</span>Clash
             </h1>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8">
-              Test your strategic mastery against our advanced AI. Choose your difficulty, pick your side, and prove your chess skills in this skill-based competition.
+              Test your strategic mastery against our advanced AI. Choose your difficulty and prove your chess skills in this skill-based competition.
             </p>
             
             {/* Player Stats */}
@@ -205,73 +180,75 @@ const ChessClashPage = () => {
           <div className="max-w-4xl mx-auto">
             {/* Game Configuration */}
             <div className="space-y-8 animate-slide-in-left">
-              {/* Difficulty Selection */}
+              
+              {/* Game Parameters Display */}
               <div className="bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-xl border border-yellow-400/20 rounded-2xl p-8">
                 <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
                   <Cpu className="w-6 h-6 text-yellow-400 mr-3" />
-                  Choose Your Challenge
+                  Play with Bot
                 </h2>
-                <div className="space-y-4">
-                  {difficulties.map((difficulty) => (
-                    <button
-                      key={difficulty.value}
-                      onClick={() => setSelectedDifficulty(difficulty.value)}
-                      className={`w-full p-4 rounded-xl border-2 transition-all duration-300 text-left ${
-                        selectedDifficulty === difficulty.value
-                          ? 'bg-yellow-400/10 border-yellow-400 shadow-lg'
-                          : 'bg-gray-800/50 border-gray-700 hover:border-yellow-400/50 hover:bg-yellow-400/5'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center space-x-3">
-                          <div className={`${difficulty.color}`}>
-                            {difficulty.icon}
-                          </div>
-                          <span className="font-semibold text-white text-lg">{difficulty.label}</span>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-sm text-gray-400">Cost</div>
-                          <div className="text-yellow-400 font-bold">{difficulty.xpCost} XP</div>
-                        </div>
-                      </div>
-                      <p className="text-gray-300 text-sm mb-3">{difficulty.description}</p>
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="text-gray-400">Win Reward:</span>
-                        <span className="text-green-400 font-semibold">{difficulty.xpWin} XP</span>
-                      </div>
-                    </button>
-                  ))}
+                
+                {/* Fixed Game Parameters */}
+                <div className="grid md:grid-cols-3 gap-6 mb-8">
+                  <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 text-center">
+                    <Clock className="w-8 h-8 text-blue-400 mx-auto mb-3" />
+                    <h3 className="text-lg font-semibold text-white mb-2">Timeframe</h3>
+                    <p className="text-blue-400 font-bold">10 min round</p>
+                    <p className="text-gray-400 text-sm">Total game time</p>
+                  </div>
+                  
+                  <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-4 text-center">
+                    <User className="w-8 h-8 text-green-400 mx-auto mb-3" />
+                    <h3 className="text-lg font-semibold text-white mb-2">User Side</h3>
+                    <p className="text-green-400 font-bold">White</p>
+                    <p className="text-gray-400 text-sm">You move first</p>
+                  </div>
+                  
+                  <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 text-center">
+                    <Cpu className="w-8 h-8 text-red-400 mx-auto mb-3" />
+                    <h3 className="text-lg font-semibold text-white mb-2">Bot</h3>
+                    <p className="text-red-400 font-bold">Black</p>
+                    <p className="text-gray-400 text-sm">AI opponent</p>
+                  </div>
                 </div>
-              </div>
 
-              {/* Color Selection */}
-              <div className="bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-xl border border-yellow-400/20 rounded-2xl p-8">
-                <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
-                  <Crown className="w-6 h-6 text-yellow-400 mr-3" />
-                  Pick Your Side
-                </h2>
-                <div className="grid grid-cols-1 gap-4">
-                  {colorOptions.map((option) => (
-                    <button
-                      key={option.value}
-                      onClick={() => setSelectedColor(option.value)}
-                      className={`p-4 rounded-xl border-2 transition-all duration-300 text-left ${
-                        selectedColor === option.value
-                          ? 'bg-yellow-400/10 border-yellow-400 shadow-lg'
-                          : 'bg-gray-800/50 border-gray-700 hover:border-yellow-400/50 hover:bg-yellow-400/5'
-                      }`}
-                    >
-                      <div className="flex items-center space-x-3">
-                        <div className={`${option.color}`}>
-                          {option.icon}
+                {/* Choose Mode Section */}
+                <div className="border-t border-gray-700 pt-6">
+                  <h3 className="text-xl font-bold text-white mb-4 flex items-center">
+                    <Target className="w-5 h-5 text-yellow-400 mr-2" />
+                    Choose Mode
+                  </h3>
+                  <div className="space-y-4">
+                    {difficulties.map((difficulty) => (
+                      <button
+                        key={difficulty.value}
+                        onClick={() => setSelectedDifficulty(difficulty.value)}
+                        className={`w-full p-4 rounded-xl border-2 transition-all duration-300 text-left ${
+                          selectedDifficulty === difficulty.value
+                            ? 'bg-yellow-400/10 border-yellow-400 shadow-lg'
+                            : 'bg-gray-800/50 border-gray-700 hover:border-yellow-400/50 hover:bg-yellow-400/5'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center space-x-3">
+                            <div className={`${difficulty.color}`}>
+                              {difficulty.icon}
+                            </div>
+                            <span className="font-semibold text-white text-lg">{difficulty.label}</span>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-sm text-gray-400">Cost</div>
+                            <div className="text-yellow-400 font-bold">{difficulty.xpCost} XP</div>
+                          </div>
                         </div>
-                        <div>
-                          <div className="font-semibold text-white">{option.label}</div>
-                          <div className="text-gray-400 text-sm">{option.description}</div>
+                        <p className="text-gray-300 text-sm mb-3">{difficulty.description}</p>
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-gray-400">Win Reward:</span>
+                          <span className="text-green-400 font-semibold">{difficulty.xpWin} XP</span>
                         </div>
-                      </div>
-                    </button>
-                  ))}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
