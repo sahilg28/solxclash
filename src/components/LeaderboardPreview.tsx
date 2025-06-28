@@ -57,6 +57,19 @@ const LeaderboardPreview = () => {
     }
   };
 
+  const getRankBadge = (rank: number) => {
+    if (rank <= 3) {
+      return (
+        <div className={`absolute -top-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center ${
+          rank === 1 ? 'bg-yellow-400' : rank === 2 ? 'bg-gray-300' : 'bg-yellow-600'
+        }`}>
+          <Star className="w-4 h-4 text-black" />
+        </div>
+      );
+    }
+    return null;
+  };
+
   const getRowStyle = (rank: number) => {
     if (rank === 1) return 'bg-gradient-to-r from-yellow-400/10 to-yellow-600/10 border-yellow-400/30 animate-glow';
     if (rank === 2) return 'bg-gradient-to-r from-gray-300/10 to-gray-500/10 border-gray-300/30';
@@ -66,7 +79,7 @@ const LeaderboardPreview = () => {
 
   if (loading) {
     return (
-      <section className="py-20 bg-gradient-to-b from-gray-900 via-yellow-900/20 to-black">
+      <section className="py-20 bg-gradient-to-b from-gray-900 via-purple-900/20 to-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
@@ -91,11 +104,11 @@ const LeaderboardPreview = () => {
   }
 
   return (
-    <section className="py-20 bg-gradient-to-b from-gray-900 via-yellow-900/20 to-black relative overflow-hidden">
+    <section className="py-20 bg-gradient-to-b from-gray-900 via-purple-900/20 to-black relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/3 left-1/3 w-64 h-64 bg-yellow-400/5 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/3 right-1/3 w-96 h-96 bg-yellow-400/3 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/3 left-1/3 w-64 h-64 bg-purple-400/5 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/3 right-1/3 w-96 h-96 bg-purple-400/3 rounded-full blur-3xl animate-pulse delay-1000"></div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -164,9 +177,7 @@ const LeaderboardPreview = () => {
                     <div className="grid grid-cols-12 gap-4 items-center">
                       <div className="col-span-1 flex items-center justify-center relative">
                         {getRankIcon(player.rank)}
-                        {player.rank <= 3 && (
-                          <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-pulse"></div>
-                        )}
+                        {getRankBadge(player.rank)}
                       </div>
 
                       <div className="col-span-4 flex items-center space-x-3">
