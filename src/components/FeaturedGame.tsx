@@ -181,8 +181,6 @@ const FeaturedGame = () => {
             </div>
           </div>
         </div>
-
-
       </div>
     </section>
   );
