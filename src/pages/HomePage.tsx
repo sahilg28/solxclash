@@ -6,10 +6,12 @@ import LeaderboardPreview from '../components/LeaderboardPreview';
 import RoadmapPreview from '../components/RoadmapPreview';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
+import SquareGridBackground from '../components/SquareGridBackground';
 
 const HomePage = () => {
   return (
     <>
+      <SquareGridBackground />
       <Header />
       <Hero />
       <WaitlistSection />

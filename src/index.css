@@ -6,6 +6,60 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Square Grid Background Styles */
+.grid-background-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+  grid-auto-rows: 60px;
+  gap: 0;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+@media (min-width: 640px) {
+  .grid-background-container {
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    grid-auto-rows: 80px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-background-container {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    grid-auto-rows: 100px;
+  }
+}
+
+.grid-square {
+  border: 1px solid rgba(255, 255, 255, 0.02);
+  background: transparent;
+  animation: flicker-pulse infinite ease-in-out;
+  transition: all 0.3s ease;
+}
+
+@keyframes flicker-pulse {
+  0%, 100% {
+    opacity: 0.1;
+    box-shadow: inset 0 0 0 1px rgba(250, 204, 21, 0);
+    background: rgba(250, 204, 21, 0);
+  }
+  25% {
+    opacity: 0.3;
+    box-shadow: inset 0 0 0 1px rgba(250, 204, 21, 0.05);
+    background: rgba(250, 204, 21, 0.01);
+  }
+  50% {
+    opacity: 0.6;
+    box-shadow: inset 0 0 0 1px rgba(250, 204, 21, 0.1);
+    background: rgba(250, 204, 21, 0.02);
+  }
+  75% {
+    opacity: 0.3;
+    box-shadow: inset 0 0 0 1px rgba(250, 204, 21, 0.05);
+    background: rgba(250, 204, 21, 0.01);
+  }
+}
+
 /* Enhanced animations and transitions */
 @keyframes fadeInUp {
   from {
