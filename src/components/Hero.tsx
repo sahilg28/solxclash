@@ -83,7 +83,6 @@ const Hero = () => {
                 <div className="text-3xl md:text-4xl font-bold text-yellow-400 mb-2">500+</div>
                 <div className="text-gray-400 text-sm">Active Players</div>
               </div>
-              </div>
 
               {/* Games available */}
               <div className="text-center md:text-right">
