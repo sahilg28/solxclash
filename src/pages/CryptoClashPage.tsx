@@ -687,7 +687,7 @@ const CryptoClashPage = () => {
                           <Coins className="w-4 h-4" />
                           <span>XP Investment: {selectedXpBet}</span>
                         </div>
-                        <div className="text-xs text-gray-400">
+                        <div className="text-lg text-gray-400">
                           Correct prediction returns {selectedXpBet * 2} XP
                         </div>
                       </div>
