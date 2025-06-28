@@ -73,22 +73,7 @@ const Hero = () => {
               <span>Join Waitlist</span>
             </button>
           </div>
-
-          {/* Social proof section */}
-          <div className="mt-20 pt-12 border-t border-gray-800 w-full max-w-4xl animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
-            <div className="flex flex-col md:flex-row items-center justify-between gap-8">
               
-              {/* Player count */}
-              <div className="text-center md:text-left">
-                <div className="text-3xl md:text-4xl font-bold text-yellow-400 mb-2">500+</div>
-                <div className="text-gray-400 text-sm">Active Players</div>
-              </div>
-
-              {/* Games available */}
-              <div className="text-center md:text-right">
-                <div className="text-3xl md:text-4xl font-bold text-yellow-400 mb-2">2</div>
-                <div className="text-gray-400 text-sm">Games Available</div>
-              </div>
             </div>
           </div>
         </div>
