@@ -84,7 +84,7 @@ const FeaturedGame = () => {
                   </div>
                   <div className="flex items-center space-x-2">
                     <Brain className="w-4 h-4 text-purple-400" />
-                    <span className="text-gray-300">Skill-based earning</span>
+                    <span className="text-gray-300">Skill-up Crypto Knowledge</span>
                   </div>
                 </div>
               </div>
