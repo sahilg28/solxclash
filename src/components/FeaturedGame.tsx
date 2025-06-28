@@ -36,7 +36,7 @@ const FeaturedGame = () => {
                   </div>
                 </div>
                 <div className="bg-green-500/20 border border-green-500/30 rounded-full px-3 py-1">
-                  <span className="text-green-400 text-xs font-semibold">EARNING</span>
+                  <span className="text-green-400 text-xs font-semibold">ONGOING</span>
                 </div>
               </div>
 
