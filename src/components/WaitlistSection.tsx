@@ -99,11 +99,6 @@ const WaitlistSection = () => {
               </div>
             )}
           </form>
-
-          {/* Created by text */}
-          <div className="text-gray-400 text-sm">
-            Created by SolxClash
-          </div>
         </div>
       </div>
     </section>
