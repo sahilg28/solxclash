@@ -69,6 +69,16 @@ html {
   }
 }
 
+/* King in check pulse animation */
+@keyframes king-in-check-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 3px #ef4444;
+  }
+  50% {
+    box-shadow: 0 0 0 6px #ef444480, 0 0 20px #ef4444;
+  }
+}
+
 .animate-fade-in-up {
   animation: fadeInUp 0.6s ease-out;
 }

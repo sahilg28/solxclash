@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Chess } from 'chess.js';
 import { Chessboard } from 'react-chessboard';
-import { Zap, CheckCircle, AlertCircle, RotateCcw, X as CloseIcon, Clock, User as UserIcon, Cpu, Brain, Target, Trophy, ArrowLeft, Home, Flag } from 'lucide-react';
+import { Zap, CheckCircle, AlertCircle, RotateCcw, Settings, X as CloseIcon, Clock, User as UserIcon, Cpu, Brain, Target, Trophy, ArrowLeft, Home, Flag, Menu, BarChart3, History, Info } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuthContext } from './AuthProvider';
 import { useNavigate } from 'react-router-dom';
@@ -107,6 +107,7 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
   const [gameStats, setGameStats] = useState({ captures: 0, checks: 0 });
   const navigate = useNavigate();
   const [showResignConfirm, setShowResignConfirm] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const pendingTransition = useRef(null);
 
   // Initialize game based on player color
@@ -294,6 +295,7 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
   // Resign
   const handleResign = () => {
     setShowResignConfirm(true);
+    setIsSidebarOpen(false);
   };
   
   const confirmResign = () => {
@@ -308,19 +310,18 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
     setShowResignConfirm(false);
   };
 
-  // Enhanced board square styles
+  // Enhanced board square styles with smaller dots for legal moves
   const customSquareStyles = useMemo(() => {
     const styles = {};
     
     if (selectedSquare) {
       styles[selectedSquare] = {
-        boxShadow: '0 0 0 4px #facc15cc',
+        boxShadow: '0 0 0 3px #facc15cc',
       };
       legalMoves.forEach((sq) => {
         styles[sq] = {
-          backgroundColor: '#facc1580',
-          borderRadius: '50%',
-          border: '2px solid #facc15',
+          background: 'radial-gradient(circle, #facc15 20%, transparent 25%)',
+          borderRadius: '0%',
         };
       });
     }
@@ -329,17 +330,39 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
       styles[lastMove.from] = {
         ...styles[lastMove.from],
         backgroundColor: '#3b82f680',
-        border: '2px solid #3b82f6',
       };
       styles[lastMove.to] = {
         ...styles[lastMove.to],
         backgroundColor: '#3b82f680',
-        border: '2px solid #3b82f6',
       };
+    }
+
+    // King in check animation
+    if (game.isCheck()) {
+      const kingSquare = game.board().flat().find(piece => 
+        piece && piece.type === 'k' && piece.color === game.turn()
+      );
+      if (kingSquare) {
+        const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+        const ranks = ['8', '7', '6', '5', '4', '3', '2', '1'];
+        for (let rank = 0; rank < 8; rank++) {
+          for (let file = 0; file < 8; file++) {
+            const square = files[file] + ranks[rank];
+            const piece = game.get(square);
+            if (piece && piece.type === 'k' && piece.color === game.turn()) {
+              styles[square] = {
+                ...styles[square],
+                animation: 'king-in-check-pulse 1s infinite',
+                boxShadow: '0 0 0 3px #ef4444',
+              };
+            }
+          }
+        }
+      }
     }
     
     return styles;
-  }, [selectedSquare, legalMoves, lastMove]);
+  }, [selectedSquare, legalMoves, lastMove, game]);
 
   const formatTime = (t) => `${Math.floor(t/60)}:${(t%60).toString().padStart(2,'0')}`;
 
@@ -356,21 +379,63 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [isGameActive, result]);
 
+  // Calculate board width for mobile-first design
+  const getBoardWidth = () => {
+    const screenWidth = window.innerWidth;
+    if (screenWidth < 640) { // mobile
+      return Math.min(screenWidth - 32, 360);
+    } else if (screenWidth < 1024) { // tablet
+      return 400;
+    } else { // desktop
+      return 480;
+    }
+  };
+
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-gray-900 to-black">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col lg:flex-row gap-8 items-start">
+      {/* Mobile Header */}
+      <div className="lg:hidden bg-gradient-to-r from-gray-900/80 to-black/60 border-b border-yellow-400/20 p-4">
+        <div className="flex items-center justify-between">
+          <button
+            onClick={onBackToSetup}
+            className="p-2 rounded-lg bg-gray-800/50 text-yellow-400 hover:bg-yellow-400/20 transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
           
-          {/* Left Sidebar - Game Info */}
-          <div className="w-full lg:w-80 space-y-6">
-            {/* Game Timer */}
+          {/* Single Game Timer - Mobile */}
+          <div className="flex items-center space-x-3 bg-gradient-to-r from-yellow-400/10 to-yellow-600/10 border border-yellow-400/30 rounded-xl px-4 py-2">
+            <Clock className="w-5 h-5 text-yellow-400" />
+            <div className="text-center">
+              <div className="text-xl font-bold text-white">
+                {formatTime(gameTime)}
+              </div>
+              <div className="text-xs text-gray-400">Total Game Time</div>
+            </div>
+          </div>
+          
+          <button
+            onClick={() => setIsSidebarOpen(true)}
+            className="p-2 rounded-lg bg-gray-800/50 text-yellow-400 hover:bg-yellow-400/20 transition-colors"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-8">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
+          
+          {/* Desktop Left Sidebar - Hidden on mobile */}
+          <div className="hidden lg:block w-80 space-y-6">
+            {/* Game Timer - Desktop */}
             <div className="bg-gradient-to-br from-gray-800/80 to-black/60 rounded-xl p-4 border-2 border-yellow-400">
               <div className="text-center">
                 <Clock className="w-8 h-8 text-yellow-400 mx-auto mb-2" />
                 <div className="text-3xl font-bold text-white mb-1">
                   {formatTime(gameTime)}
                 </div>
-                <div className="text-sm text-gray-400">Game Time Remaining</div>
+                <div className="text-sm text-gray-400">Total Game Time</div>
                 <div className="w-full bg-gray-700 rounded-full h-2 mt-3">
                   <div 
                     className="bg-yellow-400 h-2 rounded-full transition-all duration-1000"
@@ -423,6 +488,101 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
               </div>
             </div>
 
+            {/* Game Controls - Desktop */}
+            <div className="space-y-3">
+              <button
+                onClick={handleResign}
+                className="w-full bg-red-500 text-white px-4 py-3 rounded-lg font-semibold hover:bg-red-400 transition-colors duration-200 flex items-center justify-center space-x-2"
+              >
+                <Flag className="w-5 h-5" />
+                <span>Resign</span>
+              </button>
+              
+              <button
+                onClick={onBackToSetup}
+                className="w-full bg-gray-800 text-yellow-400 px-4 py-3 rounded-lg font-semibold hover:bg-yellow-400 hover:text-black transition-colors duration-200 flex items-center justify-center space-x-2"
+              >
+                <ArrowLeft className="w-5 h-5" />
+                <span>New Game</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Center - Chessboard (Mobile-First) */}
+          <div className="flex-1 flex flex-col items-center">
+            {/* Turn Indicator - Mobile Only */}
+            <div className="lg:hidden w-full max-w-sm mb-4">
+              <div className="bg-gradient-to-r from-gray-800/80 to-black/60 rounded-lg p-3 border border-yellow-400/20">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    {game.turn() === (gameConfig.playerColor === 'white' ? 'w' : 'b') ? (
+                      <>
+                        <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                        <span className="text-green-400 font-semibold">Your Turn</span>
+                      </>
+                    ) : (
+                      <>
+                        <div className="w-3 h-3 bg-yellow-400 rounded-full animate-pulse"></div>
+                        <span className="text-yellow-400 font-semibold">Bot's Turn</span>
+                      </>
+                    )}
+                  </div>
+                  {game.isCheck() && (
+                    <div className="flex items-center space-x-1 text-red-400">
+                      <AlertCircle className="w-4 h-4" />
+                      <span className="text-sm font-semibold">Check!</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="w-full max-w-lg bg-gradient-to-br from-yellow-400/10 to-black/30 rounded-2xl shadow-2xl p-2 sm:p-4 mb-4">
+              <Chessboard
+                position={fen}
+                onSquareClick={handleSquareClick}
+                customSquareStyles={customSquareStyles}
+                boardWidth={getBoardWidth()}
+                customDarkSquareStyle={{ backgroundColor: BOARD_COLORS.dark, boxShadow: 'inset 0 2px 8px #00000044' }}
+                customLightSquareStyle={{ backgroundColor: BOARD_COLORS.light, boxShadow: 'inset 0 2px 8px #00000022' }}
+                arePiecesDraggable={false}
+                animationDuration={300}
+                boardOrientation={gameConfig.playerColor}
+                id="chessclash-board"
+              />
+            </div>
+          </div>
+
+          {/* Desktop Right Sidebar - Hidden on mobile */}
+          <div className="hidden lg:block w-80 space-y-6">
+            {/* Match Info */}
+            <div className="bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-xl border border-yellow-400/20 rounded-xl p-4">
+              <h3 className="text-lg font-bold text-yellow-400 mb-3 flex items-center">
+                <Cpu className="w-5 h-5 mr-2" />
+                Match Info
+              </h3>
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-300">Your Color:</span>
+                  <span className="text-white font-semibold capitalize">{gameConfig.playerColor}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-300">Difficulty:</span>
+                  <span className="text-white font-semibold capitalize">{gameConfig.difficulty}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-300">XP Invested:</span>
+                  <span className="text-yellow-400 font-bold">{gameConfig.xpCost} XP</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-300">Potential Win:</span>
+                  <span className="text-green-400 font-bold">
+                    {gameConfig.difficulty === 'easy' ? 40 : gameConfig.difficulty === 'medium' ? 60 : 100} XP
+                  </span>
+                </div>
+              </div>
+            </div>
+
             {/* Game Stats */}
             <div className="bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-xl border border-yellow-400/20 rounded-xl p-4">
               <h3 className="text-lg font-bold text-yellow-400 mb-3 flex items-center">
@@ -460,99 +620,132 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
                 )}
               </div>
             </div>
-
-            {/* Game Controls */}
-            <div className="space-y-3">
-              <button
-                onClick={handleResign}
-                className="w-full bg-red-500 text-white px-4 py-3 rounded-lg font-semibold hover:bg-red-400 transition-colors duration-200 flex items-center justify-center space-x-2"
-              >
-                <Flag className="w-5 h-5" />
-                <span>Resign</span>
-              </button>
-              
-              <button
-                onClick={onBackToSetup}
-                className="w-full bg-gray-800 text-yellow-400 px-4 py-3 rounded-lg font-semibold hover:bg-yellow-400 hover:text-black transition-colors duration-200 flex items-center justify-center space-x-2"
-              >
-                <ArrowLeft className="w-5 h-5" />
-                <span>New Game</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Center - Chessboard */}
-          <div className="flex-1 flex flex-col items-center">
-            <div className="w-full max-w-lg bg-gradient-to-br from-yellow-400/10 to-black/30 rounded-2xl shadow-2xl p-4 mb-4">
-              <Chessboard
-                position={fen}
-                onSquareClick={handleSquareClick}
-                customSquareStyles={customSquareStyles}
-                boardWidth={Math.min(window.innerWidth < 768 ? window.innerWidth - 64 : 480, 480)}
-                customDarkSquareStyle={{ backgroundColor: BOARD_COLORS.dark, boxShadow: 'inset 0 2px 8px #00000044' }}
-                customLightSquareStyle={{ backgroundColor: BOARD_COLORS.light, boxShadow: 'inset 0 2px 8px #00000022' }}
-                arePiecesDraggable={false}
-                animationDuration={300}
-                boardOrientation={gameConfig.playerColor}
-                id="chessclash-board"
-              />
-            </div>
-          </div>
-
-          {/* Right Sidebar - Match Info */}
-          <div className="w-full lg:w-80 space-y-6">
-            {/* Match Info */}
-            <div className="bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-xl border border-yellow-400/20 rounded-xl p-4">
-              <h3 className="text-lg font-bold text-yellow-400 mb-3 flex items-center">
-                <Cpu className="w-5 h-5 mr-2" />
-                Match Info
-              </h3>
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-300">Your Color:</span>
-                  <span className="text-white font-semibold capitalize">{gameConfig.playerColor}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-300">Difficulty:</span>
-                  <span className="text-white font-semibold capitalize">{gameConfig.difficulty}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-300">XP Invested:</span>
-                  <span className="text-yellow-400 font-bold">{gameConfig.xpCost} XP</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-300">Potential Win:</span>
-                  <span className="text-green-400 font-bold">
-                    {gameConfig.difficulty === 'easy' ? 40 : gameConfig.difficulty === 'medium' ? 60 : 100} XP
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Game Status */}
-            <div className="bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-xl border border-yellow-400/20 rounded-xl p-4">
-              <h3 className="text-lg font-bold text-yellow-400 mb-3">Game Status</h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center space-x-2">
-                  <div className={`w-2 h-2 rounded-full ${isGameActive ? 'bg-green-400 animate-pulse' : 'bg-gray-400'}`}></div>
-                  <span className="text-gray-300">{isGameActive ? 'Game Active' : 'Game Ended'}</span>
-                </div>
-                {game.isCheck() && (
-                  <div className="flex items-center space-x-2">
-                    <AlertCircle className="w-4 h-4 text-red-400" />
-                    <span className="text-red-400">Check!</span>
-                  </div>
-                )}
-                <div className="text-gray-400">
-                  Turn: {game.turn() === 'w' ? 'White' : 'Black'}
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
 
-      {/* Result Modal - No auto-hide timeout */}
+      {/* Mobile Sidebar */}
+      {isSidebarOpen && (
+        <div className="lg:hidden fixed inset-0 z-50 flex">
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+          
+          {/* Sidebar */}
+          <div className="relative ml-auto w-80 max-w-[85vw] bg-gradient-to-br from-gray-900 to-black border-l border-yellow-400/20 h-full overflow-y-auto">
+            <div className="p-6 space-y-6">
+              {/* Header */}
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-yellow-400 flex items-center">
+                  <Settings className="w-5 h-5 mr-2" />
+                  Game Menu
+                </h2>
+                <button
+                  onClick={() => setIsSidebarOpen(false)}
+                  className="p-2 rounded-lg text-gray-400 hover:text-yellow-400 hover:bg-gray-800 transition-colors"
+                >
+                  <CloseIcon className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Match Info */}
+              <div className="bg-gradient-to-br from-gray-800/80 to-black/60 rounded-xl p-4 border border-yellow-400/20">
+                <h3 className="text-lg font-bold text-yellow-400 mb-3 flex items-center">
+                  <Info className="w-5 h-5 mr-2" />
+                  Match Info
+                </h3>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-300">Your Color:</span>
+                    <span className="text-white font-semibold capitalize">{gameConfig.playerColor}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-300">Difficulty:</span>
+                    <span className="text-white font-semibold capitalize">{gameConfig.difficulty}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-300">XP Invested:</span>
+                    <span className="text-yellow-400 font-bold">{gameConfig.xpCost} XP</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-300">Potential Win:</span>
+                    <span className="text-green-400 font-bold">
+                      {gameConfig.difficulty === 'easy' ? 40 : gameConfig.difficulty === 'medium' ? 60 : 100} XP
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Game Stats */}
+              <div className="bg-gradient-to-br from-gray-800/80 to-black/60 rounded-xl p-4 border border-yellow-400/20">
+                <h3 className="text-lg font-bold text-yellow-400 mb-3 flex items-center">
+                  <BarChart3 className="w-5 h-5 mr-2" />
+                  Game Stats
+                </h3>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-white">{moveHistory.length}</div>
+                    <div className="text-gray-400">Moves</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-red-400">{gameStats.captures}</div>
+                    <div className="text-gray-400">Captures</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Move History */}
+              <div className="bg-gradient-to-br from-gray-800/80 to-black/60 rounded-xl p-4 border border-yellow-400/20">
+                <h3 className="text-lg font-bold text-yellow-400 mb-3 flex items-center">
+                  <History className="w-5 h-5 mr-2" />
+                  Move History
+                </h3>
+                <div className="max-h-48 overflow-y-auto space-y-1">
+                  {moveHistory.length === 0 ? (
+                    <span className="text-gray-400 text-sm">No moves yet.</span>
+                  ) : (
+                    moveHistory.map((move, i) => (
+                      <div key={i} className="flex items-center justify-between bg-gray-700/50 rounded px-2 py-1">
+                        <span className="text-xs text-gray-400">{Math.floor(i/2) + 1}.</span>
+                        <span className="text-white font-mono text-sm">{move}</span>
+                        <span className="text-xs text-gray-500">
+                          {(gameConfig.playerColor === 'white' && i % 2 === 0) || (gameConfig.playerColor === 'black' && i % 2 === 1) ? 'You' : 'Bot'}
+                        </span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Game Controls */}
+              <div className="space-y-3">
+                <button
+                  onClick={handleResign}
+                  className="w-full bg-red-500 text-white px-4 py-3 rounded-lg font-semibold hover:bg-red-400 transition-colors duration-200 flex items-center justify-center space-x-2"
+                >
+                  <Flag className="w-5 h-5" />
+                  <span>Resign Game</span>
+                </button>
+                
+                <button
+                  onClick={() => {
+                    setIsSidebarOpen(false);
+                    onBackToSetup();
+                  }}
+                  className="w-full bg-yellow-400 text-black px-4 py-3 rounded-lg font-semibold hover:bg-yellow-300 transition-colors duration-200 flex items-center justify-center space-x-2"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                  <span>New Game</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Result Modal */}
       {result && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-gradient-to-br from-gray-900/80 to-black/80 border border-yellow-400/20 rounded-2xl p-8 w-full max-w-md text-center shadow-2xl relative">
@@ -612,7 +805,7 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
           <div className="bg-gradient-to-br from-gray-900/80 to-black/80 border border-red-500/30 rounded-2xl p-8 w-full max-w-md text-center shadow-2xl">
             <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
             <h3 className="text-2xl font-bold text-white mb-4">Resign Game?</h3>
-            <p className="text-gray-300 mb-6">Are you sure you want to resign? You will lose your invested XP.</p>
+            <p className="text-gray-300 mb-6">Are you sure you want to resign? You will lose your invested XP and the game will end immediately.</p>
             <div className="flex gap-4 justify-center">
               <button 
                 onClick={confirmResign} 
