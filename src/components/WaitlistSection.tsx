@@ -40,7 +40,7 @@ const WaitlistSection = () => {
   return (
     <section id="waitlist" className="min-h-screen flex items-center justify-center bg-black relative overflow-hidden">
       {/* Subtle bottom glow effect */}
-      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-purple-900/30 to-transparent pointer-events-none"></div>
+      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-yellow-900/30 to-transparent pointer-events-none"></div>
       
       <div className="text-center">
         {/* Header */}
