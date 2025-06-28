@@ -124,7 +124,7 @@ const Header = () => {
             <img 
               src="/assets/solxclash_logo.svg" 
               alt="SolxClash" 
-              className="w-8 h-8"
+              className="w-8 h-8 rounded"
             />
             <span className="text-xl font-bold text-white">SolxClash</span>
           </Link>
