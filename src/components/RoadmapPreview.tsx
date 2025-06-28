@@ -5,7 +5,7 @@ const RoadmapPreview = () => {
   const phases = [
     {
       phase: 'Phase 0',
-      title: 'Play-to-Earn Foundation',
+      title: 'SolxClash Prototype',
       status: 'current',
       description:
         'Establishing the core play-to-earn mechanics where every player earns from participation, and skilled players earn exponentially more through strategic gameplay.',
