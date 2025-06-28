@@ -123,10 +123,6 @@ const ChessClashPage = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           {/* Header */}
           <div className="text-center mb-12 animate-fade-in-up">
-            <div className="inline-flex items-center px-6 py-3 bg-yellow-400/10 border border-yellow-400/20 rounded-full mb-6">
-              <Zap className="w-5 h-5 text-yellow-400 mr-2" />
-              <span className="text-yellow-400 font-semibold">Strategic Chess Combat</span>
-            </div>
             <h1 className="text-4xl lg:text-5xl font-bold text-white mb-4">
               <span className="text-yellow-400">Chess</span>Clash
             </h1>
