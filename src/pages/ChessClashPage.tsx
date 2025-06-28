@@ -4,7 +4,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import AuthButtons from '../components/AuthButtons';
 import ChessClash from '../components/ChessClash';
-import { Zap, Crown, Target, Clock, Cpu, User, Shuffle, Trophy, Shield, Brain } from 'lucide-react';
+import { Zap, Crown, Target, Clock, Cpu, User, Shuffle, Trophy, Brain } from 'lucide-react';
 
 const ChessClashPage = () => {
   const { user, profile, loading } = useAuthContext();
@@ -202,7 +202,7 @@ const ChessClashPage = () => {
             </div>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-12 items-start">
+          <div className="max-w-4xl mx-auto">
             {/* Game Configuration */}
             <div className="space-y-8 animate-slide-in-left">
               {/* Difficulty Selection */}
@@ -273,87 +273,6 @@ const ChessClashPage = () => {
                     </button>
                   ))}
                 </div>
-              </div>
-            </div>
-
-            {/* Game Preview & Start */}
-            <div className="space-y-8 animate-slide-in-right">
-              {/* Game Summary */}
-              <div className="bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-xl border border-yellow-400/20 rounded-2xl p-8">
-                <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
-                  <Trophy className="w-6 h-6 text-yellow-400 mr-3" />
-                  Game Summary
-                </h2>
-                
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center p-3 bg-gray-800/50 rounded-lg">
-                    <span className="text-gray-300">Difficulty:</span>
-                    <span className="text-white font-semibold">
-                      {difficulties.find(d => d.value === selectedDifficulty)?.label}
-                    </span>
-                  </div>
-                  
-                  <div className="flex justify-between items-center p-3 bg-gray-800/50 rounded-lg">
-                    <span className="text-gray-300">Your Color:</span>
-                    <span className="text-white font-semibold">
-                      {colorOptions.find(c => c.value === selectedColor)?.label}
-                    </span>
-                  </div>
-                  
-                  <div className="flex justify-between items-center p-3 bg-gray-800/50 rounded-lg">
-                    <span className="text-gray-300">Time Control:</span>
-                    <span className="text-white font-semibold">10 min each</span>
-                  </div>
-                  
-                  <div className="flex justify-between items-center p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
-                    <span className="text-gray-300">XP Investment:</span>
-                    <span className="text-red-400 font-bold">
-                      -{difficulties.find(d => d.value === selectedDifficulty)?.xpCost} XP
-                    </span>
-                  </div>
-                  
-                  <div className="flex justify-between items-center p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
-                    <span className="text-gray-300">Win Reward:</span>
-                    <span className="text-green-400 font-bold">
-                      +{difficulties.find(d => d.value === selectedDifficulty)?.xpWin} XP
-                    </span>
-                  </div>
-                  
-                  <div className="flex justify-between items-center p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                    <span className="text-gray-300">Draw Result:</span>
-                    <span className="text-blue-400 font-bold">XP Refunded</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Game Rules */}
-              <div className="bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-xl border border-yellow-400/20 rounded-2xl p-8">
-                <h3 className="text-xl font-bold text-white mb-4 flex items-center">
-                  <Shield className="w-5 h-5 text-yellow-400 mr-2" />
-                  Game Rules
-                </h3>
-                <ul className="space-y-2 text-gray-300 text-sm">
-                  <li className="flex items-start space-x-2">
-                    <span className="text-yellow-400 mt-1">•</span>
-                    <span>Standard chess rules apply</span>
-                  </li>
-                  <li className="flex items-start space-x-2">
-                    <span className="text-yellow-400 mt-1">•</span>
-                    <span>10 minutes per player</span>
-                  </li>
-                  <li className="flex items-start space-x-2">
-                    <span className="text-yellow-400 mt-1">•</span>
-                    <span>Win by checkmate, timeout, or resignation</span>
-                  </li>
-                  <li className="flex items-start space-x-2">
-                    <span className="text-yellow-400 mt-1">•</span>
-                    <span>Draw refunds your XP investment</span>
-                  </li>
-                  <li className="flex items-start space-x-2">
-                    <span className="text-yellow-400 mt-1">•</span>
-                    <span>Leaving during game counts as resignation</span>
-                  </li>
-                </ul>
               </div>
 
               {/* Start Button */}
