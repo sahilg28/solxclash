@@ -131,7 +131,7 @@ const ChessClashPage = () => {
               <span className="text-yellow-400">Chess</span>Clash
             </h1>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8">
-              Test your strategic mastery against our advanced AI. Choose your difficulty and prove your chess skills in this skill-based competition.
+              Play against our AI, sharpen your strategy, win XP and climb the ranks in ChessClash.
             </p>
             
             {/* Player Stats */}
