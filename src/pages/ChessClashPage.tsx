@@ -190,7 +190,6 @@ const ChessClashPage = () => {
                     <Clock className="w-8 h-8 text-blue-400 mx-auto mb-3" />
                     <h3 className="text-lg font-semibold text-white mb-2">Timeframe</h3>
                     <p className="text-blue-400 font-bold">10 min round</p>
-                    <p className="text-gray-400 text-sm">Total game time</p>
                   </div>
                   
                   <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-4 text-center">
