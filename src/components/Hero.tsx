@@ -18,36 +18,36 @@ const Hero = () => {
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-yellow-400/3 rounded-full blur-3xl animate-pulse delay-1000"></div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
-        <div className="flex flex-col items-center text-center justify-start min-h-[calc(90vh-64px)] pt-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
+        <div className="flex flex-col items-center text-center justify-start min-h-[calc(90vh-64px)] pt-8">
           {/* Main Content - Minimal */}
-          <div className="space-y-8 animate-fade-in-up">
-            <div className="space-y-6">
-              <h1 className="text-5xl lg:text-7xl font-bold leading-tight">
+          <div className="space-y-10 animate-fade-in-up">
+            <div className="space-y-8">
+              <h1 className="text-6xl lg:text-8xl xl:text-9xl font-bold leading-tight">
                 <span className="text-yellow-400">Play.</span> <span className="text-white">Compete.</span> <span className="text-yellow-400">Earn.</span><br />
                 <span className="bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
                   Where Skills Matter.
                 </span>
               </h1>
 
-              <p className="text-xl text-gray-300 max-w-2xl leading-relaxed mx-auto">
+              <p className="text-2xl lg:text-3xl text-gray-300 max-w-4xl leading-relaxed mx-auto">
                 The ultimate Web3 play-to-earn gaming platform where <span className="text-yellow-400 font-semibold">your gaming skills unlock bigger rewards</span>. 
               </p>
             </div>
 
             {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-4 animate-slide-in-left justify-center">
+            <div className="flex flex-col sm:flex-row gap-6 animate-slide-in-left justify-center pt-4">
               <Link
                 to="/cryptoclash"
-                className="group btn-primary flex items-center justify-center space-x-2"
+                className="group bg-yellow-400 text-black px-8 py-4 rounded-lg font-bold text-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:bg-yellow-300 flex items-center justify-center space-x-3"
               >
-                <Gamepad2 className="w-5 h-5" />
+                <Gamepad2 className="w-6 h-6" />
                 <span>Start Earning Now</span>
               </Link>
 
               <button
                 onClick={scrollToWaitlist}
-                className="btn-secondary"
+                className="border-2 border-yellow-400 text-yellow-400 px-8 py-4 rounded-lg font-bold text-xl transition-all duration-300 hover:bg-yellow-400/10 hover:scale-105"
               >
                 Join the Revolution
               </button>
