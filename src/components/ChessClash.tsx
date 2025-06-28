@@ -167,7 +167,7 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
     return () => clearInterval(id);
   }, [isGameActive, result]);
 
-  // Game end detection
+  // Game end detection - FIXED to use the current game state
   useEffect(() => {
     if (!isGameActive) return;
     if (game.isGameOver()) {
@@ -195,7 +195,7 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
       clearInterval(intervalId);
       handleGameEnd(type);
     }
-  }, [fen, isGameActive, playerColor]);
+  }, [fen, isGameActive, playerColor, game]); // Added 'game' dependency
 
   // Handle game end: update XP, wins, games_played in DB
   const handleGameEnd = async (type) => {
@@ -235,7 +235,7 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
     setIsProcessing(false);
   };
 
-  // Bot move logic - fixed to check correct turn
+  // Bot move logic - FIXED with immutable state update
   const makeBotMove = () => {
     if (game.isGameOver()) return;
     
@@ -246,16 +246,21 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
     setTimeout(() => {
       let move = getBotMove(game, gameConfig.difficulty);
       if (move) {
-        const moveObj = game.move(move);
+        // Create a new Chess instance from current FEN
+        const newGame = new Chess(game.fen());
+        const moveObj = newGame.move(move);
+        
         if (moveObj) {
-          setFen(game.fen());
+          // Update state with new Chess instance
+          setGame(newGame);
+          setFen(newGame.fen());
           setMoveHistory((h) => [...h, moveObj.san]);
           setLastMove({ from: moveObj.from, to: moveObj.to });
           
           if (moveObj.captured) {
             setGameStats(prev => ({ ...prev, captures: prev.captures + 1 }));
           }
-          if (game.isCheck()) {
+          if (newGame.isCheck()) {
             setGameStats(prev => ({ ...prev, checks: prev.checks + 1 }));
           }
         }
@@ -263,7 +268,7 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
     }, 100); // Minimal delay for smooth UX
   };
 
-  // Handle user move - fixed to check correct player turn
+  // Handle user move - FIXED with immutable state update
   const handleSquareClick = (square) => {
     if (!isGameActive) return;
     
@@ -271,9 +276,14 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
     if (game.turn() !== playerColor) return;
     
     if (selectedSquare && legalMoves.includes(square)) {
-      const moveObj = game.move({ from: selectedSquare, to: square, promotion: 'q' });
+      // Create a new Chess instance from current FEN
+      const newGame = new Chess(game.fen());
+      const moveObj = newGame.move({ from: selectedSquare, to: square, promotion: 'q' });
+      
       if (moveObj) {
-        setFen(game.fen());
+        // Update state with new Chess instance
+        setGame(newGame);
+        setFen(newGame.fen());
         setMoveHistory((h) => [...h, moveObj.san]);
         setLastMove({ from: moveObj.from, to: moveObj.to });
         setSelectedSquare(null);
@@ -282,7 +292,7 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
         if (moveObj.captured) {
           setGameStats(prev => ({ ...prev, captures: prev.captures + 1 }));
         }
-        if (game.isCheck()) {
+        if (newGame.isCheck()) {
           setGameStats(prev => ({ ...prev, checks: prev.checks + 1 }));
         }
         
