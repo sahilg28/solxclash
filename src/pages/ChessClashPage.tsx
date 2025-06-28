@@ -202,7 +202,6 @@ const ChessClashPage = () => {
                     <Cpu className="w-8 h-8 text-red-400 mx-auto mb-3" />
                     <h3 className="text-lg font-semibold text-white mb-2">Bot</h3>
                     <p className="text-red-400 font-bold">Black</p>
-                    <p className="text-gray-400 text-sm">AI opponent</p>
                   </div>
                 </div>
 
