@@ -22,16 +22,16 @@ const RoadmapPreview = () => {
     },
     {
       phase: 'Phase 1',
-      title: 'Multi-Game Earning Ecosystem',
+      title: 'MVP Stage',
       status: 'upcoming',
       description:
         'Expanding into a comprehensive play-to-earn platform with multiple game formats, real-money options, and enhanced earning opportunities.',
       features: [
         'ChessClash: Strategic PvP with USDT rewards',
-        'Tournament system with prize pools',
-        'Enhanced earning mechanics and bonuses',
-        'Real-money match options for skilled players',
-        'Advanced analytics and earning optimization'
+        'CryptoClash : Predict to Earn & PVP ',
+        'Solana based Onchain gaming',
+        'Continue validation and product positioning',
+        'Tournament system with prize pools'
       ],
       icon: <Users className="w-8 h-8" />,
       timeline: 'Q1 2025',
