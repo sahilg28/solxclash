@@ -8,7 +8,7 @@ const RoadmapPreview = () => {
       title: 'SolxClash Prototype',
       status: 'current',
       description:
-        'The current prototype of SolxClash was built solo by the founder to bring the idea into action and validate the core mechanics. It includes:',
+        'The current prototype of SolxClash was built solo to bring the idea into action and validate the core mechanics. It includes:',
       features: [
         'CryptoClash live with instant XP rewards',
         'Skill-based earning multipliers and streaks',
