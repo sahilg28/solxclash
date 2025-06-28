@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Gamepad2, Clock, Gift, Zap, Target, TrendingUp, Trophy, Users, Coins } from 'lucide-react';
+import { Gamepad2 } from 'lucide-react';
 
 const Hero = () => {
   const scrollToWaitlist = () => {
@@ -11,109 +11,82 @@ const Hero = () => {
   };
 
   return (
-    <section className="min-h-screen bg-black text-white pt-16 flex items-center relative overflow-hidden">
+    <section className="min-h-screen bg-gradient-to-br from-gray-900 via-yellow-900/20 to-black text-white pt-16 flex items-start relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-yellow-400/5 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-yellow-400/3 rounded-full blur-3xl animate-pulse delay-1000"></div>
       </div>
 
-      {/* 3D Cryptocurrency Icons Layer - Fixed Positioning */}
+      {/* 3D Cryptocurrency Icons Layer */}
       <div className="absolute inset-0 pointer-events-none">
-        {/* ETH Icon - Top Left */}
-        <div className="absolute top-16 sm:top-20 md:top-24 left-4 sm:left-8 md:left-12 lg:left-16 transform rotate-12">
-          <img 
-            src="/assets/ETH.svg" 
-            alt="Ethereum" 
-            className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 opacity-70 hover:rotate-45 transition-transform duration-700"
-            style={{ filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.5))' }}
-          />
-        </div>
-
-        {/* BTC Icon - Top Right */}
-        <div className="absolute top-16 sm:top-20 md:top-24 right-4 sm:right-8 md:right-12 lg:right-16 transform -rotate-12">
+        {/* Main BTC Icon - Foreground */}
+        <div className="absolute top-1/4 right-1/6 transform rotate-12 animate-float">
           <img 
             src="/assets/BTC.svg" 
             alt="Bitcoin" 
-            className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 opacity-80 hover:-rotate-45 transition-transform duration-700"
-            style={{ filter: 'drop-shadow(0 25px 50px rgba(0,0,0,0.5))' }}
+            className="w-32 h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 opacity-80 hover:rotate-12 transition-transform duration-700 drop-shadow-2xl"
+            style={{ filter: 'drop-shadow(0 25px 50px rgba(250, 204, 21, 0.3))' }}
           />
         </div>
 
-        {/* BNB Icon - Bottom Left */}
-        <div className="absolute bottom-16 sm:bottom-20 md:bottom-24 left-4 sm:left-8 md:left-12 lg:left-16 transform rotate-45">
+        {/* ETH Icon - Mid-layer */}
+        <div className="absolute top-1/3 left-1/8 transform -rotate-45 animate-float-delayed">
           <img 
-            src="/assets/BNB.svg" 
-            alt="BNB" 
-            className="w-14 h-14 sm:w-16 sm:h-16 md:w-18 md:h-18 lg:w-20 lg:h-20 opacity-60 hover:rotate-90 transition-transform duration-700"
-            style={{ filter: 'drop-shadow(0 12px 25px rgba(0,0,0,0.5))' }}
+            src="/assets/ETH.svg" 
+            alt="Ethereum" 
+            className="w-24 h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 opacity-70 hover:-rotate-45 transition-transform duration-700 drop-shadow-xl"
+            style={{ filter: 'drop-shadow(0 20px 40px rgba(99, 102, 241, 0.2))' }}
           />
         </div>
 
-        {/* SOL Icon - Bottom Right */}
-        <div className="absolute bottom-16 sm:bottom-20 md:bottom-24 right-4 sm:right-8 md:right-12 lg:right-16 transform -rotate-30">
+        {/* SOL Icon - Background */}
+        <div className="absolute bottom-1/3 right-1/4 transform rotate-30 animate-float-slow">
           <img 
             src="/assets/SOL.svg" 
             alt="Solana" 
-            className="w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 lg:w-24 lg:h-24 opacity-65 hover:-rotate-90 transition-transform duration-700"
-            style={{ filter: 'drop-shadow(0 15px 30px rgba(0,0,0,0.5))' }}
+            className="w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 opacity-60 hover:rotate-30 transition-transform duration-700 drop-shadow-lg"
+            style={{ filter: 'drop-shadow(0 15px 30px rgba(147, 51, 234, 0.2))' }}
           />
         </div>
 
-        {/* POL Icon - Bottom Center */}
-        <div className="absolute bottom-16 sm:bottom-20 md:bottom-24 left-1/2 transform -translate-x-1/2 rotate-30">
+        {/* BNB Icon - Supporting */}
+        <div className="absolute top-2/3 left-1/5 transform -rotate-20 animate-float-reverse">
+          <img 
+            src="/assets/BNB.svg" 
+            alt="BNB" 
+            className="w-18 h-18 md:w-20 md:h-20 lg:w-24 lg:h-24 opacity-50 hover:-rotate-20 transition-transform duration-700 drop-shadow-md"
+            style={{ filter: 'drop-shadow(0 12px 25px rgba(245, 158, 11, 0.2))' }}
+          />
+        </div>
+
+        {/* POL Icon - Accent */}
+        <div className="absolute bottom-1/4 left-1/3 transform rotate-45 animate-float-gentle">
           <img 
             src="/assets/Poly.svg" 
             alt="Polygon" 
-            className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-18 lg:h-18 opacity-50 hover:rotate-180 transition-transform duration-700"
-            style={{ filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.5))' }}
+            className="w-16 h-16 md:w-18 md:h-18 lg:w-20 lg:h-20 opacity-45 hover:rotate-45 transition-transform duration-700 drop-shadow-sm"
+            style={{ filter: 'drop-shadow(0 10px 20px rgba(139, 69, 19, 0.2))' }}
           />
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
-        <div className="flex flex-col items-center text-center justify-center min-h-[calc(100vh-64px)]">
-          {/* Main Content - Centered */}
+        <div className="flex flex-col items-center text-center justify-start min-h-[calc(90vh-64px)] pt-8">
+          {/* Main Content - Minimal */}
           <div className="space-y-8 animate-fade-in-up">
             <div className="space-y-6">
-              <div className="inline-flex items-center px-4 py-2 bg-yellow-400/10 border border-yellow-400/20 rounded-full animate-scale-in">
-                <Coins className="w-4 h-4 text-yellow-400 mr-2" />
-                <span className="text-yellow-400 text-sm font-medium">
-                  🎮 Play-to-Earn Gaming Revolution
-                </span>
-              </div>
-
-              <h1 className="text-5xl lg:text-7xl font-bold leading-tight">
-                <span className="text-yellow-400">Play.</span> <span className="text-white">Compete.</span> <span className="text-yellow-400">Earn.</span><br />
-                <span className="bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
-                  Where Skills Matter.
-                </span>
+              <h1 className="text-5xl lg:text-7xl font-bold leading-tight relative z-20">
+                <span className="text-yellow-400">Play.</span> <span className="text-white">Compete.</span> <span className="text-yellow-400">Earn.</span>
               </h1>
 
-              <p className="text-xl text-gray-300 max-w-2xl leading-relaxed mx-auto">
-                The ultimate Web3 play-to-earn gaming platform where <span className="text-yellow-400 font-semibold">your skills unlock bigger rewards</span>. 
-                Compete in real-time games, climb leaderboards, and earn through strategic gameplay.
+              <p className="text-xl text-gray-300 max-w-2xl leading-relaxed mx-auto relative z-20">
+                The ultimate Web3 play-to-earn gaming platform where <span className="text-yellow-400 font-semibold">your gaming skills unlock bigger rewards</span>. 
               </p>
-
-              {/* Value Propositions */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 max-w-2xl mx-auto">
-                <div className="flex items-center justify-center space-x-2 text-sm">
-                  <Gamepad2 className="w-4 h-4 text-green-400" />
-                  <span className="text-gray-300">Play & Earn</span>
-                </div>
-                <div className="flex items-center justify-center space-x-2 text-sm">
-                  <Target className="w-4 h-4 text-blue-400" />
-                  <span className="text-gray-300">Skills = Rewards</span>
-                </div>
-                <div className="flex items-center justify-center space-x-2 text-sm">
-                  <Trophy className="w-4 h-4 text-yellow-400" />
-                  <span className="text-gray-300">Fair Competition</span>
-                </div>
-              </div>
             </div>
 
             {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-4 animate-slide-in-left justify-center">
+            <div className="flex flex-col sm:flex-row gap-4 animate-slide-in-left justify-center relative z-20">
               <Link
                 to="/cryptoclash"
                 className="group btn-primary flex items-center justify-center space-x-2"
@@ -128,59 +101,6 @@ const Hero = () => {
               >
                 Join the Revolution
               </button>
-            </div>
-
-            {/* Enhanced Highlights */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 pt-8 border-t border-gray-800 animate-slide-in-left max-w-4xl mx-auto">
-              <div className="text-center group">
-                <div className="flex items-center justify-center w-12 h-12 bg-yellow-400/10 rounded-lg mb-3 mx-auto group-hover:bg-yellow-400/20 transition-colors duration-300">
-                  <Coins className="w-6 h-6 text-yellow-400" />
-                </div>
-                <div className="text-lg font-bold text-white">Play to Earn</div>
-                <div className="text-sm text-gray-400">Every game rewards you</div>
-              </div>
-
-              <div className="text-center group">
-                <div className="flex items-center justify-center w-12 h-12 bg-yellow-400/10 rounded-lg mb-3 mx-auto group-hover:bg-yellow-400/20 transition-colors duration-300">
-                  <Target className="w-6 h-6 text-yellow-400" />
-                </div>
-                <div className="text-lg font-bold text-white">Skills Amplify</div>
-                <div className="text-sm text-gray-400">Better skills = bigger rewards</div>
-              </div>
-
-              <div className="text-center group">
-                <div className="flex items-center justify-center w-12 h-12 bg-yellow-400/10 rounded-lg mb-3 mx-auto group-hover:bg-yellow-400/20 transition-colors duration-300">
-                  <Users className="w-6 h-6 text-yellow-400" />
-                </div>
-                <div className="text-lg font-bold text-white">Global Competition</div>
-                <div className="text-sm text-gray-400">Compete worldwide</div>
-              </div>
-            </div>
-
-            {/* Earning Potential Showcase */}
-            <div className="bg-gradient-to-r from-yellow-400/10 to-yellow-600/10 border border-yellow-400/20 rounded-xl p-6 max-w-3xl mx-auto">
-              <h3 className="text-xl font-bold text-white mb-4 flex items-center justify-center space-x-2">
-                <Zap className="w-5 h-5 text-yellow-400" />
-                <span>Start Earning Today</span>
-              </h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                <div>
-                  <div className="text-2xl font-bold text-yellow-400">100</div>
-                  <div className="text-xs text-gray-400">Starting XP</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-green-400">2x</div>
-                  <div className="text-xs text-gray-400">Win Multiplier</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-blue-400">300</div>
-                  <div className="text-xs text-gray-400">Streak Bonus</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-purple-400">∞</div>
-                  <div className="text-xs text-gray-400">Earning Potential</div>
-                </div>
-              </div>
             </div>
           </div>
         </div>

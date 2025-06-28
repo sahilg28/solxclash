@@ -1,3 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
 /* Enhanced animations and transitions */
 @keyframes fadeInUp {
   from {
@@ -61,6 +69,52 @@
   }
 }
 
+/* 3D Crypto Icons Floating Animations */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(15deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(15deg);
+  }
+}
+
+@keyframes float-delayed {
+  0%, 100% {
+    transform: translateY(0px) rotate(-45deg);
+  }
+  50% {
+    transform: translateY(-15px) rotate(-45deg);
+  }
+}
+
+@keyframes float-slow {
+  0%, 100% {
+    transform: translateY(0px) rotate(30deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(30deg);
+  }
+}
+
+@keyframes float-reverse {
+  0%, 100% {
+    transform: translateY(-10px) rotate(-20deg);
+  }
+  50% {
+    transform: translateY(0px) rotate(-20deg);
+  }
+}
+
+@keyframes float-gentle {
+  0%, 100% {
+    transform: translateY(0px) rotate(45deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(45deg);
+  }
+}
+
 /* King in check pulse animation */
 @keyframes king-in-check-pulse {
   0%, 100% {
@@ -95,6 +149,31 @@
 
 .animate-glow {
   animation: glow 2s ease-in-out infinite;
+}
+
+/* 3D Crypto Icon Animation Classes */
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float-delayed 7s ease-in-out infinite;
+  animation-delay: 1s;
+}
+
+.animate-float-slow {
+  animation: float-slow 8s ease-in-out infinite;
+  animation-delay: 2s;
+}
+
+.animate-float-reverse {
+  animation: float-reverse 5s ease-in-out infinite;
+  animation-delay: 0.5s;
+}
+
+.animate-float-gentle {
+  animation: float-gentle 9s ease-in-out infinite;
+  animation-delay: 1.5s;
 }
 
 /* Skeleton loader styles */
@@ -133,4 +212,15 @@
 .loading-pulse {
   @apply animate-pulse bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 bg-[length:200%_100%];
   animation: shimmer 2s infinite;
+}
+
+/* Responsive adjustments for crypto icons */
+@media (max-width: 640px) {
+  .animate-float,
+  .animate-float-delayed,
+  .animate-float-slow,
+  .animate-float-reverse,
+  .animate-float-gentle {
+    animation-duration: 4s;
+  }
 }

@@ -38,7 +38,7 @@ const WaitlistSection = () => {
   };
 
   return (
-    <section id="waitlist" className="py-20 bg-gradient-to-b from-black to-gray-900 relative overflow-hidden">
+    <section id="waitlist" className="py-20 bg-gradient-to-b from-gray-900 via-yellow-900/20 to-black relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/3 left-1/3 w-64 h-64 bg-yellow-400/5 rounded-full blur-3xl animate-pulse"></div>
@@ -163,11 +163,11 @@ const WaitlistSection = () => {
                 <div className="text-sm text-gray-400">Earning Games</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-blue-400 mb-1">100%</div>
+                <div className="text-2xl font-bold text-yellow-400 mb-1">100%</div>
                 <div className="text-sm text-gray-400">Players Earn</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-purple-400 mb-1">2x</div>
+                <div className="text-2xl font-bold text-yellow-400 mb-1">2x</div>
                 <div className="text-sm text-gray-400">Skill Multiplier</div>
               </div>
             </div>
