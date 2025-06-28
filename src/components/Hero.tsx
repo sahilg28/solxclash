@@ -73,7 +73,8 @@ const Hero = () => {
               <span>Join Waitlist</span>
             </button>
           </div>
-              
+
+
             </div>
           </div>
         </div>
