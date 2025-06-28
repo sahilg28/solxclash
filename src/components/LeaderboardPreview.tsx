@@ -286,8 +286,6 @@ const LeaderboardPreview = () => {
               <div className="text-sm text-gray-400">Combined XP from top players</div>
             </div>
           </div>
-
-         
         </div>
       </div>
     </section>
