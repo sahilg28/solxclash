@@ -24,10 +24,7 @@ const Hero = () => {
           <div className="space-y-8 animate-fade-in-up">
             <div className="space-y-6">
               <h1 className="text-5xl lg:text-7xl font-bold leading-tight">
-                <span className="text-yellow-400">Play.</span> <span className="text-white">Compete.</span> <span className="text-yellow-400">Earn.</span><br />
-                <span className="bg-gradient-to-r from-yellow-400 to-yellow-600 mt-6 bg-clip-text text-transparent">
-                  Where Skills Matter.
-                </span>
+                <span className="text-yellow-400">Play.</span> <span className="text-white">Compete.</span> <span className="text-yellow-400">Earn.</span>
               </h1>
 
               <p className="text-xl text-gray-300 max-w-2xl leading-relaxed mx-auto">
