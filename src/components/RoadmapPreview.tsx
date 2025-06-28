@@ -167,8 +167,6 @@ const RoadmapPreview = () => {
           ))}
         </div>
 
-      
-
         {/* CTA Section */}
         <div className="text-center animate-slide-in-left">
           <div className="bg-gradient-to-r from-purple-400/10 to-yellow-400/10 border border-purple-400/20 rounded-2xl p-8 max-w-3xl mx-auto">
