@@ -474,7 +474,7 @@ const CryptoClashPage = () => {
                 </div>
               </div>
               
-              <div className="text-center lg:text-left w-full lg:w-auto">
+              <div className="text-center lg:text-right w-full lg:w-auto">
                 <div className="text-sm text-gray-400">Win Rate</div>
                 <div className="text-lg font-bold text-green-400">
                   {profile.games_played > 0 ? Math.round((profile.wins / profile.games_played) * 100) : 0}%
