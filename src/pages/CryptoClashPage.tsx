@@ -780,7 +780,7 @@ const CryptoClashPage = () => {
                 )}
               </div>
 
-              <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-sm border border-gray-700 rounded-xl p-6">
+              <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-sm border border-gray-700 rounded-xl p-4">
                 <h4 className="text-lg font-bold text-white mb-4 flex items-center space-x-2">
                   <Star className="w-5 h-5 text-yellow-400" />
                   <span>Quick Stats</span>
