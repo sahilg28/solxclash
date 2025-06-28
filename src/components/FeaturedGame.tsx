@@ -90,7 +90,7 @@ const FeaturedGame = () => {
               </div>
 
               <button 
-                className="w-full group btn-primary flex items-center justify-center space-x-2"
+                className="w-full group  flex items-center justify-center space-x-2"
                 onClick={() => window.location.href='/cryptoclash'}>
                 <Gamepad2 className="w-5 h-5" />
                 <span>Play CryptoClash</span>
