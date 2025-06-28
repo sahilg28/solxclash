@@ -684,7 +684,7 @@ const CryptoClashPage = () => {
                     <div className="mb-4">
                       <div className="text-center mb-3">
                         <div className="flex items-center justify-center space-x-2 text-yellow-400 text-sm mb-2">
-                          <Coins className="w-4 h-4" />
+                          <Coins className="w-4 h-4 text-md" />
                           <span>XP Investment: {selectedXpBet}</span>
                         </div>
                         <div className="text-md text-gray-400">
