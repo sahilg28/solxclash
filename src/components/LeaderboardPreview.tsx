@@ -117,7 +117,7 @@ const LeaderboardPreview = () => {
             Top <span className="text-yellow-400">Earners</span>
           </h2>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Meet the players earning the most through skilled gameplay. 
+            Meet the players winning the most through all the games 
             <span className="text-yellow-400 font-semibold"> Every game rewards, but skills multiply earnings</span> exponentially.
           </p>
         </div>
