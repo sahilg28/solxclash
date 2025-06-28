@@ -99,11 +99,11 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
   const [selectedSquare, setSelectedSquare] = useState(null);
   const [legalMoves, setLegalMoves] = useState([]);
   const [moveHistory, setMoveHistory] = useState([]);
-  const [userTime, setUserTime] = useState(600); // 10 minutes
-  const [botTime, setBotTime] = useState(600); // 10 minutes
-  const [activeTimer, setActiveTimer] = useState(gameConfig.playerColor === 'white' ? 'user' : 'bot');
+  
+  // Single game timer (10 minutes total)
+  const [gameTime, setGameTime] = useState(600); // 10 minutes total
+  
   const [lastMove, setLastMove] = useState(null);
-  const [botThinking, setBotThinking] = useState(false);
   const [gameStats, setGameStats] = useState({ captures: 0, checks: 0 });
   const navigate = useNavigate();
   const [showResignConfirm, setShowResignConfirm] = useState(false);
@@ -115,7 +115,7 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
       // If player is black, bot makes the first move
       setTimeout(() => {
         makeBotMove();
-      }, 1000);
+      }, 500);
     }
   }, []);
 
@@ -140,39 +140,26 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
     deductXP();
   }, []);
 
-  // Timer effect
+  // Single game timer effect
   useEffect(() => {
     if (!isGameActive || result) return;
     
     const id = setInterval(() => {
-      if (activeTimer === 'user') {
-        setUserTime((t) => {
-          if (t <= 1) {
-            setResult({ type: 'timeout', message: 'Time is up! You lose.' });
-            setIsGameActive(false);
-            clearInterval(id);
-            handleGameEnd('timeout');
-            return 0;
-          }
-          return t - 1;
-        });
-      } else {
-        setBotTime((t) => {
-          if (t <= 1) {
-            setResult({ type: 'win', message: 'Bot ran out of time! You win!' });
-            setIsGameActive(false);
-            clearInterval(id);
-            handleGameEnd('win');
-            return 0;
-          }
-          return t - 1;
-        });
-      }
+      setGameTime((t) => {
+        if (t <= 1) {
+          setResult({ type: 'timeout', message: 'Time is up! Game ended in timeout.' });
+          setIsGameActive(false);
+          clearInterval(id);
+          handleGameEnd('timeout');
+          return 0;
+        }
+        return t - 1;
+      });
     }, 1000);
     
     setIntervalId(id);
     return () => clearInterval(id);
-  }, [isGameActive, activeTimer, result]);
+  }, [isGameActive, result]);
 
   // Game end detection
   useEffect(() => {
@@ -240,14 +227,11 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
     setIsProcessing(false);
   };
 
-  // Bot move logic
+  // Bot move logic - instant moves, no thinking delay
   const makeBotMove = () => {
     if (game.isGameOver()) return;
-    setBotThinking(true);
-    setActiveTimer('bot');
     
-    const thinkingTime = gameConfig.difficulty === 'easy' ? 500 : gameConfig.difficulty === 'medium' ? 1000 : 1500;
-    
+    // Instant bot move with minimal delay
     setTimeout(() => {
       let move = getBotMove(game, gameConfig.difficulty);
       if (move) {
@@ -264,18 +248,16 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
             setGameStats(prev => ({ ...prev, checks: prev.checks + 1 }));
           }
         }
-        setActiveTimer('user');
       }
-      setBotThinking(false);
-    }, thinkingTime);
+    }, 100); // Minimal delay for smooth UX
   };
 
-  // Handle user move
+  // Handle user move - fixed to check correct player turn
   const handleSquareClick = (square) => {
-    if (!isGameActive || activeTimer !== 'user' || botThinking) return;
+    if (!isGameActive) return;
     
     const playerColor = gameConfig.playerColor === 'white' ? 'w' : 'b';
-    if (game.turn() !== playerColor) return;
+    if (game.turn() !== playerColor) return; // Only allow moves on player's turn
     
     if (selectedSquare && legalMoves.includes(square)) {
       const moveObj = game.move({ from: selectedSquare, to: square, promotion: 'q' });
@@ -293,8 +275,8 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
           setGameStats(prev => ({ ...prev, checks: prev.checks + 1 }));
         }
         
-        setActiveTimer('bot');
-        setTimeout(makeBotMove, 300);
+        // Trigger bot move after player move
+        setTimeout(makeBotMove, 100);
       }
       return;
     }
@@ -381,18 +363,32 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
           
           {/* Left Sidebar - Game Info */}
           <div className="w-full lg:w-80 space-y-6">
+            {/* Game Timer */}
+            <div className="bg-gradient-to-br from-gray-800/80 to-black/60 rounded-xl p-4 border-2 border-yellow-400">
+              <div className="text-center">
+                <Clock className="w-8 h-8 text-yellow-400 mx-auto mb-2" />
+                <div className="text-3xl font-bold text-white mb-1">
+                  {formatTime(gameTime)}
+                </div>
+                <div className="text-sm text-gray-400">Game Time Remaining</div>
+                <div className="w-full bg-gray-700 rounded-full h-2 mt-3">
+                  <div 
+                    className="bg-yellow-400 h-2 rounded-full transition-all duration-1000"
+                    style={{ width: `${(gameTime / 600) * 100}%` }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+
             {/* Player Cards */}
             <div className="space-y-4">
               {/* Bot Card */}
               <div className={`bg-gradient-to-br from-gray-800/80 to-black/60 rounded-xl p-4 border-2 transition-all duration-300 ${
-                activeTimer === 'bot' ? 'border-yellow-400 bg-yellow-400/10' : 'border-gray-600'
+                game.turn() === (gameConfig.playerColor === 'white' ? 'b' : 'w') ? 'border-yellow-400 bg-yellow-400/10' : 'border-gray-600'
               }`}>
                 <div className="flex items-center space-x-3">
                   <div className="relative">
                     <img src="/assets/solxclash_logo.svg" alt="Bot" className="w-12 h-12 rounded-full" />
-                    {botThinking && (
-                      <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full animate-pulse"></div>
-                    )}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center space-x-2">
@@ -401,16 +397,10 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
                         {gameConfig.difficulty}
                       </span>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <Clock className="w-4 h-4 text-gray-400" />
-                      <span className={`font-mono text-sm ${botTime < 10 ? 'text-red-400' : botTime < 60 ? 'text-yellow-400' : 'text-white'}`}>
-                        {formatTime(botTime)}
-                      </span>
-                    </div>
-                    {botThinking && (
+                    {game.turn() === (gameConfig.playerColor === 'white' ? 'b' : 'w') && (
                       <div className="flex items-center space-x-1 text-yellow-400 text-xs">
-                        <Brain className="w-3 h-3 animate-pulse" />
-                        <span>Thinking...</span>
+                        <Brain className="w-3 h-3" />
+                        <span>Bot's turn</span>
                       </div>
                     )}
                   </div>
@@ -419,19 +409,13 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
 
               {/* User Card */}
               <div className={`bg-gradient-to-br from-yellow-400/10 to-black/30 rounded-xl p-4 border-2 transition-all duration-300 ${
-                activeTimer === 'user' ? 'border-green-400 bg-green-400/10' : 'border-gray-600'
+                game.turn() === (gameConfig.playerColor === 'white' ? 'w' : 'b') ? 'border-green-400 bg-green-400/10' : 'border-gray-600'
               }`}>
                 <div className="flex items-center space-x-3">
                   <img src={profile.avatar_url || '/assets/solxclash_logo.svg'} alt="User" className="w-12 h-12 rounded-full" />
                   <div className="flex-1">
                     <span className="text-white font-semibold block">{profile.username}</span>
-                    <div className="flex items-center space-x-2">
-                      <Clock className="w-4 h-4 text-gray-400" />
-                      <span className={`font-mono text-sm ${userTime < 10 ? 'text-red-400' : userTime < 60 ? 'text-yellow-400' : 'text-white'}`}>
-                        {formatTime(userTime)}
-                      </span>
-                    </div>
-                    {activeTimer === 'user' && !botThinking && (
+                    {game.turn() === (gameConfig.playerColor === 'white' ? 'w' : 'b') && (
                       <span className="text-green-400 text-xs">Your turn</span>
                     )}
                   </div>
@@ -568,7 +552,7 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
         </div>
       </div>
 
-      {/* Result Modal */}
+      {/* Result Modal - No auto-hide timeout */}
       {result && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-gradient-to-br from-gray-900/80 to-black/80 border border-yellow-400/20 rounded-2xl p-8 w-full max-w-md text-center shadow-2xl relative">
