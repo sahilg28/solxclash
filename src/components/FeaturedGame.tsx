@@ -61,7 +61,7 @@ const FeaturedGame = () => {
                 <div className="bg-yellow-400/10 border border-yellow-400/20 rounded-lg p-4">
                   <div className="flex items-center space-x-2 mb-2">
                     <Zap className="w-4 h-4 text-yellow-400" />
-                    <span className="text-yellow-400 font-semibold text-sm">Play-to-Earn Ready</span>
+                    <span className="text-yellow-400 font-semibold text-sm">Predict-to-Earn Ready</span>
                   </div>
                   <p className="text-gray-400 text-sm">
                     Stay tuned for enhanced play-to-earn mechanics and onchain gaming integration... coming soon!
