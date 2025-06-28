@@ -10,11 +10,11 @@ const RoadmapPreview = () => {
       description:
         'The current prototype of SolxClash was built solo to bring the idea into action and validate the core mechanics. It includes:',
       features: [
-        'CryptoClash live with instant XP rewards',
-        'Skill-based earning multipliers and streaks',
-        'Fair play mechanics with guaranteed rewards',
-        'Community-driven feedback integration',
-        'Progressive earning system validation'
+        'Landing Page + Brand Identity',
+        'Waitlist (early users)',
+        'CryptoClash Free-to-Play Demo',
+        'ChessClash Development',
+        'Positioning & Community Messaging'
       ],
       icon: <Coins className="w-8 h-8" />,
       timeline: 'Live Now',
