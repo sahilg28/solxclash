@@ -76,12 +76,13 @@ function minimax(game, depth, alpha, beta, isMaximizing) {
 
 const getBotMove = (game, difficulty) => {
   if (difficulty === 'easy') {
-    // 50% random, 50% best move
-    if (Math.random() < 0.5) return getRandomBotMove(game);
-    const [, bestMove] = minimax(game, 2, -Infinity, Infinity, false);
+    // Reduced randomness from 50% to 10%, increased depth from 2 to 3
+    if (Math.random() < 0.1) return getRandomBotMove(game);
+    const [, bestMove] = minimax(game, 3, -Infinity, Infinity, false);
     return bestMove;
   }
-  const depth = difficulty === 'medium' ? 3 : 5;
+  // Increased depth: medium from 3 to 4, hard from 5 to 6
+  const depth = difficulty === 'medium' ? 4 : 6;
   const [, bestMove] = minimax(game, depth, -Infinity, Infinity, false);
   return bestMove;
 };
