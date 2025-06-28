@@ -334,7 +334,7 @@ const CryptoClashPage = () => {
               <span className="text-yellow-400">Crypto</span>Clash
             </h1>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-4">
-              Skill-based crypto prediction game. Choose your coin, predict price movements, and earn XP rewards!
+              Predict crypto prices. Test your skills. Earn XP and climb the ranks!
             </p>
             
             <div className="flex items-center justify-center space-x-2 mb-4">
