@@ -44,7 +44,7 @@ const Hero = () => {
                 onClick={scrollToWaitlist}
                 className="btn-secondary"
               >
-                Join Waitlist
+                <span>Join Waitlist</span>
               </button>
             </div>
           </div>

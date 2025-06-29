@@ -16,6 +16,13 @@ export default {
       },
       animation: {
         'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        shine: 'shine 5s linear infinite',
+      },
+      keyframes: {
+        shine: {
+          '0%': { 'background-position': '100%' },
+          '100%': { 'background-position': '-100%' },
+        },
       },
       backdropBlur: {
         'md': '12px',
