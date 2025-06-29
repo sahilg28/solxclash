@@ -45,36 +45,6 @@ interface Database {
           completed_at?: string | null
         }
       }
-      chess_moves: {
-        Row: {
-          id: string
-          game_id: string
-          move_number: number
-          player: 'white' | 'black'
-          move_notation: string
-          from_square: string
-          to_square: string
-          piece: string
-          captured_piece: string | null
-          is_check: boolean
-          is_checkmate: boolean
-          fen_after_move: string
-          created_at: string
-        }
-        Insert: {
-          game_id: string
-          move_number: number
-          player: 'white' | 'black'
-          move_notation: string
-          from_square: string
-          to_square: string
-          piece: string
-          captured_piece?: string | null
-          is_check?: boolean
-          is_checkmate?: boolean
-          fen_after_move: string
-        }
-      }
       profiles: {
         Row: {
           id: string
@@ -118,22 +88,9 @@ serve(async (req) => {
       return await createChessGame(supabaseClient, playerId, difficulty, playerColor, xpCost)
     }
     
-    if (path === '/chess-management/make-move' && req.method === 'POST') {
-      const { gameId, moveData } = await req.json()
-      return await makeMove(supabaseClient, gameId, moveData)
-    }
-    
     if (path === '/chess-management/complete-game' && req.method === 'POST') {
       const { gameId, result, xpEarned } = await req.json()
       return await completeGame(supabaseClient, gameId, result, xpEarned)
-    }
-
-    if (path === '/chess-management/get-game' && req.method === 'GET') {
-      const gameId = url.searchParams.get('gameId')
-      if (!gameId) {
-        throw new Error('Game ID is required')
-      }
-      return await getGame(supabaseClient, gameId)
     }
 
     return new Response(
@@ -215,67 +172,6 @@ async function createChessGame(supabase: any, playerId: string, difficulty: stri
   }
 }
 
-async function makeMove(supabase: any, gameId: string, moveData: any) {
-  try {
-    const { 
-      moveNumber, 
-      player, 
-      moveNotation, 
-      fromSquare, 
-      toSquare, 
-      piece, 
-      capturedPiece, 
-      isCheck, 
-      isCheckmate, 
-      fenAfterMove 
-    } = moveData
-
-    // Insert the move
-    const { data: newMove, error: moveError } = await supabase
-      .from('chess_moves')
-      .insert([{
-        game_id: gameId,
-        move_number: moveNumber,
-        player,
-        move_notation: moveNotation,
-        from_square: fromSquare,
-        to_square: toSquare,
-        piece,
-        captured_piece: capturedPiece,
-        is_check: isCheck,
-        is_checkmate: isCheckmate,
-        fen_after_move: fenAfterMove
-      }])
-      .select()
-      .single()
-
-    if (moveError) {
-      throw new Error('Failed to save move')
-    }
-
-    // Update game state
-    const { error: gameUpdateError } = await supabase
-      .from('chess_games')
-      .update({
-        current_fen: fenAfterMove,
-        move_count: moveNumber
-      })
-      .eq('id', gameId)
-
-    if (gameUpdateError) {
-      throw new Error('Failed to update game state')
-    }
-
-    return new Response(
-      JSON.stringify({ success: true, move: newMove }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
-  } catch (error) {
-    console.error('❌ makeMove error:', error)
-    throw error
-  }
-}
-
 async function completeGame(supabase: any, gameId: string, result: string, xpEarned: number) {
   try {
     // Get game details
@@ -339,38 +235,6 @@ async function completeGame(supabase: any, gameId: string, result: string, xpEar
     )
   } catch (error) {
     console.error('❌ completeGame error:', error)
-    throw error
-  }
-}
-
-async function getGame(supabase: any, gameId: string) {
-  try {
-    const { data: game, error: gameError } = await supabase
-      .from('chess_games')
-      .select('*')
-      .eq('id', gameId)
-      .single()
-
-    if (gameError) {
-      throw new Error('Game not found')
-    }
-
-    const { data: moves, error: movesError } = await supabase
-      .from('chess_moves')
-      .select('*')
-      .eq('game_id', gameId)
-      .order('move_number', { ascending: true })
-
-    if (movesError) {
-      throw new Error('Failed to fetch game moves')
-    }
-
-    return new Response(
-      JSON.stringify({ success: true, game, moves }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
-  } catch (error) {
-    console.error('❌ getGame error:', error)
     throw error
   }
 }
