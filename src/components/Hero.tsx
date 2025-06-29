@@ -26,7 +26,7 @@ const Hero = () => {
                 <span className="text-white">Join the future of</span> <span className="text-yellow-400">Web3 gaming</span>
               </h1>
 
-              <p className="text-base text-gray-300 max-w-2xl mx-auto leading-relaxed">
+              <p className="text-base text-gray-300 max-w-xl mx-auto leading-relaxed">
                 SolxClash is the gaming platform where players globally compete, earn rewards, and play their favorite games together.
               </p>
             </div>
