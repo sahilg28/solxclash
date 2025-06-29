@@ -12,23 +12,35 @@ const Hero = () => {
 
   return (
     <section className="min-h-screen bg-gradient-to-b from-black via-purple-900/30 to-black text-white pt-16 flex items-start relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-purple-400/5 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-yellow-400/3 rounded-full blur-3xl animate-pulse delay-1000"></div>
-      </div>
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
-        <div className="flex flex-col items-center text-center justify-start min-h-[calc(90vh-64px)] pt-8">
-          {/* Main Content - Minimal */}
-          <div className="space-y-8 animate-fade-in-up">
+        <div className="flex flex-col items-center text-center justify-start min-h-[calc(90vh-64px)] pt-8 relative">
+          
+          {/* Crypto Images - Positioned strategically */}
+          <img 
+            src="/assets/BTC.svg" 
+            alt="Bitcoin" 
+            className="absolute top-16 left-8 w-20 h-20 lg:w-24 lg:h-24 opacity-20 transform rotate-12"
+          />
+          <img 
+            src="/assets/SOL.svg" 
+            alt="Solana" 
+            className="absolute top-32 right-12 w-16 h-16 lg:w-20 lg:h-20 opacity-25 transform -rotate-6"
+          />
+          <img 
+            src="/assets/Poly.svg" 
+            alt="Polygon" 
+            className="absolute bottom-32 left-16 w-18 h-18 lg:w-22 lg:h-22 opacity-20 transform rotate-45"
+          />
+
+          {/* Main Content */}
+          <div className="space-y-8 animate-fade-in-up relative z-20">
             <div className="space-y-6">
               <h1 className="text-5xl lg:text-7xl font-bold leading-tight">
                 <span className="text-yellow-400">Play.</span> <span className="text-white">Compete.</span> <span className="text-yellow-400">Earn.</span>
               </h1>
 
-              <p className="text-xl text-gray-300 max-w-2xl leading-relaxed mx-auto">
-                The ultimate Web3 play-to-earn gaming platform where <span className="text-yellow-400 font-semibold">your gaming skills unlock bigger rewards</span>. 
+              <p className="text-xl text-gray-300 max-w-3xl leading-relaxed mx-auto">
+                SolxClash is a Web3 gaming platform where players globally can play PvP games, tournaments, and earn. Games focused on players' skills, strategy, and risk management.
               </p>
             </div>
 
