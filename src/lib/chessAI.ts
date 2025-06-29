@@ -407,10 +407,3 @@ export class ChessAI {
 export function createChessAI(difficulty: 'easy' | 'medium' | 'hard'): ChessAI {
   return new ChessAI(difficulty);
 }
-
-// Helper function for random move selection (used in easy mode)
-export function getRandomMove(game: Chess): string | null {
-  const moves = game.moves();
-  if (moves.length === 0) return null;
-  return moves[Math.floor(Math.random() * moves.length)];
-}

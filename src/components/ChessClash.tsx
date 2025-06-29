@@ -32,7 +32,6 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
   const navigate = useNavigate();
   const [showResignConfirm, setShowResignConfirm] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const pendingTransition = useRef(null);
   const chessAI = useRef(createChessAI(gameConfig.difficulty));
 
   // Determine player and bot colors
@@ -133,26 +132,6 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
     }
   };
 
-  const saveMove = async (moveData) => {
-    if (!currentGameId) return;
-
-    try {
-      await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chess-management/make-move`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-        },
-        body: JSON.stringify({
-          gameId: currentGameId,
-          moveData
-        })
-      });
-    } catch (error) {
-      console.error('Failed to save move:', error);
-    }
-  };
-
   const handleGameEnd = async (type) => {
     if (!currentGameId) return;
 
@@ -221,23 +200,9 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
           if (newGame.isCheck()) {
             setGameStats(prev => ({ ...prev, checks: prev.checks + 1 }));
           }
-
-          // Save move to database
-          saveMove({
-            moveNumber: Math.floor(moveHistory.length / 2) + 1,
-            player: botColor === 'w' ? 'white' : 'black',
-            moveNotation: moveObj.san,
-            fromSquare: moveObj.from,
-            toSquare: moveObj.to,
-            piece: moveObj.piece,
-            capturedPiece: moveObj.captured || null,
-            isCheck: newGame.isCheck(),
-            isCheckmate: newGame.isCheckmate(),
-            fenAfterMove: newGame.fen()
-          });
         }
       }
-    }, 300 + Math.random() * 700); // Random delay between 300-1000ms for more human-like play
+    }, 2000 + Math.random() * 1000); // 2-3 second thinking time
   };
 
   const handleSquareClick = (square) => {
@@ -261,20 +226,6 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
         if (newGame.isCheck()) {
           setGameStats(prev => ({ ...prev, checks: prev.checks + 1 }));
         }
-
-        // Save move to database
-        saveMove({
-          moveNumber: Math.floor(moveHistory.length / 2) + 1,
-          player: playerColor === 'w' ? 'white' : 'black',
-          moveNotation: moveObj.san,
-          fromSquare: moveObj.from,
-          toSquare: moveObj.to,
-          piece: moveObj.piece,
-          capturedPiece: moveObj.captured || null,
-          isCheck: newGame.isCheck(),
-          isCheckmate: newGame.isCheckmate(),
-          fenAfterMove: newGame.fen()
-        });
         
         // Trigger bot move after player move
         setTimeout(makeBotMove, 200);
