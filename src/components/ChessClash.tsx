@@ -287,12 +287,17 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
     setIsSidebarOpen(false);
   };
   
-  const confirmResign = () => {
+  const confirmResign = async () => {
     setShowResignConfirm(false);
     setResult({ type: 'lose', message: 'You resigned. You lose.' });
     setIsGameActive(false);
     clearInterval(intervalId);
-    handleGameEnd('lose');
+    await handleGameEnd('lose');
+    
+    // Navigate to home page after a short delay
+    setTimeout(() => {
+      navigate('/');
+    }, 2000);
   };
   
   const cancelResign = () => {
@@ -808,7 +813,7 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
           <div className="bg-gradient-to-br from-gray-900/80 to-black/80 border border-red-500/30 rounded-2xl p-8 w-full max-w-md text-center shadow-2xl">
             <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
             <h3 className="text-2xl font-bold text-white mb-4">Resign Game?</h3>
-            <p className="text-gray-300 mb-6">Are you sure you want to resign? You will lose your invested XP and the game will end immediately.</p>
+            <p className="text-gray-300 mb-6">Are you sure you want to resign? You will lose your invested XP and be taken to the home page.</p>
             <div className="flex gap-4 justify-center">
               <button 
                 onClick={confirmResign} 
