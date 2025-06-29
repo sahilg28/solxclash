@@ -87,44 +87,6 @@ html {
   }
 }
 
-/* Aurora Background Animations */
-@keyframes aurora-wave {
-  0% {
-    transform: translateX(-100%) skewY(-12deg);
-    opacity: 0;
-  }
-  50% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateX(100%) skewY(-12deg);
-    opacity: 0;
-  }
-}
-
-@keyframes aurora-wave-reverse {
-  0% {
-    transform: translateX(100%) skewY(6deg);
-    opacity: 0;
-  }
-  50% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateX(-100%) skewY(6deg);
-    opacity: 0;
-  }
-}
-
-@keyframes shimmer-slow {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
 /* King in check pulse animation */
 @keyframes king-in-check-pulse {
   0%, 100% {
@@ -152,11 +114,11 @@ html {
 }
 
 .animate-float {
-  animation: float 6s ease-in-out infinite;
+  animation: float 3s ease-in-out infinite;
 }
 
 .animate-float-delayed {
-  animation: float-delayed 6s ease-in-out infinite;
+  animation: float-delayed 3s ease-in-out infinite;
   animation-delay: 1.5s;
 }
 
@@ -168,18 +130,6 @@ html {
 
 .animate-glow {
   animation: glow 2s ease-in-out infinite;
-}
-
-.animate-aurora-wave {
-  animation: aurora-wave 8s ease-in-out infinite;
-}
-
-.animate-aurora-wave-reverse {
-  animation: aurora-wave-reverse 10s ease-in-out infinite;
-}
-
-.animate-shimmer-slow {
-  animation: shimmer-slow 15s ease-in-out infinite;
 }
 
 /* Skeleton loader styles */
