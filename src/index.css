@@ -224,8 +224,3 @@ html {
   display: flex;
   flex-wrap: nowrap;
 }
-
-/* Handwriting-style font for scattered text */
-.font-handwriting {
-  font-family: 'Brush Script MT', cursive, 'Poppins', sans-serif;
-}

@@ -19,42 +19,8 @@ const Hero = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
         <div className="flex flex-col items-center text-center justify-start min-h-[calc(90vh-64px)] pt-8">
-          {/* Main Content with Scattered Text */}
-          <div className="space-y-8 animate-fade-in-up relative">
-            {/* Scattered Text Elements - Fixed Positions */}
-            <div className="absolute -top-16 -left-32 transform -rotate-12 hidden lg:block">
-              <span className="text-white/80 text-lg font-handwriting italic">play to earn?</span>
-            </div>
-            
-            <div className="absolute -top-8 right-24 transform rotate-6 hidden lg:block">
-              <span className="text-white/80 text-xl font-handwriting italic">chess?</span>
-            </div>
-            
-            <div className="absolute top-32 -left-40 transform -rotate-6 hidden lg:block">
-              <span className="text-white/80 text-lg font-handwriting italic">crypto enthusiast?</span>
-            </div>
-            
-            <div className="absolute top-20 right-32 transform rotate-12 hidden lg:block">
-              <span className="text-white/80 text-lg font-handwriting italic">web3 lover?</span>
-            </div>
-
-            {/* Mobile Scattered Text - Smaller and repositioned */}
-            <div className="absolute -top-12 -left-16 transform -rotate-12 lg:hidden">
-              <span className="text-white/70 text-sm italic">play to earn?</span>
-            </div>
-            
-            <div className="absolute -top-6 right-8 transform rotate-6 lg:hidden">
-              <span className="text-white/70 text-sm italic">chess?</span>
-            </div>
-            
-            <div className="absolute top-24 -left-20 transform -rotate-6 lg:hidden">
-              <span className="text-white/70 text-xs italic">crypto enthusiast?</span>
-            </div>
-            
-            <div className="absolute top-16 right-12 transform rotate-12 lg:hidden">
-              <span className="text-white/70 text-xs italic">web3 lover?</span>
-            </div>
-
+          {/* Main Content */}
+          <div className="space-y-8 animate-fade-in-up">
             <div className="space-y-6">
               <h1 className="text-6xl lg:text-8xl font-bold leading-tight">
                 <span className="text-yellow-400">Enter</span> <span className="text-white">the</span> <span className="text-yellow-400">Clash</span>
