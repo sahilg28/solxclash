@@ -13,14 +13,6 @@ const BOARD_COLORS = {
 };
 
 const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
-  console.log('🎮 ChessClash component initialized:', {
-    profileId: profile?.id,
-    profileUsername: profile?.username,
-    profileXP: profile?.xp,
-    gameConfig,
-    timestamp: new Date().toISOString()
-  });
-
   const { refreshSessionAndProfile } = useAuthContext();
   const [game, setGame] = useState(new Chess());
   const [fen, setFen] = useState(game.fen());
@@ -33,6 +25,10 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
   const [selectedSquare, setSelectedSquare] = useState(null);
   const [legalMoves, setLegalMoves] = useState([]);
   const [moveHistory, setMoveHistory] = useState([]);
+  
+  // Single game timer (10 minutes total)
+  const [gameTime, setGameTime] = useState(600); // 10 minutes total
+  
   const [lastMove, setLastMove] = useState(null);
   const [gameStats, setGameStats] = useState({ captures: 0, checks: 0 });
   const [currentGameId, setCurrentGameId] = useState(null);
@@ -42,54 +38,30 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const chessAI = useRef(createChessAI(gameConfig.difficulty));
   const botMoveTimeoutRef = useRef(null);
-  
-  // Single game timer (10 minutes total)
-  const [gameTime, setGameTime] = useState(600); // 10 minutes total
 
   // Determine player and bot colors
   const playerColor = gameConfig.playerColor === 'white' ? 'w' : 'b';
   const botColor = gameConfig.playerColor === 'white' ? 'b' : 'w';
 
-  console.log('🎮 ChessClash render state:', {
-    gameId: currentGameId,
-    isGameActive,
-    isProcessing,
-    isBotThinking,
-    result: result?.type,
-    gameTime,
-    currentTurn: game.turn(),
-    playerColor,
-    botColor,
-    moveCount: moveHistory.length,
-    xpState,
-    timestamp: new Date().toISOString()
-  });
-
   // Initialize game and create database entry
   useEffect(() => {
-    console.log('🚀 ChessClash initialization effect triggered');
     initializeGame();
     
     // Cleanup function
     return () => {
-      console.log('🧹 ChessClash cleanup: clearing bot timeout');
       if (botMoveTimeoutRef.current) {
         clearTimeout(botMoveTimeoutRef.current);
       }
     };
-  }, []); // Empty dependency array - should only run once
+  }, []);
 
   // Game timer effect
   useEffect(() => {
-    console.log('⏰ Timer effect triggered:', { isGameActive, result, gameTime });
-    
     if (!isGameActive || result) return;
     
     const id = setInterval(() => {
       setGameTime((t) => {
-        console.log('⏱️ Timer tick:', t - 1);
         if (t <= 1) {
-          console.log('⏰ Time is up! Ending game due to timeout');
           setResult({ type: 'timeout', message: 'Time is up! Game ended in timeout.' });
           setIsGameActive(false);
           clearInterval(id);
@@ -101,31 +73,14 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
     }, 1000);
     
     setIntervalId(id);
-    return () => {
-      console.log('🧹 Clearing timer interval');
-      clearInterval(id);
-    };
+    return () => clearInterval(id);
   }, [isGameActive, result]);
 
   // Game end detection and bot move triggering
   useEffect(() => {
-    console.log('🔄 ChessClash game state effect triggered:', {
-      fen,
-      currentTurn: game.turn(),
-      gameOver: game.isGameOver(),
-      isGameActive,
-      isBotThinking,
-      result: result?.type,
-      timestamp: new Date().toISOString()
-    });
-
-    if (!isGameActive || result) {
-      console.log('❌ Game not active or result exists, skipping game state logic');
-      return;
-    }
+    if (!isGameActive || result) return;
 
     if (game.isGameOver()) {
-      console.log('🏁 Game over detected!');
       let type = 'draw';
       let message = 'Draw! Your XP is refunded.';
       
@@ -133,42 +88,33 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
         if (game.turn() !== playerColor) {
           type = 'win';
           message = 'Checkmate! You win!';
-          console.log('🎉 Player wins by checkmate!');
         } else {
           type = 'lose';
           message = 'Checkmate! You lose.';
-          console.log('😞 Player loses by checkmate!');
         }
       } else if (game.isDraw()) {
         type = 'draw';
         message = 'Draw! Your XP is refunded.';
-        console.log('🤝 Game ended in draw');
       }
       
       setResult({ type, message });
       setIsGameActive(false);
-      if (intervalId) {
-        console.log('🧹 Clearing game timer due to game end');
-        clearInterval(intervalId);
-      }
+      if (intervalId) clearInterval(intervalId);
       handleGameEnd(type);
       return;
     }
 
     // Trigger bot move if it's bot's turn
     if (game.turn() === botColor && !isBotThinking && !result) {
-      console.log('🤖 Bot turn detected, triggering bot move');
       makeBotMove();
     }
   }, [fen, isGameActive, playerColor, botColor, isBotThinking, result]);
 
   const initializeGame = async () => {
-    console.log('🎯 Initializing new chess game...');
     try {
       setIsProcessing(true);
       
       // Create game in database
-      console.log('📡 Creating game in database...');
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chess-management/create-game`, {
         method: 'POST',
         headers: {
@@ -184,28 +130,22 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('❌ Failed to create game:', response.status, errorText);
         throw new Error('Failed to create game');
       }
 
       const result = await response.json();
-      console.log('✅ Game created successfully:', result.game.id);
       setCurrentGameId(result.game.id);
       
       // Refresh profile to get updated XP
-      console.log('🔄 Refreshing profile after XP deduction...');
       await refreshSessionAndProfile();
 
       // If player is black, bot makes first move
       if (gameConfig.playerColor === 'black') {
-        console.log('⚫ Player is black, scheduling bot first move');
         setTimeout(() => {
           makeBotMove();
         }, 1000);
       }
     } catch (err) {
-      console.error('❌ Game initialization failed:', err);
       setError('Failed to initialize game. Please try again.');
     } finally {
       setIsProcessing(false);
@@ -213,18 +153,14 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
   };
 
   const handleGameEnd = async (type) => {
-    console.log('🏁 Game ended with type:', type);
-    
     // Clear any pending bot moves
     if (botMoveTimeoutRef.current) {
-      console.log('🧹 Clearing pending bot move timeout');
       clearTimeout(botMoveTimeoutRef.current);
     }
     
     setIsBotThinking(false);
 
     if (!currentGameId) {
-      console.log('⚠️ No current game ID, skipping database update');
       return;
     }
 
@@ -245,10 +181,7 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
       result = 'lose';
     }
 
-    console.log('💰 XP change:', { type, xpChange, result });
-
     try {
-      console.log('📡 Completing game in database...');
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chess-management/complete-game`, {
         method: 'POST',
         headers: {
@@ -263,41 +196,22 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
       });
 
       if (response.ok) {
-        console.log('✅ Game completed successfully in database');
         await refreshSessionAndProfile();
       } else {
-        const errorText = await response.text();
-        console.error('❌ Failed to complete game:', response.status, errorText);
         setError('Failed to update your profile. Please try again.');
       }
     } catch (error) {
-      console.error('❌ Error completing game:', error);
       setError('Failed to complete game. Please try again.');
     } finally {
-      console.log('✅ Game end handled successfully');
       setIsProcessing(false);
     }
   };
 
   const makeBotMove = () => {
-    console.log('🤖 makeBotMove called:', {
-      gameOver: game.isGameOver(),
-      currentTurn: game.turn(),
-      botColor,
-      isBotThinking,
-      timestamp: new Date().toISOString()
-    });
-
     if (game.isGameOver() || game.turn() !== botColor || isBotThinking) {
-      console.log('🚫 Bot move blocked:', {
-        gameOver: game.isGameOver(),
-        wrongTurn: game.turn() !== botColor,
-        alreadyThinking: isBotThinking
-      });
       return;
     }
     
-    console.log('🧠 Bot starting to think...');
     setIsBotThinking(true);
     
     // Clear any existing timeout
@@ -306,70 +220,44 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
     }
 
     const thinkingTime = 1500 + Math.random() * 1500; // 1.5-3 second thinking time
-    console.log('⏱️ Bot thinking time:', thinkingTime + 'ms');
 
     botMoveTimeoutRef.current = setTimeout(() => {
-      console.log('🎲 Bot calculating move...');
       try {
         const bestMove = chessAI.current.getBestMove(game);
-        console.log('🎯 Bot calculated move:', bestMove);
         
         if (bestMove && !game.isGameOver()) {
-          console.log('✅ Executing bot move:', bestMove);
           const newGame = new Chess(game.fen());
           const moveObj = newGame.move(bestMove);
           
           if (moveObj) {
-            console.log('✅ Bot move executed successfully:', moveObj);
             setGame(newGame);
             setFen(newGame.fen());
             setMoveHistory((h) => [...h, moveObj.san]);
             setLastMove({ from: moveObj.from, to: moveObj.to });
             
             if (moveObj.captured) {
-              console.log('🎯 Bot captured:', moveObj.captured);
               setGameStats(prev => ({ ...prev, captures: prev.captures + 1 }));
             }
             if (newGame.isCheck()) {
-              console.log('👑 Bot gave check!');
               setGameStats(prev => ({ ...prev, checks: prev.checks + 1 }));
             }
           }
-        } else {
-          console.log('⚠️ No valid bot move found or game over');
         }
       } catch (error) {
-        console.error('❌ Error in bot move calculation:', error);
+        // Silent fail
       } finally {
-        console.log('🏁 Bot thinking complete, setting isBotThinking to false');
         setIsBotThinking(false);
       }
     }, thinkingTime);
   };
 
   const handleSquareClick = (square) => {
-    console.log('🖱️ Square clicked:', {
-      square,
-      isGameActive,
-      currentTurn: game.turn(),
-      playerColor,
-      isBotThinking,
-      selectedSquare,
-      timestamp: new Date().toISOString()
-    });
-
     if (!isGameActive || game.turn() !== playerColor || isBotThinking) {
-      console.log('🚫 Square click blocked:', {
-        gameNotActive: !isGameActive,
-        wrongTurn: game.turn() !== playerColor,
-        botThinking: isBotThinking
-      });
       return;
     }
     
     // If a square is selected and this click is on a legal move target
     if (selectedSquare && legalMoves.includes(square)) {
-      console.log('🎯 Attempting player move:', { from: selectedSquare, to: square });
       const newGame = new Chess(game.fen());
       
       try {
@@ -380,7 +268,6 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
         });
         
         if (moveObj) {
-          console.log('✅ Player move executed:', moveObj);
           setGame(newGame);
           setFen(newGame.fen());
           setMoveHistory(h => [...h, moveObj.san]);
@@ -389,16 +276,13 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
           setLegalMoves([]);
           
           if (moveObj.captured) {
-            console.log('🎯 Player captured:', moveObj.captured);
             setGameStats(prev => ({ ...prev, captures: prev.captures + 1 }));
           }
           if (newGame.isCheck()) {
-            console.log('👑 Player gave check!');
             setGameStats(prev => ({ ...prev, checks: prev.checks + 1 }));
           }
         }
       } catch (error) {
-        console.error('❌ Invalid player move:', error);
         setSelectedSquare(null);
         setLegalMoves([]);
       }
@@ -409,7 +293,6 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
     const piece = game.get(square);
     if (piece && piece.color === playerColor) {
       const moves = game.moves({ square, verbose: true });
-      console.log('🎯 Piece selected:', { square, piece: piece.type, movesCount: moves.length });
       
       if (moves.length > 0) {
         setSelectedSquare(square);
@@ -420,20 +303,17 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
       }
     } else {
       // Deselect if clicking on empty square or opponent piece
-      console.log('❌ Deselecting square');
       setSelectedSquare(null);
       setLegalMoves([]);
     }
   };
 
   const handleResign = () => {
-    console.log('🏳️ Resign button clicked');
     setShowResignConfirm(true);
     setIsSidebarOpen(false);
   };
   
   const confirmResign = () => {
-    console.log('✅ Resignation confirmed');
     setShowResignConfirm(false);
     setResult({ type: 'lose', message: 'You resigned. You lose.' });
     setIsGameActive(false);
@@ -442,7 +322,6 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
   };
   
   const cancelResign = () => {
-    console.log('❌ Resignation cancelled');
     setShowResignConfirm(false);
   };
 
@@ -500,7 +379,6 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
   useEffect(() => {
     const handleBeforeUnload = (e) => {
       if (isGameActive && !result) {
-        console.log('⚠️ User attempting to leave during active game');
         e.preventDefault();
         e.returnValue = '';
         return '';

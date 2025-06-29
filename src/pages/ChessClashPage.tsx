@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAuthContext } from '../components/AuthProvider';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -10,33 +10,6 @@ const ChessClashPage = () => {
   const { user, profile, loading } = useAuthContext();
   const [gameConfig, setGameConfig] = useState(null);
   const [selectedDifficulty, setSelectedDifficulty] = useState('medium');
-
-  // Debug logs for ChessClashPage
-  console.log('🎮 ChessClashPage render:', {
-    hasUser: !!user,
-    hasProfile: !!profile,
-    loading,
-    gameConfig: gameConfig ? {
-      difficulty: gameConfig.difficulty,
-      playerColor: gameConfig.playerColor,
-      xpCost: gameConfig.xpCost
-    } : null,
-    selectedDifficulty,
-    timestamp: new Date().toISOString()
-  });
-
-  useEffect(() => {
-    console.log('🔄 ChessClashPage useEffect - Auth state changed:', {
-      user: user ? { id: user.id, email: user.email } : null,
-      profile: profile ? { 
-        id: profile.id, 
-        username: profile.username, 
-        xp: profile.xp 
-      } : null,
-      loading,
-      timestamp: new Date().toISOString()
-    });
-  }, [user, profile, loading]);
 
   const difficulties = [
     { 
@@ -69,34 +42,19 @@ const ChessClashPage = () => {
   ];
 
   const handleStartGame = () => {
-    console.log('🚀 Starting new chess game:', {
-      selectedDifficulty,
-      playerXP: profile?.xp,
-      xpCost: difficulties.find(d => d.value === selectedDifficulty)?.xpCost,
-      timestamp: new Date().toISOString()
-    });
-
     // Always set player to white and bot to black
-    const newGameConfig = {
+    setGameConfig({
       difficulty: selectedDifficulty,
       playerColor: 'white',
       xpCost: difficulties.find(d => d.value === selectedDifficulty)?.xpCost || 30
-    };
-
-    console.log('🎯 Setting game config:', newGameConfig);
-    setGameConfig(newGameConfig);
+    });
   };
 
   const handleBackToSetup = () => {
-    console.log('🔙 Returning to setup from game:', {
-      previousGameConfig: gameConfig,
-      timestamp: new Date().toISOString()
-    });
     setGameConfig(null);
   };
 
   if (loading) {
-    console.log('⏳ ChessClashPage showing loading state');
     return (
       <div className="min-h-screen bg-black">
         <Header />
@@ -111,7 +69,6 @@ const ChessClashPage = () => {
   }
 
   if (!user || !profile) {
-    console.log('🔐 ChessClashPage showing auth required state:', { hasUser: !!user, hasProfile: !!profile });
     return (
       <div className="min-h-screen bg-black">
         <Header />
@@ -143,7 +100,6 @@ const ChessClashPage = () => {
 
   // If game is configured, show the chess game
   if (gameConfig) {
-    console.log('♟️ ChessClashPage rendering ChessClash component with config:', gameConfig);
     return (
       <div className="min-h-screen bg-black">
         <Header />
@@ -159,7 +115,6 @@ const ChessClashPage = () => {
     );
   }
 
-  console.log('⚙️ ChessClashPage showing setup interface');
   // Show game setup interface
   return (
     <div className="min-h-screen bg-black">
@@ -260,10 +215,7 @@ const ChessClashPage = () => {
                     {difficulties.map((difficulty) => (
                       <button
                         key={difficulty.value}
-                        onClick={() => {
-                          console.log('🎯 Difficulty selected:', difficulty.value);
-                          setSelectedDifficulty(difficulty.value);
-                        }}
+                        onClick={() => setSelectedDifficulty(difficulty.value)}
                         className={`w-full p-4 rounded-xl border-2 transition-all duration-300 text-left ${
                           selectedDifficulty === difficulty.value
                             ? 'bg-yellow-400/10 border-yellow-400 shadow-lg'
