@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Gamepad2 } from 'lucide-react';
+import ScrollVelocityText from './ScrollVelocityText';
 
 const Hero = () => {
   const scrollToWaitlist = () => {
@@ -47,6 +48,23 @@ const Hero = () => {
                 Join Waitlist
               </button>
             </div>
+          </div>
+
+          {/* Scroll Velocity Text Animation */}
+          <div className="absolute bottom-20 left-0 right-0 pointer-events-none">
+            <ScrollVelocityText
+              texts={['PLAY.', 'COMPETE.', 'EARN.']}
+              velocity={50}
+              className="text-6xl lg:text-8xl font-black text-yellow-400/10 select-none"
+              damping={50}
+              stiffness={400}
+              numCopies={8}
+              velocityMapping={{ input: [0, 1000], output: [0, 3] }}
+              parallaxStyle={{
+                maskImage: 'linear-gradient(to right, transparent, black 20%, black 80%, transparent)',
+                WebkitMaskImage: 'linear-gradient(to right, transparent, black 20%, black 80%, transparent)',
+              }}
+            />
           </div>
         </div>
       </div>
