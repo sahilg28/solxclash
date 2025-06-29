@@ -23,7 +23,7 @@ const Hero = () => {
           <div className="space-y-6 animate-fade-in-up">
             <div className="space-y-3">
               <h1 className="text-6xl lg:text-8xl font-black leading-tight uppercase tracking-wide">
-                <span className="text-yellow-400">Join the future of</span> <span className="text-white">Web3 gaming</span>
+                <span className="text-white">Join the future of</span> <span className="text-yellow-400">Web3 gaming</span>
               </h1>
 
               <p className="text-base text-gray-300 max-w-2xl mx-auto leading-relaxed">
