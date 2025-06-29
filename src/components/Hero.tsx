@@ -54,7 +54,7 @@ const Hero = () => {
           <div className="absolute bottom-20 left-0 right-0 pointer-events-none">
             <ScrollVelocityText
               texts={['PLAY.', 'COMPETE.', 'EARN.']}
-              velocity={50}
+              velocity={20}
               className="text-6xl lg:text-8xl font-black text-yellow-400/10 select-none"
               damping={50}
               stiffness={400}
