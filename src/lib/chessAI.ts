@@ -95,7 +95,6 @@ export class ChessAI {
   constructor(difficulty: 'easy' | 'medium' | 'hard') {
     this.difficulty = difficulty;
     this.maxDepth = this.getDepthForDifficulty(difficulty);
-    console.log(`🤖 ChessAI initialized with difficulty: ${difficulty}, maxDepth: ${this.maxDepth}`);
   }
 
   private getDepthForDifficulty(difficulty: 'easy' | 'medium' | 'hard'): number {
@@ -108,51 +107,34 @@ export class ChessAI {
   }
 
   public getBestMove(game: Chess): string | null {
-    console.log(`🎯 ChessAI.getBestMove called`);
-    console.log(`📋 Current FEN: ${game.fen()}`);
-    console.log(`🔄 Current turn: ${game.turn()}`);
-    console.log(`🎮 Game over: ${game.isGameOver()}`);
-    
     const moves = game.moves();
-    console.log(`📝 Available moves (${moves.length}):`, moves);
     
     if (moves.length === 0) {
-      console.log(`❌ No moves available!`);
       return null;
     }
 
     // Add some randomness for easy difficulty
     if (this.difficulty === 'easy' && Math.random() < 0.15) {
       const randomMove = moves[Math.floor(Math.random() * moves.length)];
-      console.log(`🎲 Easy mode: choosing random move: ${randomMove}`);
       return randomMove;
     }
 
     // Clear transposition table periodically to prevent memory issues
     if (this.transpositionTable.size > 10000) {
-      console.log(`🧹 Clearing transposition table (size: ${this.transpositionTable.size})`);
       this.transpositionTable.clear();
     }
 
-    console.log(`🧠 Starting minimax search with depth ${this.maxDepth}...`);
     const startTime = Date.now();
     
     try {
       const [bestScore, bestMove] = this.minimax(game, this.maxDepth, -Infinity, Infinity, false);
-      const endTime = Date.now();
-      
-      console.log(`✅ Minimax completed in ${endTime - startTime}ms`);
-      console.log(`📊 Best move: ${bestMove}, Score: ${bestScore}`);
       
       if (!bestMove) {
-        console.log(`⚠️ Minimax returned null move, falling back to first available move`);
         return moves[0];
       }
       
       return bestMove;
     } catch (error) {
-      console.error(`❌ Error in minimax:`, error);
-      console.log(`🔄 Falling back to first available move: ${moves[0]}`);
       return moves[0];
     }
   }
@@ -180,10 +162,8 @@ export class ChessAI {
     }
 
     const moves = game.moves();
-    console.log(`🔍 Minimax depth ${depth}, ${moves.length} moves, isMaximizing: ${isMaximizing}`);
     
     if (moves.length === 0) {
-      console.log(`❌ No moves at depth ${depth}`);
       const score = this.evaluatePosition(game);
       return [score, null];
     }
@@ -193,7 +173,6 @@ export class ChessAI {
 
     // Move ordering: prioritize captures and checks
     const orderedMoves = this.orderMoves(game, moves);
-    console.log(`📋 Ordered moves for depth ${depth}:`, orderedMoves.slice(0, 5)); // Show first 5
 
     for (let i = 0; i < orderedMoves.length; i++) {
       const move = orderedMoves[i];
@@ -203,7 +182,6 @@ export class ChessAI {
         const moveResult = newGame.move(move);
         
         if (!moveResult) {
-          console.log(`❌ Invalid move at depth ${depth}: ${move}`);
           continue;
         }
         
@@ -213,25 +191,21 @@ export class ChessAI {
           if (score > bestScore) {
             bestScore = score;
             bestMove = move;
-            console.log(`📈 New best move at depth ${depth}: ${move} (score: ${score})`);
           }
           alpha = Math.max(alpha, score);
         } else {
           if (score < bestScore) {
             bestScore = score;
             bestMove = move;
-            console.log(`📉 New best move at depth ${depth}: ${move} (score: ${score})`);
           }
           beta = Math.min(beta, score);
         }
         
         // Alpha-beta pruning
         if (beta <= alpha) {
-          console.log(`✂️ Alpha-beta pruning at depth ${depth} after move ${i + 1}/${orderedMoves.length}`);
           break;
         }
       } catch (error) {
-        console.error(`❌ Error processing move ${move} at depth ${depth}:`, error);
         continue;
       }
     }
@@ -239,12 +213,10 @@ export class ChessAI {
     // Store in transposition table
     this.transpositionTable.set(transpositionKey, { score: bestScore, depth, flag: 'exact' });
     
-    console.log(`🎯 Minimax depth ${depth} result: move=${bestMove}, score=${bestScore}`);
     return [bestScore, bestMove];
   }
 
   private orderMoves(game: Chess, moves: string[]): string[] {
-    console.log(`🔄 Ordering ${moves.length} moves...`);
     const moveScores: { move: string; score: number }[] = [];
     
     for (const move of moves) {
@@ -255,7 +227,6 @@ export class ChessAI {
         const moveObj = newGame.move(move);
         
         if (!moveObj) {
-          console.log(`❌ Invalid move in ordering: ${move}`);
           continue;
         }
         
@@ -283,7 +254,6 @@ export class ChessAI {
         
         moveScores.push({ move, score });
       } catch (error) {
-        console.error(`❌ Error evaluating move ${move} for ordering:`, error);
         moveScores.push({ move, score: 0 });
       }
     }
@@ -292,29 +262,22 @@ export class ChessAI {
     moveScores.sort((a, b) => b.score - a.score);
     const orderedMoves = moveScores.map(item => item.move);
     
-    console.log(`✅ Move ordering complete. Top 3 moves:`, orderedMoves.slice(0, 3));
     return orderedMoves;
   }
 
   private evaluatePosition(game: Chess): number {
-    console.log(`📊 Evaluating position: ${game.fen()}`);
-    
     if (game.isCheckmate()) {
       const score = game.turn() === 'w' ? -9999 : 9999;
-      console.log(`♔ Checkmate detected, score: ${score}`);
       return score;
     }
     
     if (game.isDraw()) {
-      console.log(`🤝 Draw detected, score: 0`);
       return 0;
     }
 
     let score = 0;
     const board = game.board();
     const isEndgame = this.isEndgame(game);
-    
-    console.log(`🏁 Is endgame: ${isEndgame}`);
     
     // Material and positional evaluation
     let materialScore = 0;
@@ -356,13 +319,6 @@ export class ChessAI {
     if (this.difficulty === 'easy') {
       score += (Math.random() - 0.5) * 50;
     }
-    
-    console.log(`📈 Position evaluation complete:`);
-    console.log(`  Material: ${materialScore}`);
-    console.log(`  King Safety: W=${kingSafetyW}, B=${kingSafetyB}`);
-    console.log(`  Pawn Structure: W=${pawnStructureW}, B=${pawnStructureB}`);
-    console.log(`  Mobility: W=${mobilityW}, B=${mobilityB}`);
-    console.log(`  Final Score: ${score}`);
     
     return score;
   }
@@ -491,7 +447,6 @@ export class ChessAI {
   }
 
   private evaluatePieceMobility(game: Chess, color: 'w' | 'b'): number {
-    console.log(`🚶 Evaluating mobility for ${color}...`);
     const board = game.board();
     let mobility = 0;
     let pieceCount = 0;
@@ -509,19 +464,12 @@ export class ChessAI {
             // Get moves for this specific piece
             const pieceMoves = game.moves({ square, verbose: false });
             mobility += pieceMoves.length;
-            
-            if (pieceMoves.length > 0) {
-              console.log(`  ${piece.type} on ${square}: ${pieceMoves.length} moves`);
-            }
           } catch (error) {
-            console.error(`❌ Error getting moves for ${piece.type} on ${square}:`, error);
             continue;
           }
         }
       }
     }
-    
-    console.log(`📊 ${color} mobility: ${mobility} total moves from ${pieceCount} pieces`);
     
     // Weight mobility appropriately
     return mobility * 2;
@@ -530,6 +478,5 @@ export class ChessAI {
 
 // Factory function to create AI instance
 export function createChessAI(difficulty: 'easy' | 'medium' | 'hard'): ChessAI {
-  console.log(`🏭 Creating ChessAI with difficulty: ${difficulty}`);
   return new ChessAI(difficulty);
 }
