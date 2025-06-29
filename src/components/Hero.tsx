@@ -17,16 +17,16 @@ const Hero = () => {
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-yellow-400/3 rounded-full blur-3xl animate-pulse delay-1000"></div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
-        <div className="flex flex-col items-center text-center justify-start min-h-[calc(90vh-64px)] pt-8">
-          {/* Main Content */}
-          <div className="space-y-8 animate-fade-in-up">
-            <div className="space-y-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
+        <div className="flex flex-col items-center text-center justify-start min-h-[calc(85vh-64px)] pt-4">
+          {/* Main Content - Moved up with reduced spacing */}
+          <div className="space-y-6 animate-fade-in-up">
+            <div className="space-y-3">
               <h1 className="text-6xl lg:text-8xl font-black leading-tight uppercase tracking-wide">
                 <span className="text-yellow-400">Join the future of</span> <span className="text-white">Web3 gaming</span>
               </h1>
 
-              <p className="text-lg text-gray-300 max-w-2xl mx-auto leading-relaxed">
+              <p className="text-base text-gray-300 max-w-2xl mx-auto leading-relaxed">
                 SolxClash is the gaming platform where players globally compete, earn rewards, and play their favorite games together.
               </p>
             </div>
