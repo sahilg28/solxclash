@@ -15,21 +15,21 @@ const Hero = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
         <div className="flex flex-col items-center text-center justify-start min-h-[calc(90vh-64px)] pt-8 relative">
           
-          {/* Crypto Images - Bigger and positioned in corners */}
+          {/* Crypto Images - Positioned strategically */}
           <img 
             src="/assets/BTC.svg" 
             alt="Bitcoin" 
-            className="absolute -top-8 -left-12 w-32 h-32 lg:w-48 lg:h-48 xl:w-56 xl:h-56 opacity-15 transform rotate-12 z-0"
+            className="absolute top-16 left-8 w-20 h-20 lg:w-24 lg:h-24 opacity-20 transform rotate-12"
           />
           <img 
             src="/assets/SOL.svg" 
             alt="Solana" 
-            className="absolute top-4 -right-16 w-28 h-28 lg:w-40 lg:h-40 xl:w-48 xl:h-48 opacity-20 transform -rotate-6 z-0"
+            className="absolute top-32 right-12 w-16 h-16 lg:w-20 lg:h-20 opacity-25 transform -rotate-6"
           />
           <img 
             src="/assets/Poly.svg" 
             alt="Polygon" 
-            className="absolute -bottom-12 -left-8 w-36 h-36 lg:w-52 lg:h-52 xl:w-60 xl:h-60 opacity-12 transform rotate-45 z-0"
+            className="absolute bottom-32 left-16 w-18 h-18 lg:w-22 lg:h-22 opacity-20 transform rotate-45"
           />
 
           {/* Main Content */}
