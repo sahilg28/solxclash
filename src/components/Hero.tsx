@@ -9,8 +9,59 @@ const Hero = () => {
     }
   };
 
+  // Generate random star particles
+  const generateStars = (count: number) => {
+    return Array.from({ length: count }, (_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      animationDelay: Math.random() * 10,
+      animationDuration: 8 + Math.random() * 12, // 8-20 seconds
+      size: 1 + Math.random() * 3, // 1-4px
+      opacity: 0.3 + Math.random() * 0.7, // 0.3-1.0
+    }));
+  };
+
+  const stars = generateStars(50);
+
   return (
     <section className="min-h-screen bg-gradient-to-b from-black via-purple-900/30 to-black text-white pt-16 flex items-start relative overflow-hidden">
+      {/* Floating Star Particles */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {stars.map((star) => (
+          <div
+            key={star.id}
+            className="absolute w-1 h-1 bg-yellow-400 rounded-full animate-float-up"
+            style={{
+              left: `${star.left}%`,
+              bottom: '50%',
+              width: `${star.size}px`,
+              height: `${star.size}px`,
+              opacity: star.opacity,
+              animationDelay: `${star.animationDelay}s`,
+              animationDuration: `${star.animationDuration}s`,
+              boxShadow: `0 0 ${star.size * 2}px rgba(250, 204, 21, 0.5)`,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Additional smaller particles */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {generateStars(30).map((star) => (
+          <div
+            key={`small-${star.id}`}
+            className="absolute w-0.5 h-0.5 bg-white rounded-full animate-float-up-slow"
+            style={{
+              left: `${star.left}%`,
+              bottom: '40%',
+              opacity: star.opacity * 0.6,
+              animationDelay: `${star.animationDelay + 2}s`,
+              animationDuration: `${star.animationDuration + 5}s`,
+            }}
+          />
+        ))}
+      </div>
+
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-purple-400/5 rounded-full blur-3xl animate-pulse"></div>
