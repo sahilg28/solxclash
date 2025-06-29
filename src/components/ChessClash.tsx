@@ -29,18 +29,35 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
   const [lastMove, setLastMove] = useState(null);
   const [gameStats, setGameStats] = useState({ captures: 0, checks: 0 });
   const [currentGameId, setCurrentGameId] = useState(null);
+  const [isBotThinking, setIsBotThinking] = useState(false);
   const navigate = useNavigate();
   const [showResignConfirm, setShowResignConfirm] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const chessAI = useRef(createChessAI(gameConfig.difficulty));
+  const botMoveTimeoutRef = useRef(null);
 
   // Determine player and bot colors
   const playerColor = gameConfig.playerColor === 'white' ? 'w' : 'b';
   const botColor = gameConfig.playerColor === 'white' ? 'b' : 'w';
 
+  console.log(`🎮 ChessClash initialized:`);
+  console.log(`  Player color: ${playerColor} (${gameConfig.playerColor})`);
+  console.log(`  Bot color: ${botColor}`);
+  console.log(`  Difficulty: ${gameConfig.difficulty}`);
+  console.log(`  XP Cost: ${gameConfig.xpCost}`);
+
   // Initialize game and create database entry
   useEffect(() => {
+    console.log(`🚀 ChessClash useEffect: initializing game...`);
     initializeGame();
+    
+    // Cleanup function
+    return () => {
+      console.log(`🧹 ChessClash cleanup: clearing bot timeout`);
+      if (botMoveTimeoutRef.current) {
+        clearTimeout(botMoveTimeoutRef.current);
+      }
+    };
   }, []);
 
   // Game timer effect
@@ -50,6 +67,7 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
     const id = setInterval(() => {
       setGameTime((t) => {
         if (t <= 1) {
+          console.log(`⏰ Game timeout!`);
           setResult({ type: 'timeout', message: 'Time is up! Game ended in timeout.' });
           setIsGameActive(false);
           clearInterval(id);
@@ -64,10 +82,23 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
     return () => clearInterval(id);
   }, [isGameActive, result]);
 
-  // Game end detection
+  // Game end detection and bot move triggering
   useEffect(() => {
-    if (!isGameActive) return;
+    console.log(`🔄 ChessClash game state effect triggered:`);
+    console.log(`  FEN: ${fen}`);
+    console.log(`  Current turn: ${game.turn()}`);
+    console.log(`  Game over: ${game.isGameOver()}`);
+    console.log(`  Is game active: ${isGameActive}`);
+    console.log(`  Bot thinking: ${isBotThinking}`);
+    console.log(`  Result: ${result ? result.type : 'none'}`);
+
+    if (!isGameActive) {
+      console.log(`❌ Game not active, skipping game state logic`);
+      return;
+    }
+
     if (game.isGameOver()) {
+      console.log(`🏁 Game over detected!`);
       let type = 'draw';
       let message = 'Draw! Your XP is refunded.';
       
@@ -75,56 +106,55 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
         if (game.turn() !== playerColor) {
           type = 'win';
           message = 'Checkmate! You win!';
+          console.log(`🎉 Player wins by checkmate!`);
         } else {
           type = 'lose';
           message = 'Checkmate! You lose.';
+          console.log(`😞 Player loses by checkmate!`);
         }
       } else if (game.isDraw()) {
         type = 'draw';
         message = 'Draw! Your XP is refunded.';
+        console.log(`🤝 Game ended in draw`);
       }
       
       setResult({ type, message });
       setIsGameActive(false);
-      clearInterval(intervalId);
+      if (intervalId) clearInterval(intervalId);
       handleGameEnd(type);
+      return;
     }
-  }, [fen, isGameActive, playerColor, game]);
+
+    // Trigger bot move if it's bot's turn
+    if (game.turn() === botColor && !isBotThinking && !result) {
+      console.log(`🤖 Bot's turn detected, triggering bot move...`);
+      makeBotMove();
+    } else {
+      console.log(`👤 Player's turn or bot already thinking`);
+    }
+  }, [fen, isGameActive, playerColor, botColor, isBotThinking, result]);
 
   const initializeGame = async () => {
+    console.log(`🎯 Initializing game...`);
     try {
       setIsProcessing(true);
       
-      // Create game in database
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chess-management/create-game`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-        },
-        body: JSON.stringify({
-          playerId: profile.user_id,
-          difficulty: gameConfig.difficulty,
-          playerColor: gameConfig.playerColor,
-          xpCost: gameConfig.xpCost
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to create game');
-      }
-
-      const result = await response.json();
-      setCurrentGameId(result.game.id);
+      // Deduct XP cost first (simplified for testing)
       setXpState(prev => prev - gameConfig.xpCost);
+      console.log(`💰 XP deducted: ${gameConfig.xpCost}, new XP: ${profile.xp - gameConfig.xpCost}`);
 
       // If player is black, bot makes first move
       if (gameConfig.playerColor === 'black') {
+        console.log(`⚫ Player is black, bot will move first after delay`);
         setTimeout(() => {
+          console.log(`🤖 Triggering initial bot move...`);
           makeBotMove();
-        }, 500);
+        }, 1000);
+      } else {
+        console.log(`⚪ Player is white, waiting for player's first move`);
       }
     } catch (err) {
+      console.error('❌ Failed to initialize game:', err);
       setError('Failed to initialize game. Please try again.');
       setXpState(prev => prev + gameConfig.xpCost);
     } finally {
@@ -133,46 +163,40 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
   };
 
   const handleGameEnd = async (type) => {
-    if (!currentGameId) return;
+    console.log(`🏁 Game ended with type: ${type}`);
+    
+    // Clear any pending bot moves
+    if (botMoveTimeoutRef.current) {
+      console.log(`🧹 Clearing pending bot move timeout`);
+      clearTimeout(botMoveTimeoutRef.current);
+    }
+    
+    setIsBotThinking(false);
 
     setIsProcessing(true);
     setError(null);
     
     let xpChange = 0;
-    let result = 'lose';
+    let gameResult = 'lose';
     
     if (type === 'win') {
       xpChange = gameConfig.difficulty === 'easy' ? 40 : gameConfig.difficulty === 'medium' ? 60 : 100;
-      result = 'win';
+      gameResult = 'win';
     } else if (type === 'draw') {
       xpChange = gameConfig.xpCost; // refund
-      result = 'draw';
+      gameResult = 'draw';
     } else if (type === 'lose' || type === 'timeout') {
       xpChange = 0;
-      result = 'lose';
+      gameResult = 'lose';
     }
 
-    try {
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chess-management/complete-game`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-        },
-        body: JSON.stringify({
-          gameId: currentGameId,
-          result,
-          xpEarned: xpChange
-        })
-      });
+    console.log(`💰 XP change: ${xpChange}, Game result: ${gameResult}`);
 
-      if (response.ok) {
-        setXpState(prev => prev + xpChange);
-        await refreshSessionAndProfile();
-      } else {
-        setError('Failed to update your profile. Please try again.');
-      }
+    try {
+      setXpState(prev => prev + xpChange);
+      console.log(`✅ Game end handled successfully`);
     } catch (error) {
+      console.error('❌ Failed to complete game:', error);
       setError('Failed to complete game. Please try again.');
     } finally {
       setIsProcessing(false);
@@ -180,83 +204,178 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
   };
 
   const makeBotMove = () => {
-    if (game.isGameOver() || game.turn() !== botColor) return;
+    console.log(`🤖 makeBotMove called`);
+    console.log(`  Game over: ${game.isGameOver()}`);
+    console.log(`  Current turn: ${game.turn()}`);
+    console.log(`  Bot color: ${botColor}`);
+    console.log(`  Bot thinking: ${isBotThinking}`);
+
+    if (game.isGameOver()) {
+      console.log(`❌ Game is over, bot cannot move`);
+      return;
+    }
+
+    if (game.turn() !== botColor) {
+      console.log(`❌ Not bot's turn (current: ${game.turn()}, bot: ${botColor})`);
+      return;
+    }
+
+    if (isBotThinking) {
+      console.log(`❌ Bot is already thinking`);
+      return;
+    }
     
-    setTimeout(() => {
-      const bestMove = chessAI.current.getBestMove(game);
-      if (bestMove) {
-        const newGame = new Chess(game.fen());
-        const moveObj = newGame.move(bestMove);
+    console.log(`✅ Bot move conditions met, starting calculation...`);
+    setIsBotThinking(true);
+    
+    // Clear any existing timeout
+    if (botMoveTimeoutRef.current) {
+      console.log(`🧹 Clearing existing bot timeout`);
+      clearTimeout(botMoveTimeoutRef.current);
+    }
+
+    const thinkingTime = 1500 + Math.random() * 1500; // 1.5-3 second thinking time
+    console.log(`⏱️ Bot will think for ${Math.round(thinkingTime)}ms`);
+
+    botMoveTimeoutRef.current = setTimeout(() => {
+      console.log(`🧠 Bot calculation timeout triggered`);
+      
+      try {
+        console.log(`🎯 Calling chessAI.getBestMove...`);
+        const bestMove = chessAI.current.getBestMove(game);
+        console.log(`🎲 Bot calculated move: ${bestMove}`);
+        
+        if (bestMove && !game.isGameOver()) {
+          console.log(`✅ Executing bot move: ${bestMove}`);
+          const newGame = new Chess(game.fen());
+          const moveObj = newGame.move(bestMove);
+          
+          if (moveObj) {
+            console.log(`✅ Bot move executed successfully:`, moveObj);
+            setGame(newGame);
+            setFen(newGame.fen());
+            setMoveHistory(h => [...h, moveObj.san]);
+            setLastMove({ from: moveObj.from, to: moveObj.to });
+            
+            if (moveObj.captured) {
+              console.log(`🎯 Bot captured: ${moveObj.captured}`);
+              setGameStats(prev => ({ ...prev, captures: prev.captures + 1 }));
+            }
+            if (newGame.isCheck()) {
+              console.log(`👑 Bot gave check!`);
+              setGameStats(prev => ({ ...prev, checks: prev.checks + 1 }));
+            }
+          } else {
+            console.error(`❌ Bot move failed to execute: ${bestMove}`);
+          }
+        } else {
+          console.log(`❌ No valid bot move found or game is over`);
+          console.log(`  bestMove: ${bestMove}`);
+          console.log(`  gameOver: ${game.isGameOver()}`);
+        }
+      } catch (error) {
+        console.error('❌ Error in bot move calculation:', error);
+      } finally {
+        console.log(`🏁 Bot thinking complete, setting isBotThinking to false`);
+        setIsBotThinking(false);
+      }
+    }, thinkingTime);
+  };
+
+  const handleSquareClick = (square) => {
+    console.log(`🖱️ Square clicked: ${square}`);
+    console.log(`  Game active: ${isGameActive}`);
+    console.log(`  Current turn: ${game.turn()}`);
+    console.log(`  Player color: ${playerColor}`);
+    console.log(`  Bot thinking: ${isBotThinking}`);
+
+    if (!isGameActive || game.turn() !== playerColor || isBotThinking) {
+      console.log(`❌ Player move not allowed`);
+      return;
+    }
+    
+    // If a square is selected and this click is on a legal move target
+    if (selectedSquare && legalMoves.includes(square)) {
+      console.log(`🎯 Executing player move: ${selectedSquare} -> ${square}`);
+      const newGame = new Chess(game.fen());
+      
+      try {
+        const moveObj = newGame.move({ 
+          from: selectedSquare, 
+          to: square, 
+          promotion: 'q' // Auto-promote to queen
+        });
         
         if (moveObj) {
+          console.log(`✅ Player move executed successfully:`, moveObj);
           setGame(newGame);
           setFen(newGame.fen());
           setMoveHistory(h => [...h, moveObj.san]);
           setLastMove({ from: moveObj.from, to: moveObj.to });
+          setSelectedSquare(null);
+          setLegalMoves([]);
           
           if (moveObj.captured) {
+            console.log(`🎯 Player captured: ${moveObj.captured}`);
             setGameStats(prev => ({ ...prev, captures: prev.captures + 1 }));
           }
           if (newGame.isCheck()) {
+            console.log(`👑 Player gave check!`);
             setGameStats(prev => ({ ...prev, checks: prev.checks + 1 }));
           }
+          
+          // The useEffect will handle triggering the bot move
+          console.log(`🔄 Player move complete, useEffect will trigger bot move`);
+        } else {
+          console.error(`❌ Player move failed to execute: ${selectedSquare} -> ${square}`);
         }
-      }
-    }, 2000 + Math.random() * 1000); // 2-3 second thinking time
-  };
-
-  const handleSquareClick = (square) => {
-    if (!isGameActive || game.turn() !== playerColor) return;
-    
-    if (selectedSquare && legalMoves.includes(square)) {
-      const newGame = new Chess(game.fen());
-      const moveObj = newGame.move({ from: selectedSquare, to: square, promotion: 'q' });
-      
-      if (moveObj) {
-        setGame(newGame);
-        setFen(newGame.fen());
-        setMoveHistory(h => [...h, moveObj.san]);
-        setLastMove({ from: moveObj.from, to: moveObj.to });
+      } catch (error) {
+        console.error('❌ Error making player move:', error);
         setSelectedSquare(null);
         setLegalMoves([]);
-        
-        if (moveObj.captured) {
-          setGameStats(prev => ({ ...prev, captures: prev.captures + 1 }));
-        }
-        if (newGame.isCheck()) {
-          setGameStats(prev => ({ ...prev, checks: prev.checks + 1 }));
-        }
-        
-        // Trigger bot move after player move
-        setTimeout(makeBotMove, 200);
       }
       return;
     }
     
-    const moves = game.moves({ square, verbose: true });
-    if (moves.length > 0 && game.turn() === playerColor) {
-      setSelectedSquare(square);
-      setLegalMoves(moves.map((m) => m.to));
+    // Select a piece if it belongs to the current player
+    const piece = game.get(square);
+    if (piece && piece.color === playerColor) {
+      const moves = game.moves({ square, verbose: true });
+      console.log(`🎯 Piece selected: ${square} (${piece.type}), Legal moves: ${moves.length}`);
+      
+      if (moves.length > 0) {
+        setSelectedSquare(square);
+        setLegalMoves(moves.map((m) => m.to));
+      } else {
+        console.log(`❌ No legal moves for piece on ${square}`);
+        setSelectedSquare(null);
+        setLegalMoves([]);
+      }
     } else {
+      // Deselect if clicking on empty square or opponent piece
+      console.log(`🔄 Deselecting (empty square or opponent piece)`);
       setSelectedSquare(null);
       setLegalMoves([]);
     }
   };
 
   const handleResign = () => {
+    console.log(`🏳️ Player wants to resign`);
     setShowResignConfirm(true);
     setIsSidebarOpen(false);
   };
   
   const confirmResign = () => {
+    console.log(`✅ Player confirmed resignation`);
     setShowResignConfirm(false);
     setResult({ type: 'lose', message: 'You resigned. You lose.' });
     setIsGameActive(false);
-    clearInterval(intervalId);
+    if (intervalId) clearInterval(intervalId);
     handleGameEnd('lose');
   };
   
   const cancelResign = () => {
+    console.log(`❌ Player cancelled resignation`);
     setShowResignConfirm(false);
   };
 
@@ -334,6 +453,11 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
 
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-gray-900 to-black">
+      {/* Debug Info */}
+      <div className="bg-gray-800 text-white p-2 text-xs font-mono">
+        Turn: {game.turn()} | Player: {playerColor} | Bot: {botColor} | Bot Thinking: {isBotThinking ? 'Yes' : 'No'} | Game Over: {game.isGameOver() ? 'Yes' : 'No'} | Moves: {game.moves().length}
+      </div>
+
       {/* Mobile Header */}
       <div className="lg:hidden bg-gradient-to-r from-gray-900/80 to-black/60 border-b border-yellow-400/20 p-4">
         <div className="flex items-center justify-between">
@@ -392,6 +516,11 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
                 <div className="flex items-center space-x-3">
                   <div className="relative">
                     <img src="/assets/solxclash_logo.svg" alt="Bot" className="w-12 h-12 rounded-full" />
+                    {isBotThinking && (
+                      <div className="absolute -top-1 -right-1 w-4 h-4">
+                        <div className="w-4 h-4 bg-yellow-400 rounded-full animate-pulse"></div>
+                      </div>
+                    )}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center space-x-2">
@@ -403,7 +532,7 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
                     {game.turn() === botColor && (
                       <div className="flex items-center space-x-1 text-yellow-400 text-xs">
                         <Brain className="w-3 h-3" />
-                        <span>Bot's turn</span>
+                        <span>{isBotThinking ? 'Thinking...' : "Bot's turn"}</span>
                       </div>
                     )}
                   </div>
@@ -460,7 +589,9 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
                     ) : (
                       <>
                         <div className="w-3 h-3 bg-yellow-400 rounded-full animate-pulse"></div>
-                        <span className="text-yellow-400 font-semibold">Bot's Turn</span>
+                        <span className="text-yellow-400 font-semibold">
+                          {isBotThinking ? 'Bot Thinking...' : "Bot's Turn"}
+                        </span>
                       </>
                     )}
                   </div>
