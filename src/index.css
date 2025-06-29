@@ -69,6 +69,19 @@ html {
   }
 }
 
+/* Gentle floating animation for crypto icons */
+@keyframes gentleFloat {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  33% {
+    transform: translateY(-10px) rotate(2deg);
+  }
+  66% {
+    transform: translateY(-5px) rotate(-1deg);
+  }
+}
+
 /* King in check pulse animation */
 @keyframes king-in-check-pulse {
   0%, 100% {
@@ -77,6 +90,15 @@ html {
   50% {
     box-shadow: 0 0 0 6px #ef444480, 0 0 20px #ef4444;
   }
+}
+
+/* Grid background pattern */
+.grid-background {
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  background-position: 0 0, 0 0;
 }
 
 .animate-fade-in-up {
@@ -103,6 +125,10 @@ html {
 
 .animate-glow {
   animation: glow 2s ease-in-out infinite;
+}
+
+.animate-gentle-float {
+  animation: gentleFloat 6s ease-in-out infinite;
 }
 
 /* Skeleton loader styles */
