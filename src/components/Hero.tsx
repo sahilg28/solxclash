@@ -23,12 +23,8 @@ const Hero = () => {
           <div className="space-y-8 animate-fade-in-up">
             <div className="space-y-6">
               <h1 className="text-6xl lg:text-8xl font-black leading-tight uppercase tracking-wide">
-                <span className="text-yellow-400">Join the future of</span> <span className="text-white">Web3 gaming</span>
+                <span className="text-yellow-400">Compete globally</span> <span className="text-white">and win real rewards</span> <span className="text-yellow-400">with SolxClash</span>
               </h1>
-
-              <p className="text-lg text-gray-300 max-w-2xl mx-auto leading-relaxed">
-                SolxClash is the gaming platform where players globally compete, earn rewards, and play their favorite games together.
-              </p>
             </div>
 
             {/* CTAs */}
