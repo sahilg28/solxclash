@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Trophy, Medal, Award, TrendingUp, Target, Zap, Crown, Star, Search } from 'lucide-react';
+import { Trophy, Medal, Award, Target, Crown, Star, Search } from 'lucide-react';
 import { supabase, Profile } from '../lib/supabase';
 import { getLevel } from '../lib/levelSystem';
 import Header from '../components/Header';
@@ -70,7 +70,7 @@ const LeaderboardPage = () => {
       }));
 
       setLeaderboard(processedData);
-    } catch (error) {
+    } catch {
       // Silent fail
     } finally {
       setLoading(false);
@@ -107,7 +107,7 @@ const LeaderboardPage = () => {
     if (rank === 1) return 'bg-gradient-to-r from-yellow-400/10 to-yellow-600/10 border-yellow-400/30';
     if (rank === 2) return 'bg-gradient-to-r from-gray-300/10 to-gray-500/10 border-gray-300/30';
     if (rank === 3) return 'bg-gradient-to-r from-yellow-600/10 to-yellow-800/10 border-yellow-600/30';
-    return 'hover:bg-gray-800/50';
+    return 'hover:bg-purple-800/50';
   };
 
   const totalPages = Math.ceil(filteredLeaderboard.length / playersPerPage);
@@ -139,38 +139,38 @@ const LeaderboardPage = () => {
       <Header />
       
       <div className="pt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl lg:text-5xl font-bold text-yellow-400 mb-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+          <div className="text-center mb-8 md:mb-12">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-yellow-400 mb-4">
               <span className="text-white">Leader</span>board
             </h1>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+            <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto">
               See who's dominating the game. Will you be next?
             </p>
           </div>
 
-          <div className="bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-xl border border-yellow-400/20 rounded-2xl p-6 mb-8">
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
-              <div className="relative flex-1 max-w-md">
+          <div className="bg-gradient-to-br from-purple-900/80 to-black/80 backdrop-blur-xl border border-purple-400/20 rounded-2xl p-4 md:p-6 mb-6 md:mb-8">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-4 md:gap-6">
+              <div className="relative flex-1 max-w-md w-full">
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
                   type="text"
                   placeholder="Search players by username..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all duration-200"
+                  className="w-full pl-12 pr-4 py-3 bg-purple-800/50 border border-purple-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all duration-200"
                 />
               </div>
 
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 w-full lg:w-auto justify-center lg:justify-end">
                 {(['all', 'week', 'month'] as const).map((period) => (
                   <button
                     key={period}
                     onClick={() => setTimeframe(period)}
-                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 capitalize ${
+                    className={`px-3 md:px-4 py-2 rounded-lg font-medium transition-all duration-200 capitalize text-sm md:text-base ${
                       timeframe === period
                         ? 'bg-yellow-400 text-black'
-                        : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                        : 'bg-purple-800 text-gray-300 hover:bg-purple-700'
                     }`}
                   >
                     {period === 'all' ? 'All Time' : `This ${period}`}
@@ -179,29 +179,30 @@ const LeaderboardPage = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4 text-center mt-6 pt-6 border-t border-gray-700">
+            <div className="grid grid-cols-3 gap-4 text-center mt-6 pt-6 border-t border-purple-700">
               <div>
-                <div className="text-2xl font-bold text-yellow-400">{leaderboard.length}</div>
-                <div className="text-sm text-gray-400">Total Players</div>
+                <div className="text-xl md:text-2xl font-bold text-yellow-400">{leaderboard.length}</div>
+                <div className="text-xs md:text-sm text-gray-400">Total Players</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-green-400">
+                <div className="text-xl md:text-2xl font-bold text-green-400">
                   {leaderboard.reduce((sum, player) => sum + player.games_played, 0)}
                 </div>
-                <div className="text-sm text-gray-400">Total Games</div>
+                <div className="text-xs md:text-sm text-gray-400">Total Games</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-blue-400">
+                <div className="text-xl md:text-2xl font-bold text-blue-400">
                   {leaderboard.reduce((sum, player) => sum + player.xp, 0).toLocaleString()}
                 </div>
-                <div className="text-sm text-gray-400">Total XP</div>
+                <div className="text-xs md:text-sm text-gray-400">Total XP</div>
               </div>
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-xl border border-yellow-400/20 rounded-2xl overflow-hidden">
-            <div className="bg-yellow-400/10 border-b border-yellow-400/20 px-6 py-4">
-              <div className="grid grid-cols-12 gap-4 items-center text-sm font-semibold text-yellow-400 uppercase tracking-wider">
+          <div className="bg-gradient-to-br from-purple-900/80 to-black/80 backdrop-blur-xl border border-purple-400/20 rounded-2xl overflow-hidden">
+            {/* Desktop Header */}
+            <div className="hidden md:block bg-purple-400/10 border-b border-purple-400/20 px-6 py-4">
+              <div className="grid grid-cols-12 gap-4 items-center text-sm font-semibold text-purple-300 uppercase tracking-wider">
                 <div className="col-span-1">Rank</div>
                 <div className="col-span-4">Player</div>
                 <div className="col-span-2">XP</div>
@@ -219,15 +220,15 @@ const LeaderboardPage = () => {
                   </p>
                 </div>
               ) : (
-                <div className="divide-y divide-gray-800">
+                <div className="divide-y divide-purple-800">
                   {currentPlayers.map((player) => (
                     <div
                       key={player.id}
-                      className={`px-6 py-4 transition-all duration-200 border-l-4 border-transparent ${getRowStyle(player.rank)}`}
+                      className={`px-4 md:px-6 py-4 transition-all duration-200 border-l-4 border-transparent ${getRowStyle(player.rank)}`}
                     >
-                      <div className="grid grid-cols-12 gap-4 items-center">
+                      {/* Desktop Layout */}
+                      <div className="hidden md:grid grid-cols-12 gap-4 items-center">
                         <div className="col-span-1 flex items-center justify-center relative">
-                
                           {getRankIcon(player.rank)}
                           {getRankBadge(player.rank)}
                         </div>
@@ -238,10 +239,10 @@ const LeaderboardPage = () => {
                               <img
                                 src={player.avatar_url}
                                 alt={player.full_name || player.username}
-                                className="w-12 h-12 rounded-full object-cover border-2 border-gray-600"
+                                className="w-12 h-12 rounded-full object-cover border-2 border-purple-600"
                               />
                             ) : (
-                              <div className="w-12 h-12 bg-gradient-to-br from-yellow-400/20 to-yellow-600/20 rounded-full flex items-center justify-center border-2 border-gray-600">
+                              <div className="w-12 h-12 bg-gradient-to-br from-yellow-400/20 to-yellow-600/20 rounded-full flex items-center justify-center border-2 border-purple-600">
                                 <span className="text-yellow-400 font-bold text-lg">
                                   {(player.full_name || player.username).charAt(0).toUpperCase()}
                                 </span>
@@ -290,6 +291,77 @@ const LeaderboardPage = () => {
                           </div>
                         </div>
                       </div>
+
+                      {/* Mobile Layout */}
+                      <div className="md:hidden">
+                        <div className="flex items-center space-x-3 mb-3">
+                          <div className="relative flex items-center">
+                            {getRankIcon(player.rank)}
+                            {getRankBadge(player.rank)}
+                          </div>
+                          
+                          <div className="flex items-center space-x-3 flex-1">
+                            <div className="relative flex-shrink-0">
+                              {player.avatar_url ? (
+                                <img
+                                  src={player.avatar_url}
+                                  alt={player.full_name || player.username}
+                                  className="w-12 h-12 rounded-full object-cover border-2 border-purple-600"
+                                />
+                              ) : (
+                                <div className="w-12 h-12 bg-gradient-to-br from-yellow-400/20 to-yellow-600/20 rounded-full flex items-center justify-center border-2 border-purple-600">
+                                  <span className="text-yellow-400 font-bold text-lg">
+                                    {(player.full_name || player.username).charAt(0).toUpperCase()}
+                                  </span>
+                                </div>
+                              )}
+                              {player.rank <= 3 && (
+                                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-yellow-400 rounded-full flex items-center justify-center">
+                                  <span className="text-black text-xs font-bold">{player.rank}</span>
+                                </div>
+                              )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="font-bold text-white text-base truncate flex items-center space-x-2">
+                                <span>{player.full_name || player.username}</span>
+                                {player.rank <= 3 && <span className="text-yellow-400">🏆</span>}
+                              </div>
+                              <div className="text-sm text-gray-400 truncate">
+                                @{player.username}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Mobile Stats Row */}
+                        <div className="grid grid-cols-3 gap-3 text-center">
+                          <div className="bg-purple-900/30 rounded-lg p-2">
+                            <div className="text-xs text-gray-400 mb-1">XP</div>
+                            <div className="font-bold text-yellow-400 text-sm">{player.xp.toLocaleString()}</div>
+                            <div className="text-xs text-gray-400">Level {player.level}</div>
+                          </div>
+                          
+                          <div className="bg-purple-900/30 rounded-lg p-2">
+                            <div className="text-xs text-gray-400 mb-1">Games</div>
+                            <div className="font-bold text-white text-sm">{player.games_played}</div>
+                            <div className="text-xs text-gray-400">{player.wins} wins</div>
+                          </div>
+                          
+                          <div className="bg-purple-900/30 rounded-lg p-2">
+                            <div className="flex items-center justify-center space-x-1 mb-1">
+                              <Target className="w-4 h-4 text-green-400" />
+                              <span className="text-xs text-gray-400">Win Rate</span>
+                            </div>
+                            <div className={`font-bold text-sm ${
+                              player.winRate >= 70 ? 'text-green-400' : 
+                              player.winRate >= 50 ? 'text-yellow-400' : 'text-red-400'
+                            }`}>
+                              {player.winRate}%
+                            </div>
+                            <div className="text-xs text-gray-400">{player.wins}/{player.games_played}</div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -297,9 +369,9 @@ const LeaderboardPage = () => {
             </div>
 
             {totalPages > 1 && (
-              <div className="bg-gray-900/50 border-t border-gray-700 px-6 py-4">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-gray-400">
+              <div className="bg-purple-900/50 border-t border-purple-700 px-4 md:px-6 py-4">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="text-sm text-gray-400 text-center sm:text-left">
                     Showing {startIndex + 1}-{Math.min(endIndex, filteredLeaderboard.length)} of {filteredLeaderboard.length} players
                   </div>
                   
@@ -307,7 +379,7 @@ const LeaderboardPage = () => {
                     <button
                       onClick={() => handlePageChange(currentPage - 1)}
                       disabled={currentPage === 1}
-                      className="px-3 py-1 rounded bg-gray-800 text-gray-300 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                      className="px-3 py-1 rounded bg-purple-800 text-gray-300 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 text-sm"
                     >
                       Previous
                     </button>
@@ -318,10 +390,10 @@ const LeaderboardPage = () => {
                         <button
                           key={page}
                           onClick={() => handlePageChange(page)}
-                          className={`px-3 py-1 rounded transition-colors duration-200 ${
+                          className={`px-3 py-1 rounded transition-colors duration-200 text-sm ${
                             currentPage === page
                               ? 'bg-yellow-400 text-black'
-                              : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                              : 'bg-purple-800 text-gray-300 hover:bg-purple-700'
                           }`}
                         >
                           {page}
@@ -332,7 +404,7 @@ const LeaderboardPage = () => {
                     <button
                       onClick={() => handlePageChange(currentPage + 1)}
                       disabled={currentPage === totalPages}
-                      className="px-3 py-1 rounded bg-gray-800 text-gray-300 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                      className="px-3 py-1 rounded bg-purple-800 text-gray-300 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 text-sm"
                     >
                       Next
                     </button>

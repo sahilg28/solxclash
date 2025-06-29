@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Check, AlertCircle } from 'lucide-react';
+import { Check, AlertCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 const WaitlistSection = () => {
@@ -42,7 +42,44 @@ const WaitlistSection = () => {
       {/* Subtle bottom glow effect */}
       <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-purple-900/30 to-transparent pointer-events-none"></div>
       
-      <div className="text-center">
+      {/* Crypto Coins in 4 Corners - Hidden on Mobile */}
+      {/* Top Left - BTC */}
+      <div className="hidden md:block absolute top-12 left-12 md:top-20 md:left-24 lg:top-16 lg:left-20 transform -rotate-12 animate-float">
+        <img 
+          src="/assets/BTC.svg" 
+          alt="Bitcoin" 
+          className="w-20 h-20 md:w-28 md:h-28 lg:w-32 lg:h-32 opacity-60 hover:opacity-80 transition-opacity duration-300"
+        />
+      </div>
+
+      {/* Top Right - ETH */}
+      <div className="hidden md:block absolute top-16 right-8 md:top-24 md:right-20 lg:top-20 lg:right-16 transform rotate-12 animate-float-delayed">
+        <img 
+          src="/assets/ETH.svg" 
+          alt="Ethereum" 
+          className="w-20 h-20 md:w-28 md:h-28 lg:w-32 lg:h-32 opacity-60 hover:opacity-80 transition-opacity duration-300"
+        />
+      </div>
+
+      {/* Bottom Left - SOL */}
+      <div className="hidden md:block absolute bottom-16 left-8 md:bottom-20 md:left-16 lg:bottom-24 lg:left-12 transform rotate-12 animate-float">
+        <img 
+          src="/assets/SOL.svg" 
+          alt="Solana" 
+          className="w-20 h-20 md:w-28 md:h-28 lg:w-32 lg:h-32 opacity-60 hover:opacity-80 transition-opacity duration-300"
+        />
+      </div>
+
+      {/* Bottom Right - POL */}
+      <div className="hidden md:block absolute bottom-12 right-16 md:bottom-24 md:right-12 lg:bottom-20 lg:right-24 transform -rotate-12 animate-float-delayed">
+        <img 
+          src="/assets/Poly.svg" 
+          alt="Polygon" 
+          className="w-20 h-20 md:w-28 md:h-28 lg:w-32 lg:h-32 opacity-60 hover:opacity-80 transition-opacity duration-300"
+        />
+      </div>
+      
+      <div className="text-center relative z-10">
         {/* Header */}
         <div className="mb-8">
           <h2 className="text-5xl lg:text-6xl font-bold text-white mb-4">
@@ -50,7 +87,7 @@ const WaitlistSection = () => {
             to those <span className="italic text-yellow-400">who wait.</span>
           </h2>
           <p className="text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
-            Be among the first to experience the next generation of Web3 games where your skills unlock bigger rewards. Join our exclusive community and get early access.
+            Be among the first to experience the next generation of Web3 gaming where your skills unlock bigger rewards. Join our waitlist and get early access.
           </p>
         </div>
 

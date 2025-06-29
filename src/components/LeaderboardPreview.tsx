@@ -13,6 +13,8 @@ const LeaderboardPreview = () => {
   const [topPlayers, setTopPlayers] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
+  console.log('LeaderboardPreview rendering, players:', topPlayers.length);
+
   useEffect(() => {
     fetchTopPlayers();
   }, []);
@@ -25,7 +27,8 @@ const LeaderboardPreview = () => {
         .order('xp', { ascending: false })
         .limit(5);
 
-      if (error) {
+      if (error || !data) {
+        console.error('Error fetching top players:', error);
         return;
       }
 
@@ -37,8 +40,8 @@ const LeaderboardPreview = () => {
       }));
 
       setTopPlayers(processedData);
-    } catch (error) {
-      // Silent fail
+    } catch (err) {
+      console.error('Error fetching top players:', err);
     } finally {
       setLoading(false);
     }
@@ -114,11 +117,10 @@ const LeaderboardPreview = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-12 animate-fade-in-up">
           <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
-            Top <span className="text-yellow-400">Earners</span>
+            Top <span className="text-yellow-400">Champions</span>
           </h2>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
             Meet the players winning the most through all the games 
-            <span className="text-yellow-400 font-semibold"> Every game rewards, but skills multiply earnings</span> exponentially.
           </p>
         </div>
 
@@ -149,12 +151,92 @@ const LeaderboardPreview = () => {
                 topPlayers.map((player, index) => (
                   <div
                     key={player.id}
-                    className={`px-6 py-6 transition-all duration-300 border-l-4 border-transparent ${getRowStyle(player.rank)} animate-slide-in-left`}
+                    className={`px-4 md:px-6 py-4 md:py-6 transition-all duration-300 border-l-4 border-transparent ${getRowStyle(player.rank)} animate-slide-in-left`}
                     style={{ animationDelay: `${index * 0.1}s` }}
                   >
-                    <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                    {/* Mobile Layout */}
+                    <div className="block md:hidden">
+                      <div className="flex items-center space-x-3 mb-3">
+                        {/* Rank */}
+                        <div className="relative flex items-center">
+                          {getRankIcon(player.rank)}
+                          {getRankBadge(player.rank)}
+                        </div>
+                        
+                        {/* Player Info */}
+                        <div className="flex items-center space-x-3 flex-1">
+                          <div className="relative flex-shrink-0">
+                            {player.avatar_url ? (
+                              <img
+                                src={player.avatar_url}
+                                alt={player.full_name || player.username}
+                                className="w-12 h-12 rounded-full object-cover border-2 border-purple-400/30"
+                              />
+                            ) : (
+                              <div className="w-12 h-12 bg-gradient-to-br from-yellow-400/20 to-purple-400/20 rounded-full flex items-center justify-center border-2 border-purple-400/30">
+                                <span className="text-yellow-400 font-bold text-lg">
+                                  {(player.full_name || player.username).charAt(0).toUpperCase()}
+                                </span>
+                              </div>
+                            )}
+                            {player.rank === 1 && (
+                              <div className="absolute -top-1 -right-1 w-5 h-5 bg-yellow-400 rounded-full flex items-center justify-center">
+                                <Trophy className="w-2.5 h-2.5 text-black" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="font-bold text-white text-base truncate flex items-center space-x-2">
+                              <span>{player.full_name || player.username}</span>
+                              {player.rank <= 3 && <span className="text-yellow-400">🏆</span>}
+                            </div>
+                            <div className="text-sm text-gray-400 truncate">
+                              @{player.username}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Mobile Stats Row */}
+                      <div className="grid grid-cols-3 gap-3 text-center">
+                        {/* Level */}
+                        <div className="bg-purple-900/30 rounded-lg p-2">
+                          <div className="flex items-center justify-center space-x-1 mb-1">
+                            <Zap className="w-4 h-4 text-yellow-400" />
+                            <span className="text-xs text-gray-400">Level</span>
+                          </div>
+                          <div className="font-bold text-white text-sm">{player.level}</div>
+                          <div className="text-xs text-gray-400">{player.xp % 500}/500</div>
+                        </div>
+                        
+                        {/* XP */}
+                        <div className="bg-purple-900/30 rounded-lg p-2">
+                          <div className="text-xs text-gray-400 mb-1">XP Earned</div>
+                          <div className="font-bold text-yellow-400 text-sm">{player.xp.toLocaleString()}</div>
+                          <div className="text-xs text-gray-400">{player.games_played} games</div>
+                        </div>
+                        
+                        {/* Win Rate */}
+                        <div className="bg-purple-900/30 rounded-lg p-2">
+                          <div className="flex items-center justify-center space-x-1 mb-1">
+                            <Target className="w-4 h-4 text-green-400" />
+                            <span className="text-xs text-gray-400">Win Rate</span>
+                          </div>
+                          <div className={`font-bold text-sm ${
+                            player.winRate >= 70 ? 'text-green-400' : 
+                            player.winRate >= 50 ? 'text-yellow-400' : 'text-red-400'
+                          }`}>
+                            {player.winRate}%
+                          </div>
+                          <div className="text-xs text-gray-400">{player.wins}/{player.games_played}</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Desktop Layout */}
+                    <div className="hidden md:grid grid-cols-12 gap-4 items-center">
                       {/* Rank */}
-                      <div className="md:col-span-1 flex md:justify-center">
+                      <div className="col-span-1 flex justify-center">
                         <div className="relative flex items-center space-x-3 md:space-x-0 md:justify-center">
                           {getRankIcon(player.rank)}
                           {getRankBadge(player.rank)}
@@ -162,7 +244,7 @@ const LeaderboardPreview = () => {
                       </div>
 
                       {/* Player Info */}
-                      <div className="md:col-span-4 flex items-center space-x-4">
+                      <div className="col-span-4 flex items-center space-x-4">
                         <div className="relative flex-shrink-0">
                           {player.avatar_url ? (
                             <img
@@ -195,8 +277,8 @@ const LeaderboardPreview = () => {
                       </div>
 
                       {/* Level */}
-                      <div className="md:col-span-2 text-center">
-                        <div className="flex items-center justify-center md:justify-center space-x-2">
+                      <div className="col-span-2 text-center">
+                        <div className="flex items-center justify-center space-x-2">
                           <Zap className="w-5 h-5 text-yellow-400" />
                           <div>
                             <div className="font-bold text-white text-lg">Level {player.level}</div>
@@ -208,13 +290,13 @@ const LeaderboardPreview = () => {
                       </div>
 
                       {/* XP Earned */}
-                      <div className="md:col-span-2 text-center">
+                      <div className="col-span-2 text-center">
                         <div className="font-bold text-yellow-400 text-lg">{player.xp.toLocaleString()}</div>
                         <div className="text-sm text-gray-400">{player.games_played} games</div>
                       </div>
 
                       {/* Success Rate */}
-                      <div className="md:col-span-3 text-center">
+                      <div className="col-span-3 text-center">
                         <div className="flex items-center justify-center space-x-2">
                           <Target className="w-5 h-5 text-green-400" />
                           <div>
@@ -250,36 +332,36 @@ const LeaderboardPreview = () => {
           </div>
 
           {/* Stats Cards - Moved Outside the Leaderboard Table */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8 animate-slide-in-left">
-            <div className="bg-gradient-to-br from-purple-900/60 to-black/60 backdrop-blur-sm border border-purple-700 rounded-xl p-6 text-center card-hover">
-              <div className="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Trophy className="w-6 h-6 text-yellow-400" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mt-6 md:mt-8 animate-slide-in-left">
+            <div className="bg-gradient-to-br from-purple-900/60 to-black/60 backdrop-blur-sm border border-purple-700 rounded-xl p-4 md:p-6 text-center card-hover">
+              <div className="w-10 md:w-12 h-10 md:h-12 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
+                <Trophy className="w-5 md:w-6 h-5 md:h-6 text-yellow-400" />
               </div>
-              <div className="text-3xl font-bold text-yellow-400 mb-2">{topPlayers.length}</div>
-              <div className="text-gray-300 font-medium mb-1">Active Earners</div>
-              <div className="text-sm text-gray-400">Players currently earning XP</div>
+              <div className="text-2xl md:text-3xl font-bold text-yellow-400 mb-1 md:mb-2">{topPlayers.length}</div>
+              <div className="text-sm md:text-base text-gray-300 font-medium mb-1">Active Earners</div>
+              <div className="text-xs md:text-sm text-gray-400">Players currently earning XP</div>
             </div>
             
-            <div className="bg-gradient-to-br from-purple-900/60 to-black/60 backdrop-blur-sm border border-purple-700 rounded-xl p-6 text-center card-hover">
-              <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Target className="w-6 h-6 text-green-400" />
+            <div className="bg-gradient-to-br from-purple-900/60 to-black/60 backdrop-blur-sm border border-purple-700 rounded-xl p-4 md:p-6 text-center card-hover">
+              <div className="w-10 md:w-12 h-10 md:h-12 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
+                <Target className="w-5 md:w-6 h-5 md:h-6 text-green-400" />
               </div>
-              <div className="text-3xl font-bold text-green-400 mb-2">
+              <div className="text-2xl md:text-3xl font-bold text-green-400 mb-1 md:mb-2">
                 {topPlayers.reduce((sum, player) => sum + player.games_played, 0)}
               </div>
-              <div className="text-gray-300 font-medium mb-1">Total Games Played</div>
-              <div className="text-sm text-gray-400">Games played by top earners</div>
+              <div className="text-sm md:text-base text-gray-300 font-medium mb-1">Total Games Played</div>
+              <div className="text-xs md:text-sm text-gray-400">Games played by top earners</div>
             </div>
             
-            <div className="bg-gradient-to-br from-purple-900/60 to-black/60 backdrop-blur-sm border border-purple-700 rounded-xl p-6 text-center card-hover">
-              <div className="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Zap className="w-6 h-6 text-yellow-400" />
+            <div className="bg-gradient-to-br from-purple-900/60 to-black/60 backdrop-blur-sm border border-purple-700 rounded-xl p-4 md:p-6 text-center card-hover sm:col-span-2 lg:col-span-1">
+              <div className="w-10 md:w-12 h-10 md:h-12 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
+                <Zap className="w-5 md:w-6 h-5 md:h-6 text-yellow-400" />
               </div>
-              <div className="text-3xl font-bold text-yellow-400 mb-2">
+              <div className="text-2xl md:text-3xl font-bold text-yellow-400 mb-1 md:mb-2">
                 {topPlayers.length > 0 ? topPlayers.reduce((sum, player) => sum + player.xp, 0).toLocaleString() : '0'}
               </div>
-              <div className="text-gray-300 font-medium mb-1">Total XP Earned</div>
-              <div className="text-sm text-gray-400">Combined XP from players</div>
+              <div className="text-sm md:text-base text-gray-300 font-medium mb-1">Total XP Earned</div>
+              <div className="text-xs md:text-sm text-gray-400">Combined XP from players</div>
             </div>
           </div>
         </div>
