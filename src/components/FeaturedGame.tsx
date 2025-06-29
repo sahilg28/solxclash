@@ -3,7 +3,7 @@ import { TrendingUp, Gamepad2, Crown, Brain, Target, Zap, Users, Trophy } from '
 
 const FeaturedGame = () => {
   return (
-    <section className="py-20 bg-gradient-to-b from-purple-900/30 via-purple-900/10 to-black">
+    <section id="featured-games" className="py-20 bg-gradient-to-b from-purple-900/30 via-purple-900/10 to-black">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16 animate-fade-in-up">
           <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">

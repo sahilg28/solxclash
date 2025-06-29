@@ -1,10 +1,9 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import ScrollVelocityText from './ScrollVelocityText';
 
 const Hero = () => {
-  const scrollToWaitlist = () => {
-    const section = document.getElementById('waitlist');
+  const scrollToSection = (sectionId: string) => {
+    const section = document.getElementById(sectionId);
     if (section) {
       section.scrollIntoView({ behavior: 'smooth' });
     }
@@ -20,28 +19,24 @@ const Hero = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
         <div className="flex flex-col items-center text-center justify-start min-h-[calc(90vh-64px)] pt-8">
-          {/* Main Content - Minimal */}
+          {/* Main Content */}
           <div className="space-y-8 animate-fade-in-up">
             <div className="space-y-6">
-              <h1 className="text-5xl lg:text-7xl font-bold leading-tight">
-                <span className="text-yellow-400">Play.</span> <span className="text-white">Compete.</span> <span className="text-yellow-400">Earn.</span>
+              <h1 className="text-6xl lg:text-8xl font-bold leading-tight">
+                <span className="text-yellow-400">Enter</span> <span className="text-white">the</span> <span className="text-yellow-400">Clash</span>
               </h1>
-
-              <p className="text-xl text-gray-300 max-w-2xl leading-relaxed mx-auto">
-                The ultimate Web3 play-to-earn gaming platform where <span className="text-yellow-400 font-semibold">your gaming skills unlock bigger rewards</span>. 
-              </p>
             </div>
 
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row gap-4 animate-slide-in-left justify-center">
-              <Link
-                to="/cryptoclash"
+              <button
+                onClick={() => scrollToSection('featured-games')}
                 className="group btn-primary flex items-center justify-center space-x-2">
-                <span>Play Now</span>
-              </Link>
+                <span>Try Now</span>
+              </button>
 
               <button
-                onClick={scrollToWaitlist}
+                onClick={() => scrollToSection('waitlist')}
                 className="btn-secondary"
               >
                 Join Waitlist
