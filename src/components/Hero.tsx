@@ -23,7 +23,7 @@ const Hero = () => {
           <div className="space-y-8 animate-fade-in-up">
             <div className="space-y-6">
               <h1 className="text-6xl lg:text-8xl font-black leading-tight uppercase tracking-wide">
-                <span className="text-yellow-400">Compete globally</span> <span className="text-white">and win real rewards</span> <span className="text-yellow-400">with SolxClash</span>
+                <span className="text-yellow-400">Building the future</span> <span className="text-white">of</span> <span className="text-yellow-400">web3 gaming</span>
               </h1>
             </div>
 
