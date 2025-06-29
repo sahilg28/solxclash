@@ -5,86 +5,11 @@ import { Zap, CheckCircle, AlertCircle, RotateCcw, Settings, X as CloseIcon, Clo
 import { supabase } from '../lib/supabase';
 import { useAuthContext } from './AuthProvider';
 import { useNavigate } from 'react-router-dom';
+import { createChessAI } from '../lib/chessAI';
 
 const BOARD_COLORS = {
   light: '#f7fafc', // modern off-white
   dark: '#23272f', // modern dark/blue-gray
-};
-
-const getRandomBotMove = (game) => {
-  const moves = game.moves();
-  return moves[Math.floor(Math.random() * moves.length)];
-};
-
-// Minimax with alpha-beta pruning for bot
-const PIECE_VALUES = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
-
-function evaluateBoard(game) {
-  if (game.isCheckmate()) {
-    if (game.turn() === 'b') return 9999; // player wins
-    if (game.turn() === 'w') return -9999; // bot wins
-  }
-  if (game.isDraw()) return 0;
-  let evalScore = 0;
-  const board = game.board();
-  for (let row of board) {
-    for (let piece of row) {
-      if (!piece) continue;
-      const value = PIECE_VALUES[piece.type] || 0;
-      evalScore += piece.color === 'w' ? value : -value;
-    }
-  }
-  return evalScore;
-}
-
-function minimax(game, depth, alpha, beta, isMaximizing) {
-  if (depth === 0 || game.isGameOver()) {
-    return [evaluateBoard(game), null];
-  }
-  const moves = game.moves();
-  let bestMove = null;
-  if (isMaximizing) {
-    let maxEval = -Infinity;
-    for (let move of moves) {
-      const newGame = new Chess(game.fen());
-      newGame.move(move);
-      const [evalScore] = minimax(newGame, depth - 1, alpha, beta, false);
-      if (evalScore > maxEval) {
-        maxEval = evalScore;
-        bestMove = move;
-      }
-      alpha = Math.max(alpha, evalScore);
-      if (beta <= alpha) break;
-    }
-    return [maxEval, bestMove];
-  } else {
-    let minEval = Infinity;
-    for (let move of moves) {
-      const newGame = new Chess(game.fen());
-      newGame.move(move);
-      const [evalScore] = minimax(newGame, depth - 1, alpha, beta, true);
-      if (evalScore < minEval) {
-        minEval = evalScore;
-        bestMove = move;
-      }
-      beta = Math.min(beta, evalScore);
-      if (beta <= alpha) break;
-    }
-    return [minEval, bestMove];
-  }
-}
-
-const getBotMove = (game, difficulty) => {
-  if (difficulty === 'easy') {
-    // Reduced randomness from 50% to 10%, increased depth from 2 to 3
-    if (Math.random() < 0.1) return getRandomBotMove(game);
-    const [, bestMove] = minimax(game, 3, -Infinity, Infinity, false);
-    return bestMove;
-  }
-  // Increased depth: medium from 3 to 4, hard from 5 to 6
-  const depth = difficulty === 'medium' ? 4 : 6;
-  const [, bestMove] = minimax(game, depth, -Infinity, Infinity, false);
-  return bestMove;
 };
 
 const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
@@ -100,53 +25,26 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
   const [selectedSquare, setSelectedSquare] = useState(null);
   const [legalMoves, setLegalMoves] = useState([]);
   const [moveHistory, setMoveHistory] = useState([]);
-  
-  // Single game timer (10 minutes total)
   const [gameTime, setGameTime] = useState(600); // 10 minutes total
-  
   const [lastMove, setLastMove] = useState(null);
   const [gameStats, setGameStats] = useState({ captures: 0, checks: 0 });
+  const [currentGameId, setCurrentGameId] = useState(null);
   const navigate = useNavigate();
   const [showResignConfirm, setShowResignConfirm] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const pendingTransition = useRef(null);
+  const chessAI = useRef(createChessAI(gameConfig.difficulty));
 
   // Determine player and bot colors
   const playerColor = gameConfig.playerColor === 'white' ? 'w' : 'b';
   const botColor = gameConfig.playerColor === 'white' ? 'b' : 'w';
 
-  // Initialize game based on player color
+  // Initialize game and create database entry
   useEffect(() => {
-    if (gameConfig.playerColor === 'black') {
-      // If player is black, bot (white) makes the first move
-      setTimeout(() => {
-        makeBotMove();
-      }, 500);
-    }
+    initializeGame();
   }, []);
 
-  // Deduct XP on game start
-  useEffect(() => {
-    const deductXP = async () => {
-      setIsProcessing(true);
-      setXpState(prev => prev - gameConfig.xpCost);
-      
-      const { error } = await supabase
-        .from('profiles')
-        .update({ xp: profile.xp - gameConfig.xpCost })
-        .eq('id', profile.id);
-      
-      if (error) {
-        setError('Failed to deduct XP. Please try again.');
-        setXpState(prev => prev + gameConfig.xpCost);
-      }
-      setIsProcessing(false);
-    };
-    
-    deductXP();
-  }, []);
-
-  // Single game timer effect
+  // Game timer effect
   useEffect(() => {
     if (!isGameActive || result) return;
     
@@ -167,7 +65,7 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
     return () => clearInterval(id);
   }, [isGameActive, result]);
 
-  // Game end detection - FIXED to use the current game state
+  // Game end detection
   useEffect(() => {
     if (!isGameActive) return;
     if (game.isGameOver()) {
@@ -175,13 +73,10 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
       let message = 'Draw! Your XP is refunded.';
       
       if (game.isCheckmate()) {
-        // Check if the player won or lost
         if (game.turn() !== playerColor) {
-          // If it's not the player's turn and the game is over, the player won
           type = 'win';
           message = 'Checkmate! You win!';
         } else {
-          // If it's the player's turn and the game is over, the player lost
           type = 'lose';
           message = 'Checkmate! You lose.';
         }
@@ -195,66 +90,129 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
       clearInterval(intervalId);
       handleGameEnd(type);
     }
-  }, [fen, isGameActive, playerColor, game]); // Added 'game' dependency
+  }, [fen, isGameActive, playerColor, game]);
 
-  // Handle game end: update XP, wins, games_played in DB
+  const initializeGame = async () => {
+    try {
+      setIsProcessing(true);
+      
+      // Create game in database
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chess-management/create-game`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({
+          playerId: profile.user_id,
+          difficulty: gameConfig.difficulty,
+          playerColor: gameConfig.playerColor,
+          xpCost: gameConfig.xpCost
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create game');
+      }
+
+      const result = await response.json();
+      setCurrentGameId(result.game.id);
+      setXpState(prev => prev - gameConfig.xpCost);
+
+      // If player is black, bot makes first move
+      if (gameConfig.playerColor === 'black') {
+        setTimeout(() => {
+          makeBotMove();
+        }, 500);
+      }
+    } catch (err) {
+      setError('Failed to initialize game. Please try again.');
+      setXpState(prev => prev + gameConfig.xpCost);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const saveMove = async (moveData) => {
+    if (!currentGameId) return;
+
+    try {
+      await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chess-management/make-move`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({
+          gameId: currentGameId,
+          moveData
+        })
+      });
+    } catch (error) {
+      console.error('Failed to save move:', error);
+    }
+  };
+
   const handleGameEnd = async (type) => {
+    if (!currentGameId) return;
+
     setIsProcessing(true);
     setError(null);
     
     let xpChange = 0;
-    let winInc = 0;
-    let gamesPlayedInc = 1;
+    let result = 'lose';
     
     if (type === 'win') {
       xpChange = gameConfig.difficulty === 'easy' ? 40 : gameConfig.difficulty === 'medium' ? 60 : 100;
-      winInc = 1;
+      result = 'win';
     } else if (type === 'draw') {
       xpChange = gameConfig.xpCost; // refund
+      result = 'draw';
     } else if (type === 'lose' || type === 'timeout') {
       xpChange = 0;
+      result = 'lose';
     }
-    
-    const newXP = xpState + xpChange;
-    
-    const { error } = await supabase
-      .from('profiles')
-      .update({
-        xp: newXP,
-        wins: profile.wins + winInc,
-        games_played: profile.games_played + gamesPlayedInc,
-      })
-      .eq('id', profile.id);
-    
-    if (error) {
-      setError('Failed to update your profile. Please try again.');
-    } else {
-      setXpState(newXP);
-      await refreshSessionAndProfile();
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chess-management/complete-game`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({
+          gameId: currentGameId,
+          result,
+          xpEarned: xpChange
+        })
+      });
+
+      if (response.ok) {
+        setXpState(prev => prev + xpChange);
+        await refreshSessionAndProfile();
+      } else {
+        setError('Failed to update your profile. Please try again.');
+      }
+    } catch (error) {
+      setError('Failed to complete game. Please try again.');
+    } finally {
+      setIsProcessing(false);
     }
-    setIsProcessing(false);
   };
 
-  // Bot move logic - FIXED with immutable state update
   const makeBotMove = () => {
-    if (game.isGameOver()) return;
+    if (game.isGameOver() || game.turn() !== botColor) return;
     
-    // Only make bot move if it's the bot's turn
-    if (game.turn() !== botColor) return;
-    
-    // Instant bot move with minimal delay
     setTimeout(() => {
-      let move = getBotMove(game, gameConfig.difficulty);
-      if (move) {
-        // Create a new Chess instance from current FEN
+      const bestMove = chessAI.current.getBestMove(game);
+      if (bestMove) {
         const newGame = new Chess(game.fen());
-        const moveObj = newGame.move(move);
+        const moveObj = newGame.move(bestMove);
         
         if (moveObj) {
-          // Update state with new Chess instance
           setGame(newGame);
           setFen(newGame.fen());
-          setMoveHistory((h) => [...h, moveObj.san]);
+          setMoveHistory(h => [...h, moveObj.san]);
           setLastMove({ from: moveObj.from, to: moveObj.to });
           
           if (moveObj.captured) {
@@ -263,28 +221,36 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
           if (newGame.isCheck()) {
             setGameStats(prev => ({ ...prev, checks: prev.checks + 1 }));
           }
+
+          // Save move to database
+          saveMove({
+            moveNumber: Math.floor(moveHistory.length / 2) + 1,
+            player: botColor === 'w' ? 'white' : 'black',
+            moveNotation: moveObj.san,
+            fromSquare: moveObj.from,
+            toSquare: moveObj.to,
+            piece: moveObj.piece,
+            capturedPiece: moveObj.captured || null,
+            isCheck: newGame.isCheck(),
+            isCheckmate: newGame.isCheckmate(),
+            fenAfterMove: newGame.fen()
+          });
         }
       }
-    }, 100); // Minimal delay for smooth UX
+    }, 300 + Math.random() * 700); // Random delay between 300-1000ms for more human-like play
   };
 
-  // Handle user move - FIXED with immutable state update
   const handleSquareClick = (square) => {
-    if (!isGameActive) return;
-    
-    // Only allow moves on player's turn
-    if (game.turn() !== playerColor) return;
+    if (!isGameActive || game.turn() !== playerColor) return;
     
     if (selectedSquare && legalMoves.includes(square)) {
-      // Create a new Chess instance from current FEN
       const newGame = new Chess(game.fen());
       const moveObj = newGame.move({ from: selectedSquare, to: square, promotion: 'q' });
       
       if (moveObj) {
-        // Update state with new Chess instance
         setGame(newGame);
         setFen(newGame.fen());
-        setMoveHistory((h) => [...h, moveObj.san]);
+        setMoveHistory(h => [...h, moveObj.san]);
         setLastMove({ from: moveObj.from, to: moveObj.to });
         setSelectedSquare(null);
         setLegalMoves([]);
@@ -295,6 +261,20 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
         if (newGame.isCheck()) {
           setGameStats(prev => ({ ...prev, checks: prev.checks + 1 }));
         }
+
+        // Save move to database
+        saveMove({
+          moveNumber: Math.floor(moveHistory.length / 2) + 1,
+          player: playerColor === 'w' ? 'white' : 'black',
+          moveNotation: moveObj.san,
+          fromSquare: moveObj.from,
+          toSquare: moveObj.to,
+          piece: moveObj.piece,
+          capturedPiece: moveObj.captured || null,
+          isCheck: newGame.isCheck(),
+          isCheckmate: newGame.isCheckmate(),
+          fenAfterMove: newGame.fen()
+        });
         
         // Trigger bot move after player move
         setTimeout(makeBotMove, 200);
@@ -312,7 +292,6 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
     }
   };
 
-  // Resign
   const handleResign = () => {
     setShowResignConfirm(true);
     setIsSidebarOpen(false);
@@ -330,7 +309,6 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
     setShowResignConfirm(false);
   };
 
-  // Enhanced board square styles with smaller dots for legal moves
   const customSquareStyles = useMemo(() => {
     const styles = {};
     
@@ -357,7 +335,6 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
       };
     }
 
-    // King in check animation - fixed to show for correct player
     if (game.isCheck()) {
       const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
       const ranks = ['8', '7', '6', '5', '4', '3', '2', '1'];
@@ -381,7 +358,6 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
 
   const formatTime = (t) => `${Math.floor(t/60)}:${(t%60).toString().padStart(2,'0')}`;
 
-  // Block navigation if game is active
   useEffect(() => {
     const handleBeforeUnload = (e) => {
       if (isGameActive && !result) {
@@ -394,14 +370,13 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [isGameActive, result]);
 
-  // Calculate board width for mobile-first design
   const getBoardWidth = () => {
     const screenWidth = window.innerWidth;
-    if (screenWidth < 640) { // mobile
+    if (screenWidth < 640) {
       return Math.min(screenWidth - 32, 360);
-    } else if (screenWidth < 1024) { // tablet
+    } else if (screenWidth < 1024) {
       return 400;
-    } else { // desktop
+    } else {
       return 480;
     }
   };
@@ -418,7 +393,6 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
             <ArrowLeft className="w-5 h-5" />
           </button>
           
-          {/* Single Game Timer - Mobile */}
           <div className="flex items-center space-x-3 bg-gradient-to-r from-yellow-400/10 to-yellow-600/10 border border-yellow-400/30 rounded-xl px-4 py-2">
             <Clock className="w-5 h-5 text-yellow-400" />
             <div className="text-center">
@@ -441,9 +415,8 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-8">
         <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
           
-          {/* Desktop Left Sidebar - Hidden on mobile */}
+          {/* Desktop Left Sidebar */}
           <div className="hidden lg:block w-80 space-y-6">
-            {/* Game Timer - Desktop */}
             <div className="bg-gradient-to-br from-gray-800/80 to-black/60 rounded-xl p-4 border-2 border-yellow-400">
               <div className="text-center">
                 <Clock className="w-8 h-8 text-yellow-400 mx-auto mb-2" />
@@ -462,7 +435,6 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
 
             {/* Player Cards */}
             <div className="space-y-4">
-              {/* Bot Card */}
               <div className={`bg-gradient-to-br from-gray-800/80 to-black/60 rounded-xl p-4 border-2 transition-all duration-300 ${
                 game.turn() === botColor ? 'border-yellow-400 bg-yellow-400/10' : 'border-gray-600'
               }`}>
@@ -487,7 +459,6 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
                 </div>
               </div>
 
-              {/* User Card */}
               <div className={`bg-gradient-to-br from-yellow-400/10 to-black/30 rounded-xl p-4 border-2 transition-all duration-300 ${
                 game.turn() === playerColor ? 'border-green-400 bg-green-400/10' : 'border-gray-600'
               }`}>
@@ -503,7 +474,6 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
               </div>
             </div>
 
-            {/* Game Controls - Desktop */}
             <div className="space-y-3">
               {isGameActive ? (
                 <button
@@ -525,9 +495,8 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
             </div>
           </div>
 
-          {/* Center - Chessboard (Mobile-First) */}
+          {/* Center - Chessboard */}
           <div className="flex-1 flex flex-col items-center">
-            {/* Turn Indicator - Mobile Only */}
             <div className="lg:hidden w-full max-w-sm mb-4">
               <div className="bg-gradient-to-r from-gray-800/80 to-black/60 rounded-lg p-3 border border-yellow-400/20">
                 <div className="flex items-center justify-between">
@@ -570,9 +539,8 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
             </div>
           </div>
 
-          {/* Desktop Right Sidebar - Hidden on mobile */}
+          {/* Desktop Right Sidebar */}
           <div className="hidden lg:block w-80 space-y-6">
-            {/* Match Info */}
             <div className="bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-xl border border-yellow-400/20 rounded-xl p-4">
               <h3 className="text-lg font-bold text-yellow-400 mb-3 flex items-center">
                 <Cpu className="w-5 h-5 mr-2" />
@@ -600,7 +568,6 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
               </div>
             </div>
 
-            {/* Game Stats */}
             <div className="bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-xl border border-yellow-400/20 rounded-xl p-4">
               <h3 className="text-lg font-bold text-yellow-400 mb-3 flex items-center">
                 <Target className="w-5 h-5 mr-2" />
@@ -618,7 +585,6 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
               </div>
             </div>
 
-            {/* Move History */}
             <div className="bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-xl border border-yellow-400/20 rounded-xl p-4">
               <h3 className="text-lg font-bold text-yellow-400 mb-3">Move History</h3>
               <div className="max-h-48 overflow-y-auto space-y-1">
@@ -644,16 +610,13 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
       {/* Mobile Sidebar */}
       {isSidebarOpen && (
         <div className="lg:hidden fixed inset-0 z-50 flex">
-          {/* Backdrop */}
           <div 
             className="fixed inset-0 bg-black/80 backdrop-blur-sm"
             onClick={() => setIsSidebarOpen(false)}
           />
           
-          {/* Sidebar */}
           <div className="relative ml-auto w-80 max-w-[85vw] bg-gradient-to-br from-gray-900 to-black border-l border-yellow-400/20 h-full overflow-y-auto">
             <div className="p-6 space-y-6">
-              {/* Header */}
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-yellow-400 flex items-center">
                   <Settings className="w-5 h-5 mr-2" />
@@ -667,7 +630,6 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
                 </button>
               </div>
 
-              {/* Match Info */}
               <div className="bg-gradient-to-br from-gray-800/80 to-black/60 rounded-xl p-4 border border-yellow-400/20">
                 <h3 className="text-lg font-bold text-yellow-400 mb-3 flex items-center">
                   <Info className="w-5 h-5 mr-2" />
@@ -695,7 +657,6 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
                 </div>
               </div>
 
-              {/* Game Stats */}
               <div className="bg-gradient-to-br from-gray-800/80 to-black/60 rounded-xl p-4 border border-yellow-400/20">
                 <h3 className="text-lg font-bold text-yellow-400 mb-3 flex items-center">
                   <BarChart3 className="w-5 h-5 mr-2" />
@@ -713,7 +674,6 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
                 </div>
               </div>
 
-              {/* Move History */}
               <div className="bg-gradient-to-br from-gray-800/80 to-black/60 rounded-xl p-4 border border-yellow-400/20">
                 <h3 className="text-lg font-bold text-yellow-400 mb-3 flex items-center">
                   <History className="w-5 h-5 mr-2" />
@@ -736,7 +696,6 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
                 </div>
               </div>
 
-              {/* Game Controls */}
               <div className="space-y-3">
                 {isGameActive ? (
                   <button
@@ -768,7 +727,6 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
       {result && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-gradient-to-br from-gray-900/80 to-black/80 border border-yellow-400/20 rounded-2xl p-8 w-full max-w-md text-center shadow-2xl relative">
-            {/* Close button in top-right corner */}
             <button
               onClick={() => setResult(null)}
               className="absolute top-4 right-4 p-2 rounded-lg text-gray-400 hover:text-yellow-400 hover:bg-gray-800 transition-colors"
