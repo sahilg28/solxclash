@@ -388,18 +388,32 @@ export class ChessAI {
   }
 
   private evaluatePieceMobility(game: Chess, color: 'w' | 'b'): number {
-    const currentTurn = game.turn();
-    if (currentTurn !== color) {
-      // Temporarily switch turn to evaluate mobility
-      const fen = game.fen();
-      const parts = fen.split(' ');
-      parts[1] = color;
-      const tempGame = new Chess(parts.join(' '));
-      const mobility = tempGame.moves().length;
-      return mobility * 2;
+    // Fixed implementation: properly calculate mobility for each color
+    const board = game.board();
+    let mobility = 0;
+    
+    // Count legal moves for all pieces of the specified color
+    for (let rank = 0; rank < 8; rank++) {
+      for (let file = 0; file < 8; file++) {
+        const piece = board[rank][file];
+        if (piece && piece.color === color) {
+          // Convert rank/file to square notation
+          const square = String.fromCharCode(97 + file) + (8 - rank).toString();
+          
+          try {
+            // Get moves for this specific piece
+            const pieceMoves = game.moves({ square, verbose: false });
+            mobility += pieceMoves.length;
+          } catch (error) {
+            // If there's an error getting moves for this piece, skip it
+            continue;
+          }
+        }
+      }
     }
     
-    return game.moves().length * 2;
+    // Weight mobility appropriately
+    return mobility * 2;
   }
 }
 
