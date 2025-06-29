@@ -113,71 +113,13 @@ html {
   border-radius: 0.375rem;
 }
 
-/* Enhanced button hover effects with shiny text */
+/* Enhanced button hover effects */
 .btn-primary {
   @apply bg-yellow-400 text-black px-6 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:bg-yellow-300;
-  position: relative;
-  overflow: hidden;
 }
 
 .btn-secondary {
   @apply border border-yellow-400 text-yellow-400 px-6 py-3 rounded-lg font-semibold transition-all duration-300 hover:bg-yellow-400/10 hover:scale-105;
-  position: relative;
-  overflow: hidden;
-}
-
-/* Apply shine effect to text within buttons */
-.btn-primary span,
-.btn-secondary span {
-  display: inline-block;
-  background-image: linear-gradient(
-    120deg,
-    rgba(255, 255, 255, 0) 40%,
-    rgba(255, 255, 255, 0.8) 50%,
-    rgba(255, 255, 255, 0) 60%
-  );
-  background-size: 200% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  animation: shine 5s linear infinite;
-  position: relative;
-  z-index: 2;
-}
-
-/* For primary buttons, we need to handle the text color differently since it's black on yellow */
-.btn-primary span {
-  background-image: linear-gradient(
-    120deg,
-    rgba(0, 0, 0, 1) 40%,
-    rgba(255, 255, 255, 1) 50%,
-    rgba(0, 0, 0, 1) 60%
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-/* For secondary buttons, use white shine on yellow text */
-.btn-secondary span {
-  background-image: linear-gradient(
-    120deg,
-    rgba(250, 204, 21, 1) 40%,
-    rgba(255, 255, 255, 1) 50%,
-    rgba(250, 204, 21, 1) 60%
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-/* Adjust for disabled buttons */
-.btn-primary:disabled span,
-.btn-secondary:disabled span {
-  animation: none;
-  background-image: none;
-  color: #9ca3af;
-  -webkit-background-clip: initial;
-  background-clip: initial;
 }
 
 /* Enhanced card hover effects */

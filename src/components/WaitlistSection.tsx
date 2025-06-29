@@ -78,7 +78,7 @@ const WaitlistSection = () => {
               ) : success ? (
                 <Check className="w-5 h-5" />
               ) : (
-                <span>Get Notified</span>
+                'Get Notified'
               )}
             </button>
           </div>

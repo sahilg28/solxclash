@@ -179,7 +179,7 @@ const RoadmapPreview = () => {
                 onClick={() => window.location.href = '/chessclash'}
                 className="btn-primary"
               >
-                <span>Start Now</span>
+                Start Now
               </button>
               <button 
                 onClick={() => {
@@ -188,7 +188,7 @@ const RoadmapPreview = () => {
                 }}
                 className="btn-secondary"
               >
-                <span>Join the Community</span>
+                Join the Community
               </button>
             </div>
           </div>
