@@ -10,20 +10,45 @@ const Hero = () => {
   };
 
   return (
-    <section className="min-h-screen bg-gradient-to-b from-black via-purple-900/30 to-black text-white pt-16 flex items-start relative overflow-hidden">
-      {/* Animated background elements */}
+    <section className="min-h-screen bg-black text-white pt-16 flex items-start relative overflow-hidden">
+      {/* Aurora Background Effect */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-purple-400/5 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-yellow-400/3 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        {/* Primary Aurora Layer */}
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 via-blue-500/10 to-cyan-400/15 animate-pulse"></div>
+        
+        {/* Secondary Aurora Layer */}
+        <div className="absolute inset-0 bg-gradient-to-tl from-yellow-400/10 via-purple-500/15 to-pink-500/10 animate-pulse delay-1000"></div>
+        
+        {/* Tertiary Aurora Layer */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-400/5 to-transparent animate-pulse delay-2000"></div>
+        
+        {/* Moving Aurora Waves */}
+        <div className="absolute top-0 left-0 w-full h-full">
+          <div className="absolute top-1/4 left-0 w-full h-32 bg-gradient-to-r from-transparent via-purple-400/20 to-transparent transform -skew-y-12 animate-aurora-wave"></div>
+          <div className="absolute top-1/2 left-0 w-full h-24 bg-gradient-to-r from-transparent via-cyan-400/15 to-transparent transform skew-y-6 animate-aurora-wave-reverse"></div>
+          <div className="absolute top-3/4 left-0 w-full h-20 bg-gradient-to-r from-transparent via-yellow-400/10 to-transparent transform -skew-y-3 animate-aurora-wave delay-1000"></div>
+        </div>
+        
+        {/* Floating Orbs */}
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-purple-400/8 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-yellow-400/6 rounded-full blur-3xl animate-float-delayed"></div>
+        <div className="absolute top-1/3 right-1/3 w-48 h-48 bg-cyan-400/8 rounded-full blur-3xl animate-float delay-500"></div>
+        <div className="absolute bottom-1/3 left-1/3 w-72 h-72 bg-pink-400/6 rounded-full blur-3xl animate-float-delayed delay-700"></div>
+        
+        {/* Shimmer Effect */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/2 to-transparent animate-shimmer-slow"></div>
       </div>
+
+      {/* Dark Overlay for Text Readability */}
+      <div className="absolute inset-0 bg-black/40"></div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
         <div className="flex flex-col items-center text-center justify-start min-h-[calc(90vh-64px)] pt-8">
           {/* Main Content */}
           <div className="space-y-8 animate-fade-in-up">
             <div className="space-y-6">
-              <h1 className="text-6xl lg:text-8xl font-bold leading-tight">
-                <span className="text-yellow-400">Enter</span> <span className="text-white">the</span> <span className="text-yellow-400">Clash</span>
+              <h1 className="text-6xl lg:text-8xl font-bold leading-tight drop-shadow-2xl">
+                <span className="text-yellow-400 drop-shadow-lg">Enter</span> <span className="text-white drop-shadow-lg">the</span> <span className="text-yellow-400 drop-shadow-lg">Clash</span>
               </h1>
             </div>
 
@@ -31,13 +56,13 @@ const Hero = () => {
             <div className="flex flex-col sm:flex-row gap-4 animate-slide-in-left justify-center">
               <button
                 onClick={() => scrollToSection('featured-games')}
-                className="group btn-primary flex items-center justify-center space-x-2">
+                className="group btn-primary flex items-center justify-center space-x-2 shadow-2xl hover:shadow-yellow-400/25">
                 <span>Try Now</span>
               </button>
 
               <button
                 onClick={() => scrollToSection('waitlist')}
-                className="btn-secondary"
+                className="btn-secondary shadow-2xl hover:shadow-yellow-400/25"
               >
                 Join Waitlist
               </button>
