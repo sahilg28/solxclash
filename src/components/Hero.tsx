@@ -51,7 +51,7 @@ const Hero = () => {
       </div>
 
       {/* Scroll Velocity Text Animation - Full Screen Width */}
-      <div className="absolute bottom-2 md:bottom-8 left-0 right-0 w-screen pointer-events-none">
+      <div className="absolute bottom-2 md:bottom-6 left-0 right-0 w-screen pointer-events-none">
         <ScrollVelocityText
           texts={[' PLAY.', 'COMPETE.', 'EARN.']}
           velocity={50}
