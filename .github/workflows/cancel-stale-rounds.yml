@@ -10,4 +10,5 @@ jobs:
     steps:
       - name: Call Supabase Function
         run: |
-          curl -X POST "https://anqntfmpvheyuiquqmui.supabase.co/functions/v1/game-management/cancel-stale-waiting-rounds" 
+          curl -X POST "https://anqntfmpvheyuiquqmui.supabase.co/functions/v1/game-management/cancel-stale-waiting-rounds" \
+          -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}"
