@@ -2,7 +2,8 @@ name: Cancel Stale Waiting Rounds
 
 on:
   schedule:
-    - cron: '*/15 * * * *' # every 15 minutes
+    - cron: '*/15 * * * *'
+  workflow_dispatch:  
 
 jobs:
   call-function:
@@ -11,4 +12,4 @@ jobs:
       - name: Call Supabase Function
         run: |
           curl -X POST "https://anqntfmpvheyuiquqmui.supabase.co/functions/v1/game-management/cancel-stale-waiting-rounds" \
-          -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}"
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}"
