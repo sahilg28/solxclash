@@ -1,0 +1,13 @@
+name: Cancel Stale Waiting Rounds
+
+on:
+  schedule:
+    - cron: '*/15 * * * *' # every 15 minutes
+
+jobs:
+  call-function:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Supabase Function
+        run: |
+          curl -X POST "https://anqntfmpvheyuiquqmui.supabase.co/functions/v1/game-management/cancel-stale-waiting-rounds" 

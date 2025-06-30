@@ -203,6 +203,14 @@ serve(async (req) => {
       );
     }
 
+    if (path === '/game-management/cancel-stale-waiting-rounds' && req.method === 'POST') {
+      const result = await cancelStaleWaitingRounds(supabaseClient);
+      return new Response(
+        JSON.stringify({ success: true, ...result }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     return new Response(
       JSON.stringify({ error: 'Not found' }),
       { 
@@ -894,4 +902,27 @@ async function completeRound(supabase: any, roundId: string) {
     console.error('❌ completeRound error:', error)
     throw error
   }
+}
+
+// Cancel all waiting rounds older than 1 hour
+async function cancelStaleWaitingRounds(supabase: any) {
+  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+  const { data: staleRounds, error } = await supabase
+    .from('game_rounds')
+    .select('id')
+    .eq('status', 'waiting')
+    .lt('start_time', oneHourAgo);
+
+  if (error) throw error;
+
+  if (staleRounds && staleRounds.length > 0) {
+    const ids = staleRounds.map(r => r.id);
+    const { error: updateError } = await supabase
+      .from('game_rounds')
+      .update({ status: 'cancelled' })
+      .in('id', ids);
+    if (updateError) throw updateError;
+    return { cancelled: ids.length };
+  }
+  return { cancelled: 0 };
 }
