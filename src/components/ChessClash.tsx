@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Chess } from 'chess.js';
+import { Chess, Square } from 'chess.js';
 import { Chessboard } from 'react-chessboard';
-import { Zap, CheckCircle, AlertCircle, RotateCcw, Settings, X as CloseIcon, Clock, User as UserIcon, Cpu, Brain, Target, Trophy, ArrowLeft, Home, Flag, Menu, BarChart3, History, Info } from 'lucide-react';
+import { AlertCircle, Settings, X as CloseIcon, Clock, User as UserIcon, Cpu, Brain, Target, Trophy, ArrowLeft, Home, Flag, Menu, BarChart3, History, Info } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuthContext } from './AuthProvider';
 import { useNavigate } from 'react-router-dom';
@@ -12,24 +12,40 @@ const BOARD_COLORS = {
   dark: '#23272f', // modern dark/blue-gray
 };
 
-const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
+// Add types for props
+interface ChessClashProps {
+  profile: {
+    id: string;
+    xp: number;
+    wins: number;
+    games_played: number;
+    avatar_url?: string;
+    username: string;
+  };
+  gameConfig: {
+    playerColor: 'white' | 'black';
+    difficulty: 'easy' | 'medium' | 'hard';
+    xpCost: number;
+  };
+  onBackToSetup: () => void;
+}
+
+const ChessClash: React.FC<ChessClashProps> = ({ profile, gameConfig, onBackToSetup }) => {
   const { refreshSessionAndProfile } = useAuthContext();
   const [game, setGame] = useState(new Chess());
   const [fen, setFen] = useState(game.fen());
-  const [intervalId, setIntervalId] = useState(null);
+  const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
   const [isGameActive, setIsGameActive] = useState(true);
-  const [result, setResult] = useState(null);
-  const [xpState, setXpState] = useState(profile.xp);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [error, setError] = useState(null);
-  const [selectedSquare, setSelectedSquare] = useState(null);
-  const [legalMoves, setLegalMoves] = useState([]);
-  const [moveHistory, setMoveHistory] = useState([]);
+  const [result, setResult] = useState<{ type: string; message: string } | null>(null);
+  const [xpState, setXpState] = useState<number>(profile.xp);
+  const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
+  const [legalMoves, setLegalMoves] = useState<string[]>([]);
+  const [moveHistory, setMoveHistory] = useState<string[]>([]);
   
   // Single game timer (10 minutes total)
   const [gameTime, setGameTime] = useState(600); // 10 minutes total
   
-  const [lastMove, setLastMove] = useState(null);
+  const [lastMove, setLastMove] = useState<{ from: string; to: string } | null>(null);
   const [gameStats, setGameStats] = useState({ captures: 0, checks: 0 });
   const navigate = useNavigate();
   const [showResignConfirm, setShowResignConfirm] = useState(false);
@@ -37,6 +53,7 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
   const [isBotThinking, setIsBotThinking] = useState(false);
   const chessAI = useRef(createChessAI(gameConfig.difficulty));
   const botMoveTimeoutRef = useRef(null);
+  const [showResultPopup, setShowResultPopup] = useState(false);
 
   // Determine player and bot colors
   const playerColor = gameConfig.playerColor === 'white' ? 'w' : 'b';
@@ -57,8 +74,7 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
   // Deduct XP on game start
   useEffect(() => {
     const deductXP = async () => {
-      setIsProcessing(true);
-      setXpState(prev => prev - gameConfig.xpCost);
+      setXpState((prev: number) => prev - gameConfig.xpCost);
       
       const { error } = await supabase
         .from('profiles')
@@ -66,34 +82,31 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
         .eq('id', profile.id);
       
       if (error) {
-        setError('Failed to deduct XP. Please try again.');
-        setXpState(prev => prev + gameConfig.xpCost);
+        setXpState((prev: number) => prev + gameConfig.xpCost);
       }
-      setIsProcessing(false);
+      setShowResultPopup(true); // Show result popup after game ends
     };
     
     deductXP();
   }, []);
 
-  // Single game timer effect
+  // Timer effect: always run timer during game, regardless of bot thinking or turn
   useEffect(() => {
     if (!isGameActive || result) return;
-    
     const id = setInterval(() => {
-      setGameTime((t) => {
+      setGameTime((t: number) => {
         if (t <= 1) {
           setResult({ type: 'timeout', message: 'Time is up! Game ended in timeout.' });
           setIsGameActive(false);
-          clearInterval(id);
+          if (intervalId) clearInterval(intervalId);
           handleGameEnd('timeout');
           return 0;
         }
         return t - 1;
       });
     }, 1000);
-    
-    setIntervalId(id);
-    return () => clearInterval(id);
+    setIntervalId(id as NodeJS.Timeout | null);
+    return () => clearInterval(id as NodeJS.Timeout);
   }, [isGameActive, result]);
 
   // Game end detection and bot move triggering
@@ -121,7 +134,7 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
       
       setResult({ type, message });
       setIsGameActive(false);
-      clearInterval(intervalId);
+      if (intervalId) clearInterval(intervalId);
       handleGameEnd(type);
       return;
     }
@@ -143,7 +156,6 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
         }, 500);
       }
     } catch (err) {
-      setError('Failed to initialize game. Please try again.');
       setXpState(prev => prev + gameConfig.xpCost);
     } finally {
       setIsProcessing(false);
@@ -151,8 +163,7 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
   };
 
   // Handle game end: update XP, wins, games_played in DB
-  const handleGameEnd = async (type) => {
-    setIsProcessing(true);
+  const handleGameEnd = async (type: string) => {
     setError(null);
     
     let xpChange = 0;
@@ -185,7 +196,7 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
       setXpState(newXP);
       await refreshSessionAndProfile();
     }
-    setIsProcessing(false);
+    setShowResultPopup(true); // Show result popup after game ends
   };
 
   // Bot move logic
@@ -235,16 +246,16 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
   };
 
   // Handle user move
-  const handleSquareClick = (square) => {
+  const handleSquareClick = (square: Square) => {
     if (!isGameActive) return;
     
     // Only allow moves on player's turn
     if (game.turn() !== playerColor || isBotThinking) return;
     
-    if (selectedSquare && legalMoves.includes(square)) {
+    if (selectedSquare && legalMoves.includes(square.toString())) {
       // Create a new Chess instance from current FEN
       const newGame = new Chess(game.fen());
-      const moveObj = newGame.move({ from: selectedSquare, to: square, promotion: 'q' });
+      const moveObj = newGame.move({ from: selectedSquare as Square, to: square as Square, promotion: 'q' });
       
       if (moveObj) {
         // Update state with new Chess instance
@@ -265,12 +276,12 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
       return;
     }
     
-    const piece = game.get(square);
+    const piece = game.get(square as Square);
     if (piece && piece.color === playerColor) {
-      const moves = game.moves({ square, verbose: true });
+      const moves = game.moves({ square: square as Square, verbose: true });
       if (moves.length > 0) {
-        setSelectedSquare(square);
-        setLegalMoves(moves.map((m) => m.to));
+        setSelectedSquare(square.toString());
+        setLegalMoves(moves.map((m: any) => m.to as string));
       } else {
         setSelectedSquare(null);
         setLegalMoves([]);
@@ -291,13 +302,11 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
     setShowResignConfirm(false);
     setResult({ type: 'lose', message: 'You resigned. You lose.' });
     setIsGameActive(false);
-    clearInterval(intervalId);
+    if (intervalId) clearInterval(intervalId);
     await handleGameEnd('lose');
-    
-    // Navigate to home page after a short delay
-    setTimeout(() => {
-      navigate('/');
-    }, 2000);
+    // Do NOT auto-navigate or start a new game
+    // Show result popup
+    setShowResultPopup(true);
   };
   
   const cancelResign = () => {
@@ -306,7 +315,7 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
 
   // Enhanced board square styles with smaller dots for legal moves
   const customSquareStyles = useMemo(() => {
-    const styles = {};
+    const styles: Record<string, React.CSSProperties> = {};
     
     if (selectedSquare) {
       styles[selectedSquare] = {
@@ -353,7 +362,7 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
     return styles;
   }, [selectedSquare, legalMoves, lastMove, game]);
 
-  const formatTime = (t) => `${Math.floor(t/60)}:${(t%60).toString().padStart(2,'0')}`;
+  const formatTime = (t: number) => `${Math.floor(t/60)}:${(t%60).toString().padStart(2,'0')}`;
 
   // Block navigation if game is active
   useEffect(() => {
@@ -745,62 +754,32 @@ const ChessClash = ({ profile, gameConfig, onBackToSetup }) => {
         </div>
       )}
 
-      {/* Result Modal */}
-      {result && (
+      {/* Result Popup */}
+      {showResultPopup && result && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-gradient-to-br from-gray-900/80 to-black/80 border border-yellow-400/20 rounded-2xl p-8 w-full max-w-md text-center shadow-2xl relative">
-            {/* Close button in top-right corner */}
-            <button
-              onClick={() => setResult(null)}
-              className="absolute top-4 right-4 p-2 rounded-lg text-gray-400 hover:text-yellow-400 hover:bg-gray-800 transition-colors"
-            >
-              <CloseIcon className="w-5 h-5" />
-            </button>
-
-            <div className="flex items-center justify-center mb-4">
-              {result.type === 'win' && <CheckCircle className="w-12 h-12 text-green-400" />}
-              {result.type === 'lose' && <AlertCircle className="w-12 h-12 text-red-400" />}
-              {result.type === 'draw' && <RotateCcw className="w-12 h-12 text-blue-400" />}
-              {result.type === 'timeout' && <Clock className="w-12 h-12 text-yellow-400" />}
-            </div>
-            
-            <h3 className="text-2xl font-bold mb-4 text-white">{result.message}</h3>
-            
-            <div className="bg-gray-800/50 rounded-lg p-4 mb-4 space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-400">Moves Played:</span>
-                <span className="text-white">{moveHistory.length}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Captures:</span>
-                <span className="text-white">{gameStats.captures}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Difficulty:</span>
-                <span className="text-white capitalize">{gameConfig.difficulty}</span>
-              </div>
-            </div>
-            
-            <div className="text-lg font-semibold text-yellow-400 mb-6">
-              {result.type === 'win' && <>+{gameConfig.difficulty === 'easy' ? 40 : gameConfig.difficulty === 'medium' ? 60 : 100} XP</>}
-              {result.type === 'draw' && <>XP Refunded</>}
-              {result.type === 'lose' && <>0 XP</>}
-              {result.type === 'timeout' && <>0 XP</>}
-            </div>
-            
-            <div className="flex flex-col gap-3">
-              <button 
-                onClick={onBackToSetup} 
-                className="w-full bg-yellow-400 text-black px-6 py-3 rounded-lg font-semibold hover:bg-yellow-300 transition-colors duration-200"
+          <div className="bg-gray-900 border-2 border-yellow-400 rounded-2xl p-8 max-w-md w-full text-center animate-in zoom-in-95 duration-300">
+            <h3 className={`text-2xl font-bold mb-2 ${result.type === 'win' ? 'text-green-400' : result.type === 'draw' ? 'text-yellow-400' : 'text-red-400'}`}>{
+              result.type === 'win' ? '🏆 You Win!' : result.type === 'draw' ? '🤝 Draw' : result.type === 'lose' ? '😞 You Lose' : 'Game Over'
+            }</h3>
+            <p className="text-gray-300 mb-4">{result.message}</p>
+            <div className="flex flex-col gap-3 mt-6">
+              <button
+                className="px-6 py-2 bg-yellow-400 text-black font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                onClick={() => navigate('/')}
+                aria-label="Go to Home Page"
+                tabIndex={0}
+                onKeyDown={(e: React.KeyboardEvent<HTMLButtonElement>) => { if (e.key === 'Enter' || e.key === ' ') navigate('/'); }}
               >
-                Play New Game
+                Go to Home Page
               </button>
-              <button 
-                onClick={() => navigate('/')} 
-                className="w-full bg-gray-800 text-yellow-400 px-6 py-3 rounded-lg font-semibold hover:bg-yellow-400 hover:text-black transition-colors duration-200 flex items-center justify-center space-x-2"
+              <button
+                className="px-6 py-2 bg-gray-700 text-white font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                onClick={() => { setShowResultPopup(false); }}
+                aria-label="Close Result Popup"
+                tabIndex={0}
+                onKeyDown={(e: React.KeyboardEvent<HTMLButtonElement>) => { if (e.key === 'Enter' || e.key === ' ') { setShowResultPopup(false); } }}
               >
-                <Home className="w-5 h-5" />
-                <span>Back to Home</span>
+                Close
               </button>
             </div>
           </div>

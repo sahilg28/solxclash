@@ -44,6 +44,8 @@ const CryptoClashPage = () => {
     endPrice: null,
     xpEarned: 0
   });
+  const [showLockConfirmation, setShowLockConfirmation] = useState(false);
+  const [lockedPrice, setLockedPrice] = useState<number | null>(null);
 
   // Track processed rounds to prevent duplicate notifications
   const processedRoundsRef = useRef<Set<string>>(new Set());
@@ -225,6 +227,11 @@ const CryptoClashPage = () => {
     try {
       setError(null);
       const result = await gameLogicService.makePrediction(direction, user.id, selectedCoin, selectedXpBet);
+      // Use the backend-confirmed locked price for display
+      if (result && result.prediction && result.prediction.predicted_price) {
+        setLockedPrice(result.prediction.predicted_price);
+        setShowLockConfirmation(true);
+      }
       toast.success(`Prediction "${direction.toUpperCase()}" locked in for ${selectedCoin}! ${selectedXpBet} XP invested.`, {
         position: "top-right",
         autoClose: 3000,
@@ -332,7 +339,7 @@ const CryptoClashPage = () => {
               <span className="text-yellow-400">Crypto</span>Clash
             </h1>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-4">
-              Predict crypto prices. Test your skills. Earn XP and climb the ranks!
+              Predict whether your selected coins will FALL or RISE in the next 60 seconds.
             </p>
             
             <div className="flex items-center justify-center space-x-2 mb-4">
@@ -420,6 +427,25 @@ const CryptoClashPage = () => {
                   className="mt-6 bg-yellow-400 text-black px-6 py-2 rounded-lg font-semibold hover:bg-yellow-300 transition-colors duration-200"
                 >
                   Continue Playing
+                </button>
+              </div>
+            </div>
+          )}
+
+          {showLockConfirmation && lockedPrice !== null && (
+            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-gray-900 border-2 border-yellow-400 rounded-2xl p-8 max-w-md w-full text-center animate-in zoom-in-95 duration-300">
+                <h3 className="text-2xl font-bold text-yellow-400 mb-2">Prediction Locked!</h3>
+                <p className="text-gray-300 mb-4">Your prediction has been locked at:</p>
+                <div className="text-3xl font-bold text-white mb-4">{formatPrice(lockedPrice, selectedCoin)}</div>
+                <button
+                  className="mt-4 px-6 py-2 bg-yellow-400 text-black font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                  onClick={() => setShowLockConfirmation(false)}
+                  aria-label="Close prediction lock confirmation"
+                  tabIndex={0}
+                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') setShowLockConfirmation(false); }}
+                >
+                  OK
                 </button>
               </div>
             </div>
