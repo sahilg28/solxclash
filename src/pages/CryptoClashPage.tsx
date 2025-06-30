@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Navigate } from 'react-router-dom';
 import { 
   TrendingUp, Clock, Trophy, Zap, Target, Users, 
@@ -129,10 +129,6 @@ const CryptoClashPage = () => {
           }).catch((error) => {
             // console.error('❌ Failed to refresh profile:', error);
           });
-          // Auto-hide result card after 10 seconds
-          setTimeout(() => {
-            setRoundResults(prev => ({ ...prev, show: false }));
-          }, 10000);
         }
       }
 
@@ -339,6 +335,7 @@ const CryptoClashPage = () => {
               <span className="text-yellow-400">Crypto</span>Clash
             </h1>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-4">
+              <span className="text-yellow-400 font-bold">Note:</span> CryptoClash is in early version. You may encounter bugs or errors. <br />
               Predict whether your selected coins will FALL or RISE in the next 60 seconds.
             </p>
             
@@ -363,10 +360,17 @@ const CryptoClashPage = () => {
           </div>
 
           {roundResults.show && (
-            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-              <div className={`bg-gradient-to-br from-gray-900 to-black border-2 rounded-2xl p-8 max-w-md w-full text-center transform animate-in zoom-in-95 duration-300 ${
-                roundResults.isCorrect ? 'border-green-400/50' : 'border-red-400/50'
-              }`}>
+            <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+              <div className="relative bg-gray-900 border-2 border-yellow-400 rounded-2xl p-8 max-w-md w-full text-center">
+                <button
+                  className="absolute top-4 right-4 text-gray-400 hover:text-yellow-400"
+                  onClick={() => setRoundResults(prev => ({ ...prev, show: false }))}
+                  aria-label="Close result card"
+                  tabIndex={0}
+                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') setRoundResults(prev => ({ ...prev, show: false })); }}
+                >
+                  ×
+                </button>
                 <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${
                   roundResults.isCorrect ? 'bg-green-400/20' : 'bg-red-400/20'
                 }`}>
@@ -421,13 +425,6 @@ const CryptoClashPage = () => {
                   <Zap className="w-5 h-5" />
                   <span>+{roundResults.xpEarned} XP Earned</span>
                 </div>
-                
-                <button
-                  onClick={() => setRoundResults(prev => ({ ...prev, show: false }))}
-                  className="mt-6 bg-yellow-400 text-black px-6 py-2 rounded-lg font-semibold hover:bg-yellow-300 transition-colors duration-200"
-                >
-                  Continue Playing
-                </button>
               </div>
             </div>
           )}
