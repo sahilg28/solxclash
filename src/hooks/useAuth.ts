@@ -145,7 +145,6 @@ export const useAuth = () => {
           xp: 100,
           games_played: 0,
           wins: 0,
-          streak: 0,
         };
 
         // console.log('📝 Creating profile with data:', newProfile);
@@ -189,7 +188,6 @@ export const useAuth = () => {
             xp: 100,
             games_played: 0,
             wins: 0,
-            streak: 0,
             country: null,
             last_played_date: null,
             daily_play_streak: 0,
@@ -222,7 +220,6 @@ export const useAuth = () => {
           xp: 100,
           games_played: 0,
           wins: 0,
-          streak: 0,
           country: null,
           last_played_date: null,
           daily_play_streak: 0,
@@ -249,7 +246,6 @@ export const useAuth = () => {
         xp: 100,
         games_played: 0,
         wins: 0,
-        streak: 0,
         country: null,
         last_played_date: null,
         daily_play_streak: 0,

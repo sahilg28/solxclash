@@ -155,7 +155,6 @@ const GameLeaderboard = () => {
           <div className="col-span-2">Level</div>
           <div className="col-span-2">XP</div>
           <div className="col-span-2">Win Rate</div>
-          <div className="col-span-1">Streak</div>
         </div>
       </div>
 
@@ -240,19 +239,6 @@ const GameLeaderboard = () => {
                           {player.wins}/{player.games_played}
                         </div>
                       </div>
-                    </div>
-                  </div>
-
-                  <div className="col-span-1">
-                    <div className="flex items-center justify-center">
-                      {player.streak > 0 ? (
-                        <div className="flex items-center space-x-1">
-                          <span className="text-orange-400 text-lg">🔥</span>
-                          <span className="font-bold text-orange-400">{player.streak}</span>
-                        </div>
-                      ) : (
-                        <span className="text-gray-500">-</span>
-                      )}
                     </div>
                   </div>
                 </div>

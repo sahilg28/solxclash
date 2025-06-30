@@ -763,7 +763,7 @@ const ChessClash: React.FC<ChessClashProps> = ({ profile, gameConfig, onBackToSe
             }</h3>
             <p className="text-gray-300 mb-4">{result.message}</p>
             <div className="flex flex-col gap-3 mt-6">
-              <button
+            <button
                 className="px-6 py-2 bg-yellow-400 text-black font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
                 onClick={() => navigate('/')}
                 aria-label="Go to Home Page"
@@ -772,7 +772,7 @@ const ChessClash: React.FC<ChessClashProps> = ({ profile, gameConfig, onBackToSe
               >
                 Go to Home Page
               </button>
-              <button
+              <button 
                 className="px-6 py-2 bg-gray-700 text-white font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
                 onClick={() => { setShowResultPopup(false); }}
                 aria-label="Close Result Popup"

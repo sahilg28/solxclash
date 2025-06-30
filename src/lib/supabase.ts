@@ -22,7 +22,6 @@ export type Profile = {
   xp: number;
   games_played: number;
   wins: number;
-  streak: number;
   country: string | null;
   last_played_date: string | null;
   daily_play_streak: number;
