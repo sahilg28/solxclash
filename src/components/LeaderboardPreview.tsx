@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Trophy, Medal, Award, ArrowRight, Target, Zap, TrendingUp, Coins, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase, Profile } from '../lib/supabase';
@@ -13,7 +13,7 @@ const LeaderboardPreview = () => {
   const [topPlayers, setTopPlayers] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
-  console.log('LeaderboardPreview rendering, players:', topPlayers.length);
+  // console.log('LeaderboardPreview rendering, players:', topPlayers.length);
 
   useEffect(() => {
     fetchTopPlayers();

@@ -1,8 +1,7 @@
-import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import { AuthProvider } from './components/AuthProvider';
-import Header from './components/Header';
+// import Header from './components/Header';
 import HomePage from './pages/HomePage';
 import ProfilePage from './pages/ProfilePage';
 import CryptoClashPage from './pages/CryptoClashPage';
@@ -12,7 +11,7 @@ import AboutPage from './pages/AboutPage';
 import TermsPage from './pages/TermsPage';
 import PrivacyPage from './pages/PrivacyPage';
 import DisclaimerPage from './pages/DisclaimerPage';
-import BoltBadge from './components/BoltBadge';
+// import BoltBadge from './components/BoltBadge';
 import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
@@ -32,7 +31,7 @@ function App() {
         </Routes>
         
         {/* Bolt Badge */}
-        <BoltBadge />
+        {/* <BoltBadge /> */}
         
         {/* Toast Container */}
         <ToastContainer

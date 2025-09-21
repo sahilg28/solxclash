@@ -58,7 +58,7 @@ const FeaturedGame = () => {
                   <span className="text-yellow-400 font-semibold"> Earn XP with every correct prediction</span> and climb the global leaderboards.
                 </p>
                 
-                <div className="bg-yellow-400/10 border border-yellow-400/20 rounded-lg p-4">
+                {/* <div className="bg-yellow-400/10 border border-yellow-400/20 rounded-lg p-4">
                   <div className="flex items-center space-x-2 mb-2">
                     <Zap className="w-4 h-4 text-yellow-400" />
                     <span className="text-yellow-400 font-semibold text-sm">Predict-to-Earn  in development</span>
@@ -66,10 +66,10 @@ const FeaturedGame = () => {
                   <p className="text-gray-400 text-sm">
                     Stay tuned for enhanced play-to-earn mechanics and onchain gaming integration... coming soon!
                   </p>
-                </div>
+                </div> */}
 
                 {/* Game Features */}
-                <div className="grid grid-cols-2 gap-3 text-sm">
+                {/* <div className="grid grid-cols-2 gap-3 text-sm">
                   <div className="flex items-center space-x-2">
                     <Target className="w-4 h-4 text-green-400" />
                     <span className="text-gray-300">Real-time prediction</span>
@@ -86,7 +86,7 @@ const FeaturedGame = () => {
                     <Brain className="w-4 h-4 text-purple-400" />
                     <span className="text-gray-300">Skill-up Crypto Knowledge</span>
                   </div>
-                </div>
+                </div> */}
               </div>
 
               <button 
@@ -141,7 +141,7 @@ const FeaturedGame = () => {
                   <span className="text-blue-400 font-semibold"> earn XP through masterful victories</span>. The ultimate test of strategic thinking.
                 </p>
                 
-                <div className="bg-blue-400/10 border border-blue-400/20 rounded-lg p-4">
+                {/* <div className="bg-blue-400/10 border border-blue-400/20 rounded-lg p-4">
                   <div className="flex items-center space-x-2 mb-2">
                     <Brain className="w-4 h-4 text-blue-400" />
                     <span className="text-blue-400 font-semibold text-sm">Strategic Mastery</span>
@@ -149,10 +149,10 @@ const FeaturedGame = () => {
                   <p className="text-gray-400 text-sm">
                     This is just a prototype. Full PvP play-to-earn mechanics with real rewards coming soon!
                   </p>
-                </div>
+                </div> */}
 
                 {/* Game Features */}
-                <div className="grid grid-cols-2 gap-3 text-sm">
+                {/* <div className="grid grid-cols-2 gap-3 text-sm">
                   <div className="flex items-center space-x-2">
                     <Brain className="w-4 h-4 text-blue-400" />
                     <span className="text-gray-300">AI opponents</span>
@@ -169,7 +169,7 @@ const FeaturedGame = () => {
                     <Users className="w-4 h-4 text-purple-400" />
                     <span className="text-gray-300">PvP coming soon</span>
                   </div>
-                </div>
+                </div> */}
               </div>
 
               <button 

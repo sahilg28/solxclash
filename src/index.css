@@ -6,6 +6,11 @@ html {
   scroll-behavior: smooth;
 }
 
+body::selection {
+  color: white;
+  background-color: rgba(255, 255, 0, 0.854);
+}
+
 /* Enhanced animations and transitions */
 @keyframes fadeInUp {
   from {
@@ -52,7 +57,8 @@ html {
 }
 
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0px) rotate(-12deg);
   }
   50% {
@@ -61,7 +67,8 @@ html {
 }
 
 @keyframes float-delayed {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0px) rotate(12deg);
   }
   50% {
@@ -79,7 +86,8 @@ html {
 }
 
 @keyframes glow {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 0 20px rgba(250, 204, 21, 0.3);
   }
   50% {
@@ -89,7 +97,8 @@ html {
 
 /* King in check pulse animation */
 @keyframes king-in-check-pulse {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 0 0 3px #ef4444;
   }
   50% {
